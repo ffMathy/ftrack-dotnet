@@ -9,7 +9,6 @@ using System.Collections.Generic;
 public class FtrackClient : IDisposable
 {
     private readonly HttpClient _http;
-    private readonly FtrackContextOptions _options;
 
     /// <summary>
     /// Create a new FtrackClient with the given options.
@@ -18,12 +17,10 @@ public class FtrackClient : IDisposable
     /// </summary>
     public FtrackClient(FtrackContextOptions options)
     {
-        _options = options ?? throw new ArgumentNullException(nameof(options));
-
         // Build a base HttpClient
         _http = new HttpClient
         {
-            BaseAddress = new Uri(_options.ServerUrl, UriKind.Absolute),
+            BaseAddress = new Uri(options.ServerUrl, UriKind.Absolute),
             // Optionally set timeouts, etc.
         };
 
@@ -32,8 +29,8 @@ public class FtrackClient : IDisposable
         // or "Authorization: Bearer <token>" for personal tokens
         //
         // We'll assume user+API key approach:
-        _http.DefaultRequestHeaders.Add("X-Ftrack-User", _options.ApiUser);
-        _http.DefaultRequestHeaders.Add("X-Ftrack-ApiKey", _options.ApiKey);
+        _http.DefaultRequestHeaders.Add("X-Ftrack-User", options.ApiUser);
+        _http.DefaultRequestHeaders.Add("X-Ftrack-ApiKey", options.ApiKey);
 
         // If your usage requires a different scheme, adapt accordingly.
         // e.g. "Authorization: Bearer ..."
