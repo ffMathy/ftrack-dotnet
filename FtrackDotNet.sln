@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtrackDotNet", "src\FtrackDotNet\FtrackDotNet.csproj", "{7C6EE515-0A98-4CB6-8725-F88DAF5CE70E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtrackDotNet.Tests", "src\FtrackDotNet.Tests\FtrackDotNet.Tests.csproj", "{3FDDFE46-9C5C-43D8-820D-E9C90563E7C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C6EE515-0A98-4CB6-8725-F88DAF5CE70E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C6EE515-0A98-4CB6-8725-F88DAF5CE70E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C6EE515-0A98-4CB6-8725-F88DAF5CE70E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C6EE515-0A98-4CB6-8725-F88DAF5CE70E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FDDFE46-9C5C-43D8-820D-E9C90563E7C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FDDFE46-9C5C-43D8-820D-E9C90563E7C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FDDFE46-9C5C-43D8-820D-E9C90563E7C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FDDFE46-9C5C-43D8-820D-E9C90563E7C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
