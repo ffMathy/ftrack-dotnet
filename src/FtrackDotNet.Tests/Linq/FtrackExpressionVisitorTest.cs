@@ -55,6 +55,24 @@ public class FtrackExpressionVisitorTest
     }
 
     [TestMethod]
+    public void Translate_AdvancedHighwayTest_ReturnsCorrectQuery()
+    {
+        // arrange
+        var expressionVisitor = new FtrackExpressionVisitor("Task");
+
+        // act
+        var query = expressionVisitor.Translate((Task x) =>
+            (x.Name == "foobar" || x.Bid > 20) &&
+            x.Children.Any(x => 
+                x.Parent.Name == "foobar" || 
+                (x.Name == "foobar" && x.Bid > 42) ||
+                x.Children.Any(x => x.Bid == 42)));
+
+        // assert
+        Assert.AreEqual("Task where (name is 'foobar' or bid > 20) and children any (parent has (name is 'foobar') or (name is 'foobar' and bid > 42) or children any (bid is 42))", query);
+    }
+
+    [TestMethod]
     public void Translate_TableWithEqualityConditionOnObjectString_ReturnsCorrectQuery()
     {
         // arrange
