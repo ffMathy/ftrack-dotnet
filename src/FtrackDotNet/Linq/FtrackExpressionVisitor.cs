@@ -318,7 +318,7 @@ public class FtrackExpressionVisitor : ExpressionVisitor
             return value; // numeric
         }
         // Otherwise, treat it as a string
-        return $"\"{value}\"";
+        return $"'{value}'";
     }
 
     /// <summary>
