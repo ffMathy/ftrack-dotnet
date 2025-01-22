@@ -38,7 +38,7 @@ public class FtrackExpressionVisitorTest
         var query = expressionVisitor.Translate((Task x) => x.Bid == 27);
 
         // assert
-        Assert.AreEqual("Task where bid is 27", query);
+        Assert.AreEqual("Task where (bid is 27)", query);
     }
 
     [TestMethod]
@@ -51,7 +51,7 @@ public class FtrackExpressionVisitorTest
         var query = expressionVisitor.Translate((Task x) => x.Name == "foobar");
 
         // assert
-        Assert.AreEqual("Task where name is 'foobar'", query);
+        Assert.AreEqual("Task where (name is 'foobar')", query);
     }
 
     [TestMethod]
@@ -63,13 +63,14 @@ public class FtrackExpressionVisitorTest
         // act
         var query = expressionVisitor.Translate((Task x) =>
             (x.Name == "foobar" || x.Bid > 20) &&
+            x.Parent.Parent.Parent.Bid == 400 &&
             x.Children.Any(x => 
                 x.Parent.Name == "foobar" || 
                 (x.Name == "foobar" && x.Bid > 42) ||
                 x.Children.Any(x => x.Bid == 42)));
 
         // assert
-        Assert.AreEqual("Task where (name is 'foobar' or bid > 20) and children any (parent has (name is 'foobar') or (name is 'foobar' and bid > 42) or children any (bid is 42))", query);
+        Assert.AreEqual("Task where (((name is 'foobar' or bid > 20) and parent has (parent has (parent has (bid is 400)))) and children any (((parent has (name is 'foobar') or (name is 'foobar' and bid > 42)) or children any (bid is 42))))", query);
     }
 
     [TestMethod]
@@ -82,7 +83,7 @@ public class FtrackExpressionVisitorTest
         var query = expressionVisitor.Translate((Task x) => x.Parent.Name == "foobar");
 
         // assert
-        Assert.AreEqual("Task where parent has (name is 'foobar')", query);
+        Assert.AreEqual("Task where (parent has (name is 'foobar'))", query);
     }
 
     [TestMethod]
@@ -95,7 +96,7 @@ public class FtrackExpressionVisitorTest
         var query = expressionVisitor.Translate((Task x) => x.Children.Any(x => x.Name == "foobar"));
 
         // assert
-        Assert.AreEqual("Task where children any (name is 'foobar')", query);
+        Assert.AreEqual("Task where (children any (name is 'foobar'))", query);
     }
 
     [TestMethod]
