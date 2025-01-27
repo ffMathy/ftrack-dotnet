@@ -2,16 +2,19 @@
 
 namespace FtrackDotNet;
 
+public class TypedContext {}
+
+public class Context {}
+
 public class FtrackContext
 {
     private readonly FtrackQueryProvider _provider;
 
     public FtrackContext(IFtrackClient ftrackClient)
-    { 
+    {
         _provider = new FtrackQueryProvider(ftrackClient);
     }
 
-    // public IQueryable<TypedContext> Tasks => new FtrackQueryable<TypedContext>(_provider, null);
-
-    // ... any additional sets
+    public IQueryable<TypedContext> TypedContexts => new FtrackQueryable<TypedContext>(_provider);
+    public IQueryable<Context> Contexts => new FtrackQueryable<Context>(_provider);
 }
