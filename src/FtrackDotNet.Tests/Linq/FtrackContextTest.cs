@@ -14,6 +14,8 @@ public class FtrackContextTest
     {
         // Arrange
         var hostBuilder = Host.CreateDefaultBuilder();
+        hostBuilder.ConfigureAppConfiguration(x => x
+            .AddUserSecrets<FtrackContextTest>());
         hostBuilder.ConfigureServices(services =>
             services.AddFtrack());
         
