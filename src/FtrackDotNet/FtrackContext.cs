@@ -1,13 +1,7 @@
 ﻿using FtrackDotNet.Linq;
+using FtrackDotNet.Models;
 
 namespace FtrackDotNet;
-
-public class TypedContext
-{
-    public string Name { get; set; }
-}
-
-public class Context {}
 
 public class FtrackContext
 {

@@ -83,7 +83,7 @@ internal class FtrackClient : IDisposable, IFtrackClient
             wrappedReturnType.MakeArrayType(),
             new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
             })!;
 
         // "data" property in result.Data is a List<T>
