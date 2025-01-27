@@ -37,28 +37,21 @@ public class FtrackClient : IDisposable, IFtrackClient
     }
 
     /// <summary>
-    /// Run a query expression against FTrack. Returns raw JSON or a strongly typed object.
-    /// For maximum flexibility, we might return dynamic or a custom model. Here we show "List<T>" for example.
+    /// Dispose for our HttpClient if needed.
+    /// In a real production scenario, you might rely on HttpClientFactory or
+    /// not dispose it as frequently.
     /// </summary>
-    public List<object> ExecuteQuery(string queryExpression, Type returnType)
+    public void Dispose()
     {
-        // Synchronously wait on the async method (not best practice in real .NET apps),
-        // but for sample simplicity we'll do it. 
-        // Real code might do "await" in an async method.
-        return ExecuteQueryAsync(queryExpression, returnType).GetAwaiter().GetResult();
+        _http.Dispose();
     }
 
-    /// <summary>
-    /// Async version of ExecuteQuery that posts to /query
-    /// and returns the result as a List<T>.
-    /// </summary>
-    public async Task<List<object>> ExecuteQueryAsync(string queryExpression, Type returnType)
-    {
+    public async Task<T> QueryAsync<T>(string query) {
         // Build the request payload, e.g.:
         // { "expression": "Task where status.name is \"Open\" limit 10 offset 5", "page_size": 9999 }
         var payload = new Dictionary<string, object>
         {
-            { "expression", queryExpression }
+            { "expression", query }
         };
 
         // Convert to JSON
@@ -71,7 +64,7 @@ public class FtrackClient : IDisposable, IFtrackClient
 
         response.EnsureSuccessStatusCode(); // throws if not 200-299
 
-        string responseBody = await response.Content.ReadAsStringAsync();
+        var responseBody = await response.Content.ReadAsStringAsync();
 
         // FTrack typically returns JSON in a structure like:
         // {
@@ -80,6 +73,7 @@ public class FtrackClient : IDisposable, IFtrackClient
         // }
         // We'll define a helper model to parse it, then map "data" to List<T>.
 
+        var returnType = typeof(Object);
         var wrappedReturnType = typeof(QueryResponseWrapper<>).MakeGenericType(returnType);
         dynamic result = JsonSerializer.Deserialize(responseBody, wrappedReturnType, new JsonSerializerOptions
         {
@@ -92,16 +86,6 @@ public class FtrackClient : IDisposable, IFtrackClient
         // For demonstration, we assume T matches the structure.
 
         return result.Data;
-    }
-
-    /// <summary>
-    /// Dispose for our HttpClient if needed.
-    /// In a real production scenario, you might rely on HttpClientFactory or
-    /// not dispose it as frequently.
-    /// </summary>
-    public void Dispose()
-    {
-        _http.Dispose();
     }
 }
 

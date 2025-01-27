@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace FtrackDotNet.Linq;
@@ -7,53 +5,49 @@ namespace FtrackDotNet.Linq;
 public class FtrackQueryProvider : IQueryProvider, IAsyncQueryProvider
 {
     private readonly IFtrackClient _client;
+    private readonly FtrackExpressionVisitor _visitor = new FtrackExpressionVisitor();
 
     public FtrackQueryProvider(IFtrackClient client)
     {
-        _client = client;
+        _client = client ?? throw new ArgumentNullException(nameof(client));
     }
-
-    // ---------- Synchronous IQueryProvider Members ----------
 
     public IQueryable CreateQuery(Expression expression)
     {
-        Type elementType = TypeSystem.GetElementType(expression.Type);
-        return (IQueryable)Activator.CreateInstance(
-            typeof(FtrackQueryable<>).MakeGenericType(elementType),
-            this, 
-            expression
-        );
+        // Return a non-generic IQueryable
+        var elementType = expression.Type.GetGenericArguments().First();
+        var queryableType = typeof(FtrackQueryable<>).MakeGenericType(elementType);
+        return (IQueryable)Activator.CreateInstance(queryableType, this, expression);
     }
 
     public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
     {
-        return new FtrackQueryable<TElement>(this);
+        return new FtrackQueryable<TElement>(this, expression);
     }
 
     public object Execute(Expression expression)
     {
-        return Execute<object>(expression);
+        // For synchronous calls
+        throw new InvalidOperationException("Only asynchronous calls are supported.");
     }
 
     public TResult Execute<TResult>(Expression expression)
     {
-        var queryString = BuildFtrackQuery(expression);
-        var result = _client.ExecuteQuery(queryString, typeof(TResult));
-        return (TResult)(object)result;
+        // For synchronous calls
+        throw new InvalidOperationException("Only asynchronous calls are supported.");
     }
 
-    // ---------- Asynchronous IAsyncQueryProvider Member ----------
-
-    public async Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
+    // The async path
+    public async Task<TResult> ExecuteAsync<TResult>(
+        Expression expression, 
+        CancellationToken cancellationToken)
     {
-        var queryString = BuildFtrackQuery(expression);
-        return (TResult)(object)await _client.ExecuteQueryAsync(queryString, typeof(TResult));
-    }
+        // 1. Visit expression tree -> get a FtrackQueryDefinition
+        var query = _visitor.Translate(expression);
 
-    // ---------- Helper to Build Query String ----------
-    private string BuildFtrackQuery(Expression expression)
-    {    
-        var visitor = new FtrackExpressionVisitor("Task");
-        return visitor.Translate(expression);
+        // 2. Call into the IFtrackClient with the query definition
+        var results = await _client.QueryAsync<TResult>(query);
+
+        return results;
     }
 }

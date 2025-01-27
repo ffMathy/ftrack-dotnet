@@ -1,46 +1,49 @@
 namespace FtrackDotNet.Linq;
+
 using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 
-public class FtrackQueryable<T> : IQueryable<T>, IAsyncEnumerable<T>
+public class FtrackQueryable<T> : IQueryable<T>, IOrderedQueryable<T>, IAsyncEnumerable<T>
 {
+    private readonly FtrackQueryProvider _provider;
     private readonly Expression _expression;
-    private readonly IAsyncQueryProvider _provider; // note: we want an IAsyncQueryProvider ref
 
-    public FtrackQueryable(IAsyncQueryProvider provider)
+    public FtrackQueryable(FtrackQueryProvider provider)
     {
         _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         _expression = Expression.Constant(this);
     }
 
-    // IQueryable<T> members
-    public Type ElementType => typeof(T);
-    public Expression Expression => _expression;
-    public IQueryProvider Provider => (IQueryProvider)_provider;
+    public FtrackQueryable(FtrackQueryProvider provider, Expression expression)
+    {
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _expression = expression ?? throw new ArgumentNullException(nameof(expression));
+    }
 
-    // IEnumerable<T> (sync) fallback
+    public Type ElementType => typeof(T);
+
+    public Expression Expression => _expression;
+
+    public IQueryProvider Provider => _provider;
+
+    public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    {
+        // When iterating asynchronously, we'll let the provider handle
+        // how we fetch data from Ftrack and return an enumerator
+        var results = await _provider.ExecuteAsync<T>(_expression, cancellationToken);
+        throw new NotImplementedException();
+        yield return default;
+    }
+
     public IEnumerator<T> GetEnumerator()
     {
-        // This calls the sync version if we want to do a synchronous iteration (rare, but possible).
-        var enumerable = _provider.Execute<IEnumerable<T>>(_expression);
-        return enumerable.GetEnumerator();
+        // For synchronous enumeration, we can do a blocking call
+        throw new NotImplementedException("Synchronous enumeration of Ftrack entities is not supported.");
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    // IAsyncEnumerable<T> for async iteration
-    public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-    {
-        // We'll call the async provider to get an IEnumerable<T> or List<T> asynchronously
-        var results = await _provider.ExecuteAsync<IEnumerable<T>>(_expression, cancellationToken);
-
-        // Then yield return each item
-        foreach (var item in results)
-        {
-            yield return item;
-        }
-    }
 }
