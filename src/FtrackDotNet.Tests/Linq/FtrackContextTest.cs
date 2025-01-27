@@ -26,11 +26,10 @@ public class FtrackContextTest
 
         // Act
         var entities = await ftrackContext.TypedContexts
-            .Where(t => t.Name == "foobar")
             .Select(t => new { t.Name })
             .ToArrayAsync();
 
         // Assert
-        Assert.AreEqual(0, entities.Length);
+        Assert.AreNotEqual(0, entities.Length);
     }
 }

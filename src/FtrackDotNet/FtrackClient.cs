@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 
 namespace FtrackDotNet;
+
 using System;
 using System.Net.Http;
 using System.Text;
@@ -47,17 +48,18 @@ internal class FtrackClient : IDisposable, IFtrackClient
         _http.Dispose();
     }
 
-    public async Task<T> QueryAsync<T>(string query) {
+    public async Task<T> QueryAsync<T>(string query)
+    {
         // Build the request payload, e.g.:
         // { "expression": "Task where status.name is \"Open\" limit 10 offset 5", "page_size": 9999 }
         var payload = new Dictionary<string, object>
         {
-            {"action", "query"},
+            { "action", "query" },
             { "expression", query }
         };
 
         // Convert to JSON
-        var json = JsonSerializer.Serialize(new [] {payload});
+        var json = JsonSerializer.Serialize(new[] { payload });
 
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -75,19 +77,21 @@ internal class FtrackClient : IDisposable, IFtrackClient
         // }
         // We'll define a helper model to parse it, then map "data" to List<T>.
 
-        var returnType = typeof(Object);
-        var wrappedReturnType = typeof(QueryResponseWrapper<>).MakeGenericType(returnType);
-        dynamic result = JsonSerializer.Deserialize(responseBody, wrappedReturnType, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+        var wrappedReturnType = typeof(QueryResponseWrapper<>).MakeGenericType(typeof(T));
+        var result = (QueryResponseWrapper<T>[])JsonSerializer.Deserialize(
+            responseBody,
+            wrappedReturnType.MakeArrayType(),
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            })!;
 
         // "data" property in result.Data is a List<T>
         // but only if T's shape aligns with the JSON. In many cases, 
         // you may want to parse as dynamic or a dictionary, then map to T manually.
         // For demonstration, we assume T matches the structure.
 
-        return result.Data;
+        return result.Select(x => x.Data).Single();
     }
 }
 
@@ -103,6 +107,7 @@ internal class FtrackClient : IDisposable, IFtrackClient
 /// <typeparam name="T">The type representing each row/item returned by FTrack.</typeparam>
 public class QueryResponseWrapper<T>
 {
-    public List<T> Data { get; set; }
+    public string Action { get; set; }
+    public T Data { get; set; }
     public Dictionary<string, object> Metadata { get; set; }
 }
