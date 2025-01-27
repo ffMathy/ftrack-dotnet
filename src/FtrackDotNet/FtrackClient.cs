@@ -19,7 +19,6 @@ internal class FtrackClient : IDisposable, IFtrackClient
     /// </summary>
     public FtrackClient(IOptionsSnapshot<FtrackContextOptions> options)
     {
-        // Build a base HttpClient
         _http = new HttpClient
         {
             BaseAddress = new Uri(options.Value.ServerUrl, UriKind.Absolute),
@@ -31,8 +30,8 @@ internal class FtrackClient : IDisposable, IFtrackClient
         // or "Authorization: Bearer <token>" for personal tokens
         //
         // We'll assume user+API key approach:
-        _http.DefaultRequestHeaders.Add("X-Ftrack-User", options.Value.ApiUser);
-        _http.DefaultRequestHeaders.Add("X-Ftrack-ApiKey", options.Value.ApiKey);
+        _http.DefaultRequestHeaders.Add("Ftrack-User", options.Value.ApiUser);
+        _http.DefaultRequestHeaders.Add("Ftrack-Api-Key", options.Value.ApiKey);
 
         // If your usage requires a different scheme, adapt accordingly.
         // e.g. "Authorization: Bearer ..."
@@ -53,16 +52,17 @@ internal class FtrackClient : IDisposable, IFtrackClient
         // { "expression": "Task where status.name is \"Open\" limit 10 offset 5", "page_size": 9999 }
         var payload = new Dictionary<string, object>
         {
+            {"action", "query"},
             { "expression", query }
         };
 
         // Convert to JSON
-        var json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(new [] {payload});
 
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         // POST to /query
-        var response = await _http.PostAsync("query", content);
+        var response = await _http.PostAsync("api", content);
 
         response.EnsureSuccessStatusCode(); // throws if not 200-299
 
