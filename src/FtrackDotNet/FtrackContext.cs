@@ -2,7 +2,10 @@
 
 namespace FtrackDotNet;
 
-public class TypedContext {}
+public class TypedContext
+{
+    public string Name { get; set; }
+}
 
 public class Context {}
 

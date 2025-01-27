@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+
 namespace FtrackDotNet;
 using System;
 using System.Net.Http;
@@ -15,12 +17,12 @@ internal class FtrackClient : IDisposable, IFtrackClient
     /// Typically you pass in a HttpClientFactory in real apps, 
     /// but for brevity we'll create an HttpClient here.
     /// </summary>
-    public FtrackClient(FtrackContextOptions options)
+    public FtrackClient(IOptionsSnapshot<FtrackContextOptions> options)
     {
         // Build a base HttpClient
         _http = new HttpClient
         {
-            BaseAddress = new Uri(options.ServerUrl, UriKind.Absolute),
+            BaseAddress = new Uri(options.Value.ServerUrl, UriKind.Absolute),
             // Optionally set timeouts, etc.
         };
 
@@ -29,8 +31,8 @@ internal class FtrackClient : IDisposable, IFtrackClient
         // or "Authorization: Bearer <token>" for personal tokens
         //
         // We'll assume user+API key approach:
-        _http.DefaultRequestHeaders.Add("X-Ftrack-User", options.ApiUser);
-        _http.DefaultRequestHeaders.Add("X-Ftrack-ApiKey", options.ApiKey);
+        _http.DefaultRequestHeaders.Add("X-Ftrack-User", options.Value.ApiUser);
+        _http.DefaultRequestHeaders.Add("X-Ftrack-ApiKey", options.Value.ApiKey);
 
         // If your usage requires a different scheme, adapt accordingly.
         // e.g. "Authorization: Bearer ..."
