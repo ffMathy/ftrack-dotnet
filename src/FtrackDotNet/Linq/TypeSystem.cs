@@ -12,13 +12,33 @@ internal static class TypeSystem
     /// this method attempts to walk up and find it.
     /// If no generic interface is found, it returns the type itself.
     /// </summary>
-    public static Type GetElementType(Type seqType)
+    public static Type GetElementType(Type type)
     {
-        var enumerableType = FindIEnumerable(seqType);
+        var enumerableType = FindIEnumerable(type);
         if (enumerableType == null) 
-            return seqType;
+            return type;
         
         return enumerableType.GetGenericArguments()[0];
+    }
+
+    public static bool IsEnumerable(Type type)
+    {
+        if (type == typeof(Array))
+        {
+            return true;
+        }
+
+        if (!type.IsGenericType)
+        {
+            return false;
+        }
+        
+        var genericTypeDefinition = type.GetGenericTypeDefinition();
+        
+        var interfaces = genericTypeDefinition.GetInterfaces();
+        return interfaces.Any(i => 
+            i.IsGenericType && 
+            i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
     }
 
     private static Type? FindIEnumerable(Type? sequenceType)

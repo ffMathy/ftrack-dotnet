@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-public class FtrackClient : IDisposable
+public class FtrackClient : IDisposable, IFtrackClient
 {
     private readonly HttpClient _http;
 
@@ -40,19 +40,19 @@ public class FtrackClient : IDisposable
     /// Run a query expression against FTrack. Returns raw JSON or a strongly typed object.
     /// For maximum flexibility, we might return dynamic or a custom model. Here we show "List<T>" for example.
     /// </summary>
-    public List<T> ExecuteQuery<T>(string queryExpression, int? pageSize = null, string sort = null)
+    public List<object> ExecuteQuery(string queryExpression, Type returnType)
     {
         // Synchronously wait on the async method (not best practice in real .NET apps),
         // but for sample simplicity we'll do it. 
         // Real code might do "await" in an async method.
-        return ExecuteQueryAsync<T>(queryExpression, pageSize, sort).GetAwaiter().GetResult();
+        return ExecuteQueryAsync(queryExpression, returnType).GetAwaiter().GetResult();
     }
 
     /// <summary>
     /// Async version of ExecuteQuery that posts to /query
     /// and returns the result as a List<T>.
     /// </summary>
-    public async Task<List<T>> ExecuteQueryAsync<T>(string queryExpression, int? pageSize = null, string sort = null)
+    public async Task<List<object>> ExecuteQueryAsync(string queryExpression, Type returnType)
     {
         // Build the request payload, e.g.:
         // { "expression": "Task where status.name is \"Open\" limit 10 offset 5", "page_size": 9999 }
@@ -60,17 +60,9 @@ public class FtrackClient : IDisposable
         {
             { "expression", queryExpression }
         };
-        if (pageSize.HasValue)
-        {
-            payload["page_size"] = pageSize.Value;
-        }
-        if (!string.IsNullOrWhiteSpace(sort))
-        {
-            payload["sort"] = sort;  // e.g. "name ascending"
-        }
 
         // Convert to JSON
-        string json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(payload);
 
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -88,7 +80,8 @@ public class FtrackClient : IDisposable
         // }
         // We'll define a helper model to parse it, then map "data" to List<T>.
 
-        var result = JsonSerializer.Deserialize<QueryResponseWrapper<T>>(responseBody, new JsonSerializerOptions
+        var wrappedReturnType = typeof(QueryResponseWrapper<>).MakeGenericType(returnType);
+        dynamic result = JsonSerializer.Deserialize(responseBody, wrappedReturnType, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });

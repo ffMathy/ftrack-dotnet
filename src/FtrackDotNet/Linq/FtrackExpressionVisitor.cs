@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text;
 
 namespace FtrackDotNet.Linq;
 
@@ -15,6 +16,7 @@ using System.Linq.Expressions;
 public class FtrackExpressionVisitor : ExpressionVisitor
 {
     private readonly string _entityName;
+    private List<string> _selectedFields;
 
     // For building our WHERE clause, we use a stack of partial expressions.
     // We push fragments as we visit, then pop/combine them in parent nodes.
@@ -47,10 +49,10 @@ public class FtrackExpressionVisitor : ExpressionVisitor
         // Build final query. For example:
         //   "Task where status.name is \"Open\" limit 10 offset 20"
         // If there's no WHERE clause, it might just be "Task limit 10 offset 20", etc.
-        var query = _entityName;
+        var query = $"select id from {_entityName}";
         if (!string.IsNullOrEmpty(whereClause))
         {
-            query += $" where {whereClause}";
+            query += $" where ({whereClause})";
         }
 
         // Append LIMIT/OFFSET if set
@@ -72,20 +74,17 @@ public class FtrackExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        // 1. Detect .Where(...)
-        if (node.Method.Name == "Where" && node.Method.DeclaringType == typeof(Queryable))
+        // Detect .Select(...)
+        if (node.Method.Name == "Select" && node.Method.DeclaringType == typeof(Queryable))
         {
-            // The 2nd argument of .Where(...) is the lambda with the predicate
             var lambda = (LambdaExpression)StripQuotes(node.Arguments[1]);
-            Visit(lambda.Body);
+            CaptureSelectedFields(lambda.Body);
 
-            // Also visit the source (the first argument) in case there's chaining
+            // Visit the source in case there’s .Where(...) or other calls before/after
             Visit(node.Arguments[0]);
-
             return node;
         }
 
-        // 2. Detect .Take(...)
         if (node.Method.Name == "Take" && node.Method.DeclaringType == typeof(Queryable))
         {
             // Evaluate the argument, which is the integer count
@@ -97,7 +96,6 @@ public class FtrackExpressionVisitor : ExpressionVisitor
             return node;
         }
 
-        // 3. Detect .Skip(...)
         if (node.Method.Name == "Skip" && node.Method.DeclaringType == typeof(Queryable))
         {
             var skipCount = EvaluateIntArgument(node.Arguments[1]);
@@ -120,6 +118,43 @@ public class FtrackExpressionVisitor : ExpressionVisitor
         }
 
         return base.VisitMethodCall(node);
+    }
+    
+    // For example, if the user does Select(t => new { t.Name, t.Bid }),
+// we have a NewExpression or MemberInit. We gather property references.
+    private void CaptureSelectedFields(Expression body)
+    {
+        if (body is NewExpression newExpression)
+        {
+            var fields = new List<string>();
+            foreach (var arg in newExpression.Arguments)
+            {
+                string fieldName = GetValueFromExpression(arg); 
+                // e.g. "name" or "bid"
+                fields.Add(fieldName);
+            }
+            _selectedFields = fields;
+        }
+        else if (body is MemberInitExpression initExpr)
+        {
+            // for "Select(t => new SomeDto { Name = t.Name, Bid = t.Bid })"
+            // you'd similarly gather
+            var fields = new List<string>();
+            foreach (var bind in initExpr.Bindings)
+            {
+                if (bind is MemberAssignment ma)
+                {
+                    string fieldName = GetValueFromExpression(ma.Expression);
+                    fields.Add(fieldName);
+                }
+            }
+            _selectedFields = fields;
+        }
+        else
+        {
+            // If it's just Select(t => t), you might do nothing or store all fields. 
+            // The tests might not require that scenario.
+        }
     }
 
     /// <summary>
@@ -225,19 +260,74 @@ public class FtrackExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitMember(MemberExpression node)
     {
+        if (node.Expression == null)
+        {
+            throw new InvalidOperationException("Node expression not present.");
+        }
+        
         // If it's a property/field on the lambda parameter, e.g. t => t.Parent.Name
         // We'll build "parent.name" (lowercasing for consistency).
-        if (node.Expression != null && node.Expression.NodeType == ExpressionType.Parameter)
+        if (node.Expression.NodeType is ExpressionType.Parameter or ExpressionType.MemberAccess)
         {
             var path = ExpressionToPath(node);
             PushStackFragment(path);
         }
+        else if (node.NodeType is ExpressionType.MemberAccess && TypeSystem.IsEnumerable(node.Type))
+        {
+            var valueWrapper = Expression.Lambda(node.Expression)
+                .Compile()
+                .DynamicInvoke();
+            if (valueWrapper == null)
+            {
+                throw new NullReferenceException("The enumerable is null.");
+            }
+            
+            var valueWrapperType = valueWrapper.GetType();
+            var field = valueWrapperType.GetFields().Single();
+            
+            var value = 
+                field.GetValue(valueWrapper) ??
+                throw new NullReferenceException("The enumerable is null.");
+            var valueType = value.GetType();
+
+            var genericType = valueType.GetGenericArguments()[0];
+            
+            var genericIEnumerableType = typeof(IEnumerable<>).MakeGenericType(genericType);
+            var getEnumeratorMethod = 
+                genericIEnumerableType.GetMethod(nameof(IEnumerable<object>.GetEnumerator)) ?? 
+                throw new InvalidOperationException("Could not find GetEnumerator method.");
+            var enumerator = getEnumeratorMethod.Invoke(value, null) ?? throw new InvalidOperationException("Enumerator returned null.");
+            var genericEnumeratorType = enumerator.GetType();
+            
+            var moveNextMethod = 
+                genericEnumeratorType.GetMethod(nameof(IEnumerator<object>.MoveNext)) ?? 
+                throw new InvalidOperationException("Could not find MoveNext method on enumerator.");
+            var currentProperty = 
+                genericEnumeratorType.GetProperty(nameof(IEnumerator<object>.Current)) ?? 
+                throw new InvalidOperationException("Could not find Current property on enumerator.");
+
+            var queryStringBuilder = new StringBuilder();
+            queryStringBuilder.Append(" in (");
+
+            var values = new List<object?>();
+            
+            var hasNext = () => (bool) moveNextMethod.Invoke(enumerator, [])!;
+            while (hasNext())
+            {
+                var current = currentProperty.GetValue(enumerator);
+                values.Add(current);
+            }
+
+            queryStringBuilder.Append(values
+                .Select(x => x is string ? $"'{x}'" : (x ?? "null"))
+                .Aggregate((x, y) => $"{x}, {y}"));
+            queryStringBuilder.Append(")");
+            
+            PushStackFragment(queryStringBuilder.ToString());
+        }
         else
         {
-            // Likely a captured variable or something else: evaluate it
-            var value = GetValueFromExpression(node);
-            var quoted = QuoteIfString(value);
-            PushStackFragment(quoted);
+            throw new InvalidOperationException("Could not parse expression: " + node.NodeType + " of type " + node.Type);
         }
 
         return node;
@@ -298,6 +388,16 @@ public class FtrackExpressionVisitor : ExpressionVisitor
         if (expr is ConstantExpression c)
         {
             return c.Value?.ToString() ?? "";
+        }
+
+        if (expr is ParameterExpression p)
+        {
+            return p.Name ?? "";
+        }
+
+        if (expr is MemberExpression m)
+        {
+            return m.Member.Name;
         }
 
         // If it's a MemberExpression, it might be referencing a captured variable
