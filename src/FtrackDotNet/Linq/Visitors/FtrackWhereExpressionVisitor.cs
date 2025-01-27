@@ -15,11 +15,7 @@ public class FtrackWhereExpressionVisitor : ExpressionVisitor
         var whereClause = ParsePredicate(node);
         if (string.IsNullOrEmpty(_whereExpression))
         {
-            _whereExpression = whereClause;
-        }
-        else
-        {
-            _whereExpression += $" and {whereClause}";
+            _whereExpression = $" where {whereClause}";
         }
         
         return base.Visit(node);
@@ -27,19 +23,23 @@ public class FtrackWhereExpressionVisitor : ExpressionVisitor
 
     private string ParsePredicate(Expression? expression)
     {
+        if (expression == null)
+            return string.Empty;
+        
         // Very naive example that handles simple (x => x.Field == "value") style
         if (expression is BinaryExpression binary)
         {
-            var left = ParsePredicate(binary.Left);
-            var right = ParsePredicate(binary.Right);
-            var op = ParseOperator(binary.NodeType);
+            var leftPredicateString = ParsePredicate(binary.Left);
+            var rightPredicateString = ParsePredicate(binary.Right);
+            var operatorString = ParseOperator(binary.NodeType);
 
-            return $"{left} {op} {right}";
+            return $"({leftPredicateString} {operatorString} {rightPredicateString})";
         }
 
         if (expression is MemberExpression memberExpression)
         {
-            return memberExpression.Member.Name.ToLowerInvariant(); // or some mapping
+            var predicateString = ParsePredicate(memberExpression.Expression);
+            return $"{(string.IsNullOrEmpty(predicateString) ? string.Empty : $"{predicateString}.")}{memberExpression.Member.Name.ToLowerInvariant()}"; // or some mapping
         }
 
         if (expression is ConstantExpression constantExpression)
@@ -52,28 +52,85 @@ public class FtrackWhereExpressionVisitor : ExpressionVisitor
 
             return constantExpression.Value?.ToString() ?? "null";
         }
-
-        if (expression is MethodCallExpression methodCallExpression && methodCallExpression.Method.DeclaringType == typeof(string))
+        
+        if(expression is LambdaExpression lambdaExpression)
         {
-            switch (methodCallExpression.Method.Name)
+            return ParsePredicate(lambdaExpression.Body);
+        }
+        
+        if(expression is ParameterExpression parameterExpression)
+        {
+            return string.Empty;
+        }
+
+        if (expression is MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(string))
             {
-                case nameof(string.StartsWith):
-                    throw new NotImplementedException();
+                var objectMemberExpression = (MemberExpression?)methodCallExpression.Object;
+                var methodCallExpressionArgument = (ConstantExpression)methodCallExpression.Arguments[0];
+
+                string valueString;
+                string operatorString;
+                switch (methodCallExpression.Method.Name)
+                {
+                    case nameof(string.StartsWith):
+                        valueString = $"%{methodCallExpressionArgument.Value}";
+                        operatorString = "like";
+                        break;
+
+                    case nameof(string.EndsWith):
+                        valueString = $"{methodCallExpressionArgument.Value}%";
+                        operatorString = "like";
+                        break;
+
+                    case nameof(string.Contains):
+                        valueString = $"%{methodCallExpressionArgument.Value}%";
+                        operatorString = "like";
+                        break;
+
+                    case nameof(string.Equals):
+                        valueString = methodCallExpressionArgument.Value?.ToString() ?? "null";
+                        operatorString = "=";
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Could not translate method call to Ftrack query: " +
+                                                            methodCallExpression);
+                }
+
+                return $@"{objectMemberExpression?.Member.Name.ToLowerInvariant()} {operatorString} ""{valueString}""";
+            }
+
+            if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
+            {
+                var operatorPrefixString = string.Empty;
+                switch (methodCallExpression.Method.Name)
+                {
+                    case nameof(Enumerable.All):
+                        operatorPrefixString = "not ";
+                        break;
+
+                    case nameof(Enumerable.Any):
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Could not translate method call to Ftrack query: " +
+                                                            methodCallExpression);
+                }
                 
-                case nameof(string.EndsWith):
-                    throw new NotImplementedException();
-                
-                case nameof(string.Contains):
-                    throw new NotImplementedException();
-                
-                case nameof(string.Equals):
-                    throw new NotImplementedException();
+                var methodCallMemberExpressionArgument = (MemberExpression)methodCallExpression.Arguments[0];
+                var methodCallLambdaExpressionArgument = (LambdaExpression)methodCallExpression.Arguments[1];
+
+                var propertyNameString = $"{ParsePredicate(methodCallMemberExpressionArgument)}";
+                var valueString = ParsePredicate(methodCallLambdaExpressionArgument.Body);
+                return $@"{operatorPrefixString}{propertyNameString} any ({valueString})";
             }
         }
 
         // Additional logic for method calls (Contains, etc.) or other expression types
         throw new InvalidOperationException(
-            $"Could not parse expression as predicate: {expression} ({expression.GetType().FullName})");
+            $"Could not parse expression as predicate: {expression} ({expression?.GetType().FullName ?? "<null>"})");
     }
 
     private string ParseOperator(ExpressionType nodeType)

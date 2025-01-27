@@ -7,7 +7,7 @@ public class FtrackOrderByExpressionVisitor : ExpressionVisitor
 {
     private string _orderByExpression = string.Empty;
     
-    public string OrderByExpression => _orderByExpression;
+    public string OrderByExpression => string.IsNullOrWhiteSpace(_orderByExpression) ? string.Empty : $" order by {_orderByExpression}";
 
     public override Expression? Visit(Expression? node)
     {

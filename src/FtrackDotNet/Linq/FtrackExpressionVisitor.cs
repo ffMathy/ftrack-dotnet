@@ -25,6 +25,13 @@ public class FtrackExpressionVisitor : ExpressionVisitor
     public string Translate(Expression expression)
     {
         Visit(expression);
+        _fromExpressionVisitor.Visit(expression);
+
+        if (string.IsNullOrWhiteSpace(_selectExpressionVisitor.SelectExpression))
+        {
+            throw new InvalidOperationException(
+                "FtrackDotNet does not currently support creating an Ftrack query without a select clause.");
+        }
 
         var queryBuilder = new StringBuilder();
         queryBuilder.Append(_selectExpressionVisitor.SelectExpression);
@@ -45,7 +52,11 @@ public class FtrackExpressionVisitor : ExpressionVisitor
             switch (node.Method.Name)
             {
                 case nameof(Queryable.Where):
-                    // node.Arguments[1] should be a lambda: x => BooleanExpression
+                    if(_whereExpressionVisitor.WhereExpression.Length > 0)
+                    {
+                        throw new InvalidOperationException("FtrackDotNet does not currently support multiple where clauses. Use an 'and' operator instead.");
+                    }
+                    
                     var whereLambdaExpression = (LambdaExpression)ExpressionSanitizationHelper.StripQuotes(node.Arguments[1]);
                     _whereExpressionVisitor.Visit(whereLambdaExpression.Body);
                     break;

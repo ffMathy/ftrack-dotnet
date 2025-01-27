@@ -12,11 +12,6 @@ public class FtrackFromExpressionVisitor : ExpressionVisitor
     [return: NotNullIfNotNull("node")]
     public override Expression? Visit(Expression? node)
     {
-        if (node is not MethodCallExpression methodCallExpression)
-        {
-            throw new InvalidOperationException("From expression must be a method call expression.");
-        }
-        
         return base.Visit(node);
     }
 
