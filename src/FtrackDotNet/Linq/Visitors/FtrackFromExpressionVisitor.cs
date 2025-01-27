@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace FtrackDotNet.Linq.Visitors;
 
-public class FtrackFromExpressionVisitor : ExpressionVisitor
+internal class FtrackFromExpressionVisitor : ExpressionVisitor
 {
     private string _fromExpression = string.Empty;
     

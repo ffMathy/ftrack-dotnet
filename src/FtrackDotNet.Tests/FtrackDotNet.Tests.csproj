@@ -8,6 +8,7 @@
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
         <LangVersion>latestmajor</LangVersion>
+        <UserSecretsId>ecc547a4-52a5-44f7-a3be-3b30f40e1838</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>

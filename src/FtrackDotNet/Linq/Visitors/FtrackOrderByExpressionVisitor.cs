@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 
 namespace FtrackDotNet.Linq.Visitors;
 
-public class FtrackOrderByExpressionVisitor : ExpressionVisitor
+internal class FtrackOrderByExpressionVisitor : ExpressionVisitor
 {
     private string _orderByExpression = string.Empty;
     

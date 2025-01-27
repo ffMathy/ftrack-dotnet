@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 
 namespace FtrackDotNet.Linq;
 
-public class FtrackQueryProvider : IQueryProvider, IAsyncQueryProvider
+internal class FtrackQueryProvider : IQueryProvider, IAsyncQueryProvider
 {
     private readonly IFtrackClient _client;
     private readonly FtrackExpressionVisitor _visitor = new FtrackExpressionVisitor();

@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 
-public class FtrackExpressionVisitor : ExpressionVisitor
+internal class FtrackExpressionVisitor : ExpressionVisitor
 {
     private readonly FtrackSelectExpressionVisitor _selectExpressionVisitor = new ();
 

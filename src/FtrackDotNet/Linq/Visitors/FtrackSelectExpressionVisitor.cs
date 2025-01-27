@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 
 namespace FtrackDotNet.Linq.Visitors;
 
-public class FtrackSelectExpressionVisitor : ExpressionVisitor
+internal class FtrackSelectExpressionVisitor : ExpressionVisitor
 {
     private string _selectExpression = string.Empty;
     

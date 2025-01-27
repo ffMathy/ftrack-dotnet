@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-public class FtrackClient : IDisposable, IFtrackClient
+internal class FtrackClient : IDisposable, IFtrackClient
 {
     private readonly HttpClient _http;
 

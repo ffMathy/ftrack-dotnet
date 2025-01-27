@@ -7,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
-public class FtrackQueryable<T> : IQueryable<T>, IOrderedQueryable<T>, IAsyncEnumerable<T>
+internal class FtrackQueryable<T> : IQueryable<T>, IOrderedQueryable<T>, IAsyncEnumerable<T>
 {
     private readonly FtrackQueryProvider _provider;
     private readonly Expression _expression;
