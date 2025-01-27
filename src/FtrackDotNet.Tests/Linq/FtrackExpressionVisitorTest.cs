@@ -1,16 +1,16 @@
 using FtrackDotNet.Linq;
 using Moq;
 
-namespace FtrackDotNet.Tests;
+namespace FtrackDotNet.Tests.Linq;
 
 internal class FtrackTask
 {
     public double Bid { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public FtrackTask[] Children { get; set; }
+    public FtrackTask[] Children { get; set; } = null!;
 
-    public FtrackTask Parent { get; set; }
+    public FtrackTask Parent { get; set; } = null!;
 }
 
 [TestClass]

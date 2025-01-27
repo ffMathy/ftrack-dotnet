@@ -1,10 +1,8 @@
-using FtrackDotNet.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Moq;
 
-namespace FtrackDotNet.Tests;
+namespace FtrackDotNet.Tests.Linq;
 
 [TestClass]
 public class FtrackContextTest
