@@ -28,7 +28,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FtrackDotNet.SourceGenerator\FtrackDotNet.SourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
       <ProjectReference Include="..\FtrackDotNet\FtrackDotNet.csproj" />
     </ItemGroup>
 

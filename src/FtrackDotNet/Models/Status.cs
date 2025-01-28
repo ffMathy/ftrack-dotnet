@@ -7,4 +7,5 @@ public class Status
     public bool IsActive { get; set; }
     public string Name { get; set; }
     public int Sort { get; set; }
+    public State State { get; set; }
 }

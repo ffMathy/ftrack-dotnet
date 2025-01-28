@@ -8,4 +8,5 @@ public class Type
     public bool IsBillable { get; set; }
     public TaskTypeSchema[] TaskTypeSchemas { get; set; } = Array.Empty<TaskTypeSchema>();
     public Task[] Tasks { get; set; } = Array.Empty<Task>();
+    public int Sort { get; set; }
 }

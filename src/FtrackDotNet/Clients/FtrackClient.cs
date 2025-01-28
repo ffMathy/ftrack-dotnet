@@ -50,35 +50,36 @@ internal class FtrackClient : IDisposable, IFtrackClient
 
     public async Task<T> QueryAsync<T>(string query)
     {
-        // Build the request payload, e.g.:
-        // { "expression": "Task where status.name is \"Open\" limit 10 offset 5", "page_size": 9999 }
-        var payload = new Dictionary<string, object>
-        {
-            { "action", "query" },
-            { "expression", query }
-        };
+        return await CallAsync<Dictionary<string, object>, T>(
+            new Dictionary<string, object>
+            {
+                { "action", "query" },
+                { "expression", query }
+            });
+    }
 
-        // Convert to JSON
-        var json = JsonSerializer.Serialize(new[] { payload });
+    public async Task<QuerySchemasSchemaResponse> QuerySchemasAsync()
+    {
+        return await CallAsync<Dictionary<string, object>, QuerySchemasSchemaResponse>(
+            new Dictionary<string, object>
+            {
+                { "action", "query_schemas" },
+            });
+    }
+
+    private async Task<TResponse> CallAsync<TRequest, TResponse>(TRequest request)
+    {
+        var json = JsonSerializer.Serialize(new[] { request });
 
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        // POST to /query
         var response = await _http.PostAsync("api", content);
-
-        response.EnsureSuccessStatusCode(); // throws if not 200-299
+        response.EnsureSuccessStatusCode();
 
         var responseBody = await response.Content.ReadAsStringAsync();
 
-        // FTrack typically returns JSON in a structure like:
-        // {
-        //   "data": [ { ... }, { ... }, ... ],
-        //   "metadata": { ... }
-        // }
-        // We'll define a helper model to parse it, then map "data" to List<T>.
-
-        var wrappedReturnType = typeof(QueryResponseWrapper<>).MakeGenericType(typeof(T));
-        var result = (QueryResponseWrapper<T>[])JsonSerializer.Deserialize(
+        var wrappedReturnType = typeof(QueryResponseWrapper<>).MakeGenericType(typeof(TResponse));
+        var result = (QueryResponseWrapper<TResponse>[])JsonSerializer.Deserialize(
             responseBody,
             wrappedReturnType.MakeArrayType(),
             new JsonSerializerOptions
@@ -86,28 +87,8 @@ internal class FtrackClient : IDisposable, IFtrackClient
                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
             })!;
 
-        // "data" property in result.Data is a List<T>
-        // but only if T's shape aligns with the JSON. In many cases, 
-        // you may want to parse as dynamic or a dictionary, then map to T manually.
-        // For demonstration, we assume T matches the structure.
-
         return result.Select(x => x.Data).Single();
     }
 }
 
-/// <summary>
-/// A helper model to map FTrack's query response JSON.
-/// For example, the docs show something like:
-/// {
-///   "data": [ { "id": "xxx", ... }, ... ],
-///   "metadata": { ... }
-/// }
-/// We assume T lines up with each item in "data".
-/// </summary>
-/// <typeparam name="T">The type representing each row/item returned by FTrack.</typeparam>
-public class QueryResponseWrapper<T>
-{
-    public string Action { get; set; }
-    public T Data { get; set; }
-    public Dictionary<string, object> Metadata { get; set; }
-}
+//TODO: convert into subtyped classes

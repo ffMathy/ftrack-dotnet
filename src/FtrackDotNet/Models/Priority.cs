@@ -7,4 +7,5 @@ public class Priority
     public bool IsActive { get; set; }
     public string Name { get; set; }
     public int Sort { get; set; }
+    public int Value { get; set; }
 }
