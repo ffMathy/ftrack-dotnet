@@ -32,13 +32,13 @@ public interface IFtrackEventHubClient : IAsyncDisposable
     /// Corresponds to `publish(event)` in the JS code.
     /// Calls socket.emit('publish', event).
     /// </summary>
-    Task PublishAsync(FtrackEvent evt);
+    Task PublishAsync(FtrackEvent @event);
 
     /// <summary>
     /// Corresponds to `subscribe(topic)` in the JS code.
     /// Calls socket.emit('subscribe', topic).
     /// </summary>
-    Task SubscribeAsync(string topic);
+    Task SubscribeAsync(string expression);
 
     /// <summary>
     /// Corresponds to `unsubscribe(topic)` in the JS code.

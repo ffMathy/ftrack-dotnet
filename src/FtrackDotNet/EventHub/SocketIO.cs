@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using System.Web;
 
 namespace FtrackDotNet.EventHub;
@@ -160,7 +161,7 @@ public class SocketIO : IAsyncDisposable, ISocketIO
         var split = message.Split(":", StringSplitOptions.RemoveEmptyEntries);
         var packetType = split[0];
 
-        Debug.WriteLine(message);
+        Debug.WriteLine("Received: " + message);
 
         if (packetType == PACKET_TYPE_EVENT)
         {
@@ -179,8 +180,8 @@ public class SocketIO : IAsyncDisposable, ISocketIO
         else if (packetType == PACKET_TYPE_HEARTBEAT)
         {
             Debug.WriteLine("Event Hub heartbeat received");
-            await SendRawAsync($"{PACKET_TYPE_HEARTBEAT}::");
             StartHeartbeat();
+            await SendRawAsync($"{PACKET_TYPE_HEARTBEAT}::");
         }
         else if (packetType == PACKET_TYPE_DISCONNECT)
         {
@@ -249,6 +250,8 @@ public class SocketIO : IAsyncDisposable, ISocketIO
             throw new InvalidOperationException("Event hub not connected.");
         }
 
+        Debug.WriteLine("Sending: " + message);
+
         try
         {
             var bytes = Encoding.UTF8.GetBytes(message);
@@ -270,10 +273,13 @@ public class SocketIO : IAsyncDisposable, ISocketIO
         if (_disposed) 
             throw new InvalidOperationException("Event hub not connected.");
 
-        var payloadJson = System.Text.Json.JsonSerializer.Serialize(new
+        var payloadJson = JsonSerializer.Serialize(new
         {
             name = eventName,
             args = new [] { data }
+        }, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
         });
 
         var fullMessage = $"{PACKET_TYPE_EVENT}:::{payloadJson}";

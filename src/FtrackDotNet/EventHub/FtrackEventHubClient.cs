@@ -1,8 +1,11 @@
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Web;
 using FtrackDotNet.Clients;
+using FtrackDotNet.Models;
 using Microsoft.Extensions.Options;
+using Action = System.Action;
 
 namespace FtrackDotNet.EventHub;
 
@@ -14,10 +17,10 @@ public class FtrackEventHubClient : IAsyncDisposable, IFtrackEventHubClient
     private readonly IOptionsMonitor<FtrackOptions> _options;
     private readonly ISocketIOFactory _socketIoFactory;
     private readonly IFtrackClient _ftrackClient;
+    
+    private readonly IDictionary<string, string> _subscriptionIdsByTopic = new Dictionary<string, string>();
 
     private ISocketIO? _socketIo;
-
-    private readonly Dictionary<string, int> _subscribedTopics = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Unique ID for this EventHub instance (guid).
@@ -139,37 +142,51 @@ public class FtrackEventHubClient : IAsyncDisposable, IFtrackEventHubClient
     /// Corresponds to `publish(event)` in the JS code.
     /// Calls socket.emit('publish', event).
     /// </summary>
-    public Task PublishAsync(FtrackEvent evt)
+    public Task PublishAsync(FtrackEvent @event)
     {
         if (_socketIo == null)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
 
-        return _socketIo.EmitMessageAsync("publish", evt);
+        @event.Source ??= new FtrackEventSource();
+        @event.Source.Id ??= Id;
+        @event.Source.ApplicationId ??= "FtrackDotNet";
+        @event.Source.User ??= new FtrackEventSourceUser();
+        @event.Source.User.Username ??= _options.CurrentValue.ApiUser;
+
+        return _socketIo.EmitMessageAsync("ftrack.event", @event);
     }
 
     /// <summary>
     /// Corresponds to `subscribe(topic)` in the JS code.
     /// Calls socket.emit('subscribe', topic).
     /// </summary>
-    public Task SubscribeAsync(string topic)
+    public Task SubscribeAsync(string expression)
     {
         if (_socketIo == null)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
-
-        if (!_subscribedTopics.ContainsKey(topic))
+        
+        if(_subscriptionIdsByTopic.ContainsKey(expression))
         {
-            _subscribedTopics[topic] = 1;
-        }
-        else
-        {
-            _subscribedTopics[topic]++;
+            throw new InvalidOperationException("Already subscribed to topic: " + expression);
         }
 
-        return _socketIo.EmitMessageAsync("subscribe", topic);
+        var subscriberId = Guid.NewGuid().ToString();
+        _subscriptionIdsByTopic.Add(expression, subscriberId);
+        
+        Debug.WriteLine("Subscribing to topic: " + expression + " with subscriber ID " + subscriberId);
+        
+        return _socketIo.EmitMessageAsync("ftrack.meta.subscribe", new
+        {
+            subscriber = new
+            {
+                id = subscriberId
+            },
+            subscription = $"topic={expression}",
+        });
     }
 
     /// <summary>
@@ -182,19 +199,22 @@ public class FtrackEventHubClient : IAsyncDisposable, IFtrackEventHubClient
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
-
-        if (!_subscribedTopics.ContainsKey(topic))
+        
+        if(!_subscriptionIdsByTopic.ContainsKey(topic))
         {
-            return Task.CompletedTask; // Not subscribed, so nothing to do
+            return Task.CompletedTask;
         }
 
-        _subscribedTopics[topic]--;
-        if (_subscribedTopics[topic] <= 0)
+        var subscriberId = _subscriptionIdsByTopic[topic];
+        Debug.WriteLine("Unsubscribing from topic: " + topic + " with subscriber ID " + subscriberId);
+        
+        return _socketIo.EmitMessageAsync("ftrack.meta.unsubscribe", new
         {
-            _subscribedTopics.Remove(topic);
-        }
-
-        return _socketIo.EmitMessageAsync("unsubscribe", topic);
+            subscriber = new
+            {
+                id = subscriberId
+            },
+        });
     }
 
     /// <summary>
@@ -207,7 +227,7 @@ public class FtrackEventHubClient : IAsyncDisposable, IFtrackEventHubClient
 
         var query = new NameValueCollection
         {
-            ["EIO"] = "3",
+            ["EIO"] = "4",
             ["transport"] = "websocket",
             ["api_user"] = _options.CurrentValue.ApiUser,
             ["api_key"] = _options.CurrentValue.ApiKey
