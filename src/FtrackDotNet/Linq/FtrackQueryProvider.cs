@@ -3,15 +3,10 @@ using FtrackDotNet.Clients;
 
 namespace FtrackDotNet.Linq;
 
-internal class FtrackQueryProvider : IQueryProvider, IAsyncQueryProvider
+internal class FtrackQueryProvider(IFtrackClient client) : IQueryProvider, IAsyncQueryProvider
 {
-    private readonly IFtrackClient _client;
+    private readonly IFtrackClient _client = client ?? throw new ArgumentNullException(nameof(client));
     private readonly FtrackExpressionVisitor _visitor = new FtrackExpressionVisitor();
-
-    public FtrackQueryProvider(IFtrackClient client)
-    {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-    }
 
     public IQueryable CreateQuery(Expression expression)
     {

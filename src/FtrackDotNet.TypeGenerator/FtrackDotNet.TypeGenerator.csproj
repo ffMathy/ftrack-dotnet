@@ -5,6 +5,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <UserSecretsId>f9a1af70-56d0-4e99-a801-4451ffc50136</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +14,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\FtrackDotNet\FtrackDotNet.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\FtrackDotNet\Extensions\StringExtensions.cs">
+        <Link>StringExtensions.cs</Link>
+      </Compile>
     </ItemGroup>
 
 </Project>

@@ -11,4 +11,6 @@ public class ObjectType
     public bool IsSchedulable { get; set; }
     public bool IsPrioritizable { get; set; }
     public bool IsLeaf { get; set; }
+    public int Sort { get; set; }
+    public ProjectSchema[] ProjectSchemas { get; set; } = Array.Empty<ProjectSchema>();
 }

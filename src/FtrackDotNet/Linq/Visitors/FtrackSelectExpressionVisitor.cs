@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using FtrackDotNet.Extensions;
 
 namespace FtrackDotNet.Linq.Visitors;
 
@@ -15,17 +16,15 @@ internal class FtrackSelectExpressionVisitor : ExpressionVisitor
             return base.Visit(node);
         }
         
-        // If it's a simple MemberExpression like x => x.Name, we handle that
         if (node is MemberExpression member)
         {
             _selectExpression = member.Member.Name.ToLowerInvariant();
         }
         else if (node is NewExpression newExpression)
         {
-            // If it's a projection like x => new { x.FieldA, x.FieldB }, collect the members
             var fields = newExpression.Arguments
                 .OfType<MemberExpression>()
-                .Select(m => m.Member.Name.ToLowerInvariant());
+                .Select(m => m.Member.Name.FromCamelOrPascalCaseToSnakeCase());
             _selectExpression = string.Join(", ", fields);
         }
         else if(node is not ParameterExpression _)

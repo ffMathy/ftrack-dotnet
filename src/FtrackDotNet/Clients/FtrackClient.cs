@@ -18,19 +18,10 @@ internal class FtrackClient : IDisposable, IFtrackClient
         _http = new HttpClient
         {
             BaseAddress = new Uri(options.Value.ServerUrl, UriKind.Absolute),
-            // Optionally set timeouts, etc.
         };
 
-        // According to FTrack docs, you can authenticate by setting headers
-        // e.g. "X-Ftrack-User" and "X-Ftrack-ApiKey"
-        // or "Authorization: Bearer <token>" for personal tokens
-        //
-        // We'll assume user+API key approach:
         _http.DefaultRequestHeaders.Add("Ftrack-User", options.Value.ApiUser);
         _http.DefaultRequestHeaders.Add("Ftrack-Api-Key", options.Value.ApiKey);
-
-        // If your usage requires a different scheme, adapt accordingly.
-        // e.g. "Authorization: Bearer ..."
     }
 
     /// <summary>
@@ -45,21 +36,23 @@ internal class FtrackClient : IDisposable, IFtrackClient
 
     public async Task<T> QueryAsync<T>(string query)
     {
-        return await CallAsync<Dictionary<string, object>, T>(
+        var result = await CallAsync<Dictionary<string, object>, QueryResponseWrapper<T>[]>(
             new Dictionary<string, object>
             {
                 { "action", "query" },
                 { "expression", query }
             });
+        return result.Select(x => x.Data).Single();
     }
 
-    public async Task<QuerySchemasSchemaResponse> QuerySchemasAsync()
+    public async Task<QuerySchemasSchemaResponse[]> QuerySchemasAsync()
     {
-        return await CallAsync<Dictionary<string, object>, QuerySchemasSchemaResponse>(
+        var result = await CallAsync<Dictionary<string, object>, QuerySchemasSchemaResponse[][]>(
             new Dictionary<string, object>
             {
                 { "action", "query_schemas" },
             });
+        return result.Single();
     }
 
     private async Task<TResponse> CallAsync<TRequest, TResponse>(TRequest request)
@@ -73,17 +66,14 @@ internal class FtrackClient : IDisposable, IFtrackClient
 
         var responseBody = await response.Content.ReadAsStringAsync();
 
-        var wrappedReturnType = typeof(QueryResponseWrapper<>).MakeGenericType(typeof(TResponse));
-        var result = (QueryResponseWrapper<TResponse>[])JsonSerializer.Deserialize(
+        var result = (TResponse)JsonSerializer.Deserialize(
             responseBody,
-            wrappedReturnType.MakeArrayType(),
+            typeof(TResponse),
             new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
             })!;
 
-        return result.Select(x => x.Data).Single();
+        return result;
     }
 }
-
-//TODO: convert into subtyped classes

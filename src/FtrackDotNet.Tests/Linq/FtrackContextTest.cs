@@ -8,7 +8,7 @@ namespace FtrackDotNet.Tests.Linq;
 public class FtrackContextTest
 {
     [TestMethod]
-    public async Task Translate_SimplePropertyInWhere_ReturnsCorrectQuery()
+    public async Task ToArrayAsync_SimpleQuery_ReturnsResults()
     {
         // Arrange
         var hostBuilder = Host.CreateDefaultBuilder();
