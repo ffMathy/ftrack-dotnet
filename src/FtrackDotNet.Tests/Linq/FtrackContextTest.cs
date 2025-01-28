@@ -20,6 +20,13 @@ public class FtrackContextTest
         using var host = hostBuilder.Build();
         await using var scope = host.Services.CreateAsyncScope();
 
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        if (configuration.GetChildren().All(x => x.Key != "Ftrack"))
+        {
+            Console.WriteLine("Skipping test due to no configuration found.");
+            return;
+        }
+        
         var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
 
         // Act

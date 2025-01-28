@@ -7,7 +7,6 @@ using FtrackDotNet.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Task = System.Threading.Tasks.Task;
 
 var hostBuilder = Host.CreateDefaultBuilder();
 hostBuilder.ConfigureAppConfiguration(x => x
