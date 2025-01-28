@@ -1,4 +1,5 @@
-﻿using FtrackDotNet.Linq;
+﻿using FtrackDotNet.Clients;
+using FtrackDotNet.Linq;
 using FtrackDotNet.Models;
 using Task = FtrackDotNet.Models.Task;
 using Type = FtrackDotNet.Models.Type;

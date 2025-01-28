@@ -1,13 +1,8 @@
-using Microsoft.Extensions.Options;
-
-namespace FtrackDotNet;
-
-using System;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using Microsoft.Extensions.Options;
+
+namespace FtrackDotNet.Clients;
 
 internal class FtrackClient : IDisposable, IFtrackClient
 {

@@ -1,4 +1,4 @@
-namespace FtrackDotNet;
+namespace FtrackDotNet.Clients;
 
 /// <summary>
 /// A helper model to map FTrack's query response JSON.

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using FtrackDotNet.Clients;
 
 namespace FtrackDotNet.Linq;
 

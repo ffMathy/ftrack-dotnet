@@ -1,3 +1,4 @@
+using FtrackDotNet.Clients;
 using FtrackDotNet.Linq;
 using Moq;
 

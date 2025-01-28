@@ -1,4 +1,4 @@
-namespace FtrackDotNet;
+namespace FtrackDotNet.Clients;
 
 public interface IFtrackClient
 {
