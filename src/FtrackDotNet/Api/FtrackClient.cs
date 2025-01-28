@@ -13,7 +13,7 @@ internal class FtrackClient : IDisposable, IFtrackClient
     /// Typically you pass in a HttpClientFactory in real apps, 
     /// but for brevity we'll create an HttpClient here.
     /// </summary>
-    public FtrackClient(IOptionsSnapshot<FtrackContextOptions> options)
+    public FtrackClient(IOptionsSnapshot<FtrackOptions> options)
     {
         _http = new HttpClient
         {
@@ -59,12 +59,7 @@ internal class FtrackClient : IDisposable, IFtrackClient
     {
         var json = JsonSerializer.Serialize(new[] { request });
 
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _http.PostAsync("api", content);
-        response.EnsureSuccessStatusCode();
-
-        var responseBody = await response.Content.ReadAsStringAsync();
+        var responseBody = await MakeRawRequestAsync(HttpMethod.Post, "api", json);
 
         var result = (TResponse)JsonSerializer.Deserialize(
             responseBody,
@@ -75,5 +70,22 @@ internal class FtrackClient : IDisposable, IFtrackClient
             })!;
 
         return result;
+    }
+
+    public async Task<string> MakeRawRequestAsync(HttpMethod method, string relativeUrl, string? json = null)
+    {
+        var content = json != null ? 
+            new StringContent(json, Encoding.UTF8, "application/json") : 
+            null;
+
+        var message = new HttpRequestMessage(method, relativeUrl)
+        {
+            Content = content
+        };
+        var response = await _http.SendAsync(message);
+        response.EnsureSuccessStatusCode();
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        return responseBody;
     }
 }

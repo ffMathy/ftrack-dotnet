@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtrackDotNet.Tests", "src\F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtrackDotNet.TypeGenerator", "src\FtrackDotNet.TypeGenerator\FtrackDotNet.TypeGenerator.csproj", "{92DBA99C-0B48-485B-9AA0-959BF53A10CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtrackDotNet.Sample", "src\FtrackDotNet.Sample\FtrackDotNet.Sample.csproj", "{E3E8CBE2-8F4A-4916-AF32-B033CBBEEEE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{92DBA99C-0B48-485B-9AA0-959BF53A10CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92DBA99C-0B48-485B-9AA0-959BF53A10CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92DBA99C-0B48-485B-9AA0-959BF53A10CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3E8CBE2-8F4A-4916-AF32-B033CBBEEEE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3E8CBE2-8F4A-4916-AF32-B033CBBEEEE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3E8CBE2-8F4A-4916-AF32-B033CBBEEEE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3E8CBE2-8F4A-4916-AF32-B033CBBEEEE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

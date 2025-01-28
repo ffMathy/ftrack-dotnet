@@ -1,6 +1,6 @@
 namespace FtrackDotNet;
 
-public class FtrackContextOptions
+public class FtrackOptions
 {
     public string ServerUrl { get; set; }
     public string ApiKey { get; set; }
