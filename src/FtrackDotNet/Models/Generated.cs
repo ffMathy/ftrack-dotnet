@@ -6,15 +6,15 @@ namespace FtrackDotNet.Models;
 
 using System.Text.Json;
 #pragma warning disable CS8669
-public record ReviewSessionFolder {
+public partial record ReviewSessionFolder {
 	public string Name { get; set; } = null!;
 	public string? ProjectId { get; set; }
 	public string Id { get; init; } = null!;
 	public ReviewSession[]? ReviewSessions { get; set; }
 }
-public record AssetVersionStatusChange : StatusChange {
+public partial record AssetVersionStatusChange : StatusChange {
 }
-public record User : BaseUser {
+public partial record User : BaseUser {
 	public string Username { get; set; } = null!;
 	public bool IsActive { get; set; }
 	public bool? RequireDetailsUpdate { get; set; }
@@ -30,7 +30,7 @@ public record User : BaseUser {
 	public CustomAttributeLink[]? CustomAttributeLinks { get; set; }
 	public CustomAttributeLinkFrom[]? CustomAttributeLinksFrom { get; set; }
 }
-public record ReviewSessionInvitee {
+public partial record ReviewSessionInvitee {
 	public string Email { get; set; } = null!;
 	public string Name { get; set; } = null!;
 	public string? LastSentAt { get; set; }
@@ -42,7 +42,7 @@ public record ReviewSessionInvitee {
 	public ReviewSessionObjectStatus[]? Statuses { get; set; }
 	public string? ResourceId { get; set; }
 }
-public record ApiKey {
+public partial record ApiKey {
 	public string Id { get; init; } = null!;
 	public string? Identifier { get; set; }
 	public string? ResourceId { get; set; }
@@ -54,7 +54,7 @@ public record ApiKey {
 	public SecurityRole[]? Roles { get; set; }
 	public Project[]? Projects { get; set; }
 }
-public record ReviewSessionObjectAnnotation {
+public partial record ReviewSessionObjectAnnotation {
 	public string? ReviewSessionObjectId { get; set; }
 	public string Id { get; init; } = null!;
 	public string? Data { get; set; }
@@ -62,7 +62,7 @@ public record ReviewSessionObjectAnnotation {
 	public string CreatedAt { get; set; } = null!;
 	public string? UpdatedAt { get; set; }
 }
-public record CustomAttributeLinkFrom {
+public partial record CustomAttributeLinkFrom {
 	public string? Id { get; init; }
 	public string FromId { get; set; } = null!;
 	public string? FromEntityType { get; set; }
@@ -70,14 +70,14 @@ public record CustomAttributeLinkFrom {
 	public string? ToEntityType { get; set; }
 	public string ConfigurationId { get; set; } = null!;
 }
-public record ComponentLocation {
+public partial record ComponentLocation {
 	public string? ComponentId { get; set; }
 	public string? LocationId { get; set; }
 	public string? ResourceIdentifier { get; set; }
 	public object? Url { get; set; }
 	public string Id { get; init; } = null!;
 }
-public record Project : Context {
+public partial record Project : Context {
 	public string? FullName { get; set; }
 	public string? Root { get; set; }
 	public string? StartDate { get; set; }
@@ -95,7 +95,7 @@ public record Project : Context {
 	public CalendarEvent[]? CalendarEvents { get; set; }
 	public UserSecurityRoleProject[]? UserSecurityRoleProjects { get; set; }
 }
-public record TypedContext : Context {
+public partial record TypedContext : Context {
 	public double Bid { get; set; }
 	public double? TimeLogged { get; set; }
 	public double? BidTimeLoggedDifference { get; set; }
@@ -117,7 +117,7 @@ public record TypedContext : Context {
 	public StatusChange[]? StatusChanges { get; set; }
 	public SplitTaskPart[]? SplitParts { get; set; }
 }
-public record Event {
+public partial record Event {
 	public int Id { get; init; }
 	public string? ParentType { get; set; }
 	public string? ParentId { get; set; }
@@ -129,16 +129,16 @@ public record Event {
 	public string? CreatedAt { get; set; }
 	public Feed[]? Feeds { get; set; }
 }
-public record ManagerType {
+public partial record ManagerType {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 }
-public record Collaborator : BaseUser {
+public partial record Collaborator : BaseUser {
 	public string? CreatedFromSharedUrl { get; set; }
 }
-public record TypedContextStatusChange : StatusChange {
+public partial record TypedContextStatusChange : StatusChange {
 }
-public record CustomConfigurationBase {
+public partial record CustomConfigurationBase {
 	public string Id { get; init; } = null!;
 	public string? Key { get; set; }
 	public string? EntityType { get; set; }
@@ -152,7 +152,7 @@ public record CustomConfigurationBase {
 	public SecurityRole[]? ReadSecurityRoles { get; set; }
 	public SecurityRole[]? WriteSecurityRoles { get; set; }
 }
-public record CustomAttributeLink {
+public partial record CustomAttributeLink {
 	public string? Id { get; init; }
 	public string FromId { get; set; } = null!;
 	public string? FromEntityType { get; set; }
@@ -160,14 +160,14 @@ public record CustomAttributeLink {
 	public string? ToEntityType { get; set; }
 	public string ConfigurationId { get; set; } = null!;
 }
-public record UserSession {
+public partial record UserSession {
 	public string Id { get; init; } = null!;
 	public string? UserId { get; set; }
 	public bool? Valid { get; set; }
 	public string? AccessedTime { get; set; }
 	public string? CreationTime { get; set; }
 }
-public record Priority {
+public partial record Priority {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public double? Value { get; set; }
@@ -175,7 +175,7 @@ public record Priority {
 	public string? Color { get; set; }
 	public Task[]? Tasks { get; set; }
 }
-public record Dashboard {
+public partial record Dashboard {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? CreatedById { get; set; }
@@ -183,7 +183,7 @@ public record Dashboard {
 	public DashboardWidget[]? Widgets { get; set; }
 	public DashboardResource[]? DashboardResources { get; set; }
 }
-public record ReviewSessionObjectStatus {
+public partial record ReviewSessionObjectStatus {
 	public string? ReviewSessionInviteeId { get; set; }
 	public string? ReviewSessionObjectId { get; set; }
 	public string? Status { get; set; }
@@ -191,7 +191,7 @@ public record ReviewSessionObjectStatus {
 	public string CreatedAt { get; set; } = null!;
 	public string? ResourceId { get; set; }
 }
-public record ObjectType {
+public partial record ObjectType {
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public int Sort { get; set; }
@@ -206,7 +206,7 @@ public record ObjectType {
 	public bool? IsPrioritizable { get; set; }
 	public Task[]? Tasks { get; set; }
 }
-public record Status {
+public partial record Status {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public int? Sort { get; set; }
@@ -214,18 +214,18 @@ public record Status {
 	public bool IsActive { get; set; }
 	public Task[]? Tasks { get; set; }
 }
-public record Setting {
+public partial record Setting {
 	public string Name { get; init; } = null!;
 	public string Group { get; init; } = null!;
 	public string? Value { get; set; }
 }
-public record Appointment {
+public partial record Appointment {
 	public string Id { get; init; } = null!;
 	public string Type { get; set; } = null!;
 	public string ResourceId { get; set; } = null!;
 	public string ContextId { get; set; } = null!;
 }
-public record AssetVersion {
+public partial record AssetVersion {
 	public string Id { get; init; } = null!;
 	public string? ProjectId { get; set; }
 	public string? AssetId { get; set; }
@@ -254,7 +254,7 @@ public record AssetVersion {
 	public CustomAttributeLink[]? CustomAttributeLinks { get; set; }
 	public CustomAttributeLinkFrom[]? CustomAttributeLinksFrom { get; set; }
 }
-public record CalendarEvent {
+public partial record CalendarEvent {
 	public string Name { get; set; } = null!;
 	public string Start { get; set; } = null!;
 	public string End { get; set; } = null!;
@@ -271,7 +271,7 @@ public record CalendarEvent {
 	public bool? Forecast { get; set; }
 	public Metadata[]? Metadata { get; set; }
 }
-public record ReviewSessionObject {
+public partial record ReviewSessionObject {
 	public string Name { get; set; } = null!;
 	public string Description { get; set; } = null!;
 	public string Version { get; set; } = null!;
@@ -284,7 +284,7 @@ public record ReviewSessionObject {
 	public Note[]? Notes { get; set; }
 	public ReviewSessionObjectAnnotation[]? Annotations { get; set; }
 }
-public record StatusRuleGroup {
+public partial record StatusRuleGroup {
 	public string Id { get; init; } = null!;
 	public string EntityType { get; set; } = null!;
 	public string SchemaId { get; set; } = null!;
@@ -292,20 +292,20 @@ public record StatusRuleGroup {
 	public StatusRule[]? StatusRules { get; set; }
 	public string? RoleId { get; set; }
 }
-public record SplitTaskPart {
+public partial record SplitTaskPart {
 	public string Id { get; init; } = null!;
 	public string? Label { get; set; }
 	public string StartDate { get; set; } = null!;
 	public string EndDate { get; set; } = null!;
 	public string TaskId { get; set; } = null!;
 }
-public record NoteLabel {
+public partial record NoteLabel {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public int? Sort { get; set; }
 	public string? Color { get; set; }
 }
-public record ReviewSession {
+public partial record ReviewSession {
 	public string Name { get; set; } = null!;
 	public string? Availability { get; set; }
 	public string Description { get; set; } = null!;
@@ -329,24 +329,24 @@ public record ReviewSession {
 	public bool? IsOpen { get; set; }
 	public Metadata[]? Metadata { get; set; }
 }
-public record UserApplicationState {
+public partial record UserApplicationState {
 	public string UserId { get; init; } = null!;
 	public string Key { get; init; } = null!;
 	public string Value { get; set; } = null!;
 }
-public record ListCategory {
+public partial record ListCategory {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public List[]? Lists { get; set; }
 }
-public record UserType {
+public partial record UserType {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 }
-public record NoteAnnotationComponent : NoteComponent {
+public partial record NoteAnnotationComponent : NoteComponent {
 	public object? Data { get; set; }
 }
-public record Timer {
+public partial record Timer {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string Comment { get; set; } = null!;
@@ -354,23 +354,23 @@ public record Timer {
 	public string? ContextId { get; set; }
 	public string UserId { get; set; } = null!;
 }
-public record ContainerComponent : Component {
+public partial record ContainerComponent : Component {
 	public Component[]? Members { get; set; }
 }
-public record CustomAttributeType {
+public partial record CustomAttributeType {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? FormConfig { get; set; }
 	public bool Core { get; set; }
 	public CustomAttributeConfiguration[]? CustomAttributeConfigurations { get; set; }
 }
-public record TaskTemplate {
+public partial record TaskTemplate {
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public string ProjectSchemaId { get; set; } = null!;
 	public TaskTemplateItem[]? Items { get; set; }
 }
-public record ProjectSchema {
+public partial record ProjectSchema {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? AssetVersionWorkflowSchemaId { get; set; }
@@ -381,14 +381,14 @@ public record ProjectSchema {
 	public Schema[]? ObjectTypeSchemas { get; set; }
 	public TaskTemplate[]? TaskTemplates { get; set; }
 }
-public record CalendarEventResource {
+public partial record CalendarEventResource {
 	public string CalendarEventId { get; set; } = null!;
 	public string ResourceId { get; set; } = null!;
 	public string Id { get; init; } = null!;
 	public string? CreatedAt { get; set; }
 	public string? CreatedById { get; set; }
 }
-public record Component {
+public partial record Component {
 	public string SystemType { get; set; } = null!;
 	public string Name { get; set; } = null!;
 	public int? Size { get; set; }
@@ -402,7 +402,7 @@ public record Component {
 	public CustomAttributeLink[]? CustomAttributeLinks { get; set; }
 	public CustomAttributeLinkFrom[]? CustomAttributeLinksFrom { get; set; }
 }
-public record Feed {
+public partial record Feed {
 	public string Id { get; init; } = null!;
 	public string? OwnerId { get; set; }
 	public int? SocialId { get; set; }
@@ -411,21 +411,21 @@ public record Feed {
 	public string? CreatedAt { get; set; }
 	public string? ClusterId { get; set; }
 }
-public record ActionLog {
+public partial record ActionLog {
 	public int? Id { get; init; }
 	public string? Message { get; set; }
 	public string? Status { get; set; }
 	public string ActionId { get; set; } = null!;
 	public string? CreatedAt { get; set; }
 }
-public record DashboardWidget {
+public partial record DashboardWidget {
 	public string Id { get; init; } = null!;
 	public string? Type { get; set; }
 	public string? DashboardId { get; set; }
 	public string? Config { get; set; }
 	public double? Sort { get; set; }
 }
-public record Resource {
+public partial record Resource {
 	public string ResourceType { get; set; } = null!;
 	public string Id { get; init; } = null!;
 	public Appointment[]? Appointments { get; set; }
@@ -433,19 +433,19 @@ public record Resource {
 	public Appointment[]? Allocations { get; set; }
 	public DashboardResource[]? DashboardResources { get; set; }
 }
-public record NoteCategory : NoteLabel {
+public partial record NoteCategory : NoteLabel {
 }
-public record NoteComponent {
+public partial record NoteComponent {
 	public string ComponentId { get; init; } = null!;
 	public string NoteId { get; init; } = null!;
 	public object? Url { get; set; }
 	public object? ThumbnailUrl { get; set; }
 }
-public record DashboardResource {
+public partial record DashboardResource {
 	public string DashboardId { get; init; } = null!;
 	public string ResourceId { get; init; } = null!;
 }
-public record Context {
+public partial record Context {
 	public string ContextType { get; set; } = null!;
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
@@ -469,33 +469,33 @@ public record Context {
 	public CustomAttributeLink[]? CustomAttributeLinks { get; set; }
 	public CustomAttributeLinkFrom[]? CustomAttributeLinksFrom { get; set; }
 }
-public record Membership {
+public partial record Membership {
 	public string Id { get; init; } = null!;
 	public string GroupId { get; set; } = null!;
 	public string UserId { get; set; } = null!;
 }
-public record WorkflowSchema {
+public partial record WorkflowSchema {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public Status[]? Statuses { get; set; }
 	public ProjectSchemaOverride[]? Overrides { get; set; }
 }
-public record StatusRule {
+public partial record StatusRule {
 	public string Id { get; init; } = null!;
 	public string StatusRuleGroupId { get; set; } = null!;
 	public string StatusId { get; set; } = null!;
 }
-public record TypedContextStatusRuleGroup : StatusRuleGroup {
+public partial record TypedContextStatusRuleGroup : StatusRuleGroup {
 	public string ObjectTypeId { get; set; } = null!;
 }
-public record BaseUser : Resource {
+public partial record BaseUser : Resource {
 	public string? FirstName { get; set; }
 	public string? LastName { get; set; }
 	public string? Email { get; set; }
 	public string? ThumbnailId { get; set; }
 	public object? ThumbnailUrl { get; set; }
 }
-public record Type {
+public partial record Type {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string Color { get; set; } = null!;
@@ -504,78 +504,78 @@ public record Type {
 	public TaskTypeSchema[]? TaskTypeSchemas { get; set; }
 	public Task[]? Tasks { get; set; }
 }
-public record JobComponent {
+public partial record JobComponent {
 	public string ComponentId { get; init; } = null!;
 	public string JobId { get; init; } = null!;
 	public object? Url { get; set; }
 }
-public record Trigger {
+public partial record Trigger {
 	public string Id { get; init; } = null!;
 	public string Filter { get; set; } = null!;
 	public string? AutomationId { get; set; }
 }
-public record SequenceComponent : ContainerComponent {
+public partial record SequenceComponent : ContainerComponent {
 	public int Padding { get; set; }
 }
-public record UserSecurityRoleProject {
+public partial record UserSecurityRoleProject {
 	public string Id { get; init; } = null!;
 	public string? UserSecurityRoleId { get; set; }
 	public string? ProjectId { get; set; }
 }
-public record SettingComponent {
+public partial record SettingComponent {
 	public string ComponentId { get; init; } = null!;
 	public string Name { get; init; } = null!;
 	public string Group { get; init; } = null!;
 	public object? Url { get; set; }
 	public object? ThumbnailUrl { get; set; }
 }
-public record Manager {
+public partial record Manager {
 	public string Id { get; init; } = null!;
 	public string? ContextId { get; set; }
 	public string? TypeId { get; set; }
 	public string? UserId { get; set; }
 }
-public record WebhookAction : Action {
+public partial record WebhookAction : Action {
 	public string WebhookUrl { get; set; } = null!;
 	public string? Headers { get; set; }
 }
-public record WorkflowSchemaStatus {
+public partial record WorkflowSchemaStatus {
 	public string WorkflowSchemaId { get; init; } = null!;
 	public string StatusId { get; init; } = null!;
 }
-public record CustomAttributeValue {
+public partial record CustomAttributeValue {
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
 }
-public record AssetVersionList : List {
+public partial record AssetVersionList : List {
 	public AssetVersion[]? Items { get; set; }
 }
-public record TaskTemplateItem {
+public partial record TaskTemplateItem {
 	public string Id { get; init; } = null!;
 	public string TemplateId { get; set; } = null!;
 	public string TaskTypeId { get; set; } = null!;
 }
-public record SchemaType {
+public partial record SchemaType {
 	public string TypeId { get; init; } = null!;
 	public string SchemaId { get; init; } = null!;
 	public int? Sort { get; set; }
 }
-public record SchemaStatus {
+public partial record SchemaStatus {
 	public string StatusId { get; init; } = null!;
 	public string SchemaId { get; init; } = null!;
 	public int? Sort { get; set; }
 }
-public record NoteLabelLink {
+public partial record NoteLabelLink {
 	public string NoteId { get; init; } = null!;
 	public string LabelId { get; init; } = null!;
 }
-public record TaskTypeSchema {
+public partial record TaskTypeSchema {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public Type[]? Types { get; set; }
 }
-public record Timelog {
+public partial record Timelog {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string Comment { get; set; } = null!;
@@ -585,41 +585,41 @@ public record Timelog {
 	public string? UserId { get; set; }
 	public string? ContextId { get; set; }
 }
-public record AssetVersionLink {
+public partial record AssetVersionLink {
 	public string Id { get; init; } = null!;
 	public string FromId { get; set; } = null!;
 	public string ToId { get; set; } = null!;
 	public Metadata[]? Metadata { get; set; }
 }
-public record SecurityRole {
+public partial record SecurityRole {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? Type { get; set; }
 	public UserSecurityRole[]? UserSecurityRoles { get; set; }
 }
-public record ListObject {
+public partial record ListObject {
 	public string Id { get; init; } = null!;
 	public string EntityId { get; set; } = null!;
 	public string ListId { get; set; } = null!;
 	public ListObjectCustomAttributeValue[]? CustomAttributes { get; set; }
 }
-public record ReviewSessionObjectAnnotationComponent {
+public partial record ReviewSessionObjectAnnotationComponent {
 	public string ComponentId { get; init; } = null!;
 	public string FrameNumber { get; set; } = null!;
 	public string ReviewSessionObjectId { get; init; } = null!;
 	public object? Url { get; set; }
 	public object? ThumbnailUrl { get; set; }
 }
-public record TypedContextList : List {
+public partial record TypedContextList : List {
 	public Task[]? Items { get; set; }
 }
-public record ProjectSchemaOverride {
+public partial record ProjectSchemaOverride {
 	public string Id { get; init; } = null!;
 	public string? ProjectSchemaId { get; set; }
 	public string? WorkflowSchemaId { get; set; }
 	public string? TypeId { get; set; }
 }
-public record Job {
+public partial record Job {
 	public string Id { get; init; } = null!;
 	public string Status { get; set; } = null!;
 	public string? UserId { get; set; }
@@ -629,7 +629,7 @@ public record Job {
 	public string? FinishedAt { get; set; }
 	public JobComponent[]? JobComponents { get; set; }
 }
-public record UserSecurityRole {
+public partial record UserSecurityRole {
 	public string Id { get; init; } = null!;
 	public string? UserId { get; set; }
 	public string? SecurityRoleId { get; set; }
@@ -637,7 +637,7 @@ public record UserSecurityRole {
 	public bool? IsAllOpenProjects { get; set; }
 	public UserSecurityRoleProject[]? UserSecurityRoleProjects { get; set; }
 }
-public record Asset {
+public partial record Asset {
 	public string Id { get; init; } = null!;
 	public string? ProjectId { get; set; }
 	public string? Name { get; set; }
@@ -650,7 +650,7 @@ public record Asset {
 	public CustomAttributeLink[]? CustomAttributeLinks { get; set; }
 	public CustomAttributeLinkFrom[]? CustomAttributeLinksFrom { get; set; }
 }
-public record TypedContextLink {
+public partial record TypedContextLink {
 	public string Id { get; init; } = null!;
 	public string FromId { get; set; } = null!;
 	public string ToId { get; set; } = null!;
@@ -658,16 +658,16 @@ public record TypedContextLink {
 	public string? Type { get; set; }
 	public Metadata[]? Metadata { get; set; }
 }
-public record CustomAttributeLinkConfiguration : CustomConfigurationBase {
+public partial record CustomAttributeLinkConfiguration : CustomConfigurationBase {
 	public bool? OneToOne { get; set; }
 	public string EntityTypeTo { get; set; } = null!;
 	public string? ObjectTypeIdTo { get; set; }
 }
-public record Action {
+public partial record Action {
 	public string? Id { get; init; }
 	public string AutomationId { get; set; } = null!;
 }
-public record Automation {
+public partial record Automation {
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public string? Description { get; set; }
@@ -677,26 +677,26 @@ public record Automation {
 	public Action[]? Actions { get; set; }
 	public Trigger[]? Triggers { get; set; }
 }
-public record FileComponent : Component {
+public partial record FileComponent : Component {
 }
-public record CustomAttributeGroup {
+public partial record CustomAttributeGroup {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public CustomAttributeConfiguration[]? CustomAttributeConfigurations { get; set; }
 }
-public record Recipient {
+public partial record Recipient {
 	public string NoteId { get; init; } = null!;
 	public string ResourceId { get; init; } = null!;
 	public string? TextMentioned { get; set; }
 }
-public record AssetType {
+public partial record AssetType {
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public string Short { get; set; } = null!;
 	public string? Component { get; set; }
 	public Asset[]? Assets { get; set; }
 }
-public record Note {
+public partial record Note {
 	public string Id { get; init; } = null!;
 	public string? ParentId { get; set; }
 	public string? ParentType { get; set; }
@@ -717,35 +717,35 @@ public record Note {
 	public Recipient[]? Recipients { get; set; }
 	public int? FrameNumber { get; set; }
 }
-public record Location {
+public partial record Location {
 	public string Name { get; set; } = null!;
 	public string? Label { get; set; }
 	public string? Description { get; set; }
 	public string Id { get; init; } = null!;
 	public ComponentLocation[]? LocationComponents { get; set; }
 }
-public record TaskTypeSchemaType {
+public partial record TaskTypeSchemaType {
 	public string TaskTypeSchemaId { get; init; } = null!;
 	public string TypeId { get; init; } = null!;
 }
-public record State {
+public partial record State {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? Short { get; set; }
 }
-public record ProjectSchemaObjectType {
+public partial record ProjectSchemaObjectType {
 	public string ObjectTypeId { get; init; } = null!;
 	public string ProjectSchemaId { get; init; } = null!;
 }
-public record AssetVersionStatusRuleGroup : StatusRuleGroup {
+public partial record AssetVersionStatusRuleGroup : StatusRuleGroup {
 }
-public record Metadata {
+public partial record Metadata {
 	public string ParentId { get; init; } = null!;
 	public string ParentType { get; set; } = null!;
 	public string Key { get; init; } = null!;
 	public string Value { get; set; } = null!;
 }
-public record StatusChange {
+public partial record StatusChange {
 	public string Id { get; init; } = null!;
 	public string? ParentId { get; set; }
 	public string? ParentType { get; set; }
@@ -754,7 +754,7 @@ public record StatusChange {
 	public string? FromStatusId { get; set; }
 	public string? UserId { get; set; }
 }
-public record Schema {
+public partial record Schema {
 	public string Id { get; init; } = null!;
 	public string ProjectSchemaId { get; set; } = null!;
 	public string TypeId { get; set; } = null!;
@@ -762,7 +762,7 @@ public record Schema {
 	public SchemaStatus[]? Statuses { get; set; }
 	public SchemaType[]? Types { get; set; }
 }
-public record List {
+public partial record List {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public bool IsOpen { get; set; }
@@ -775,7 +775,7 @@ public record List {
 	public CustomAttributeLink[]? CustomAttributeLinks { get; set; }
 	public CustomAttributeLinkFrom[]? CustomAttributeLinksFrom { get; set; }
 }
-public record Group : Resource {
+public partial record Group : Resource {
 	public string Name { get; set; } = null!;
 	public bool Local { get; set; }
 	public string? ParentId { get; set; }
@@ -786,102 +786,102 @@ public record Group : Resource {
 	public CustomAttributeLink[]? CustomAttributeLinks { get; set; }
 	public CustomAttributeLinkFrom[]? CustomAttributeLinksFrom { get; set; }
 }
-public record CustomAttributeConfiguration : CustomConfigurationBase {
+public partial record CustomAttributeConfiguration : CustomConfigurationBase {
 	public JsonElement? Default { get; set; }
 	public bool? IsHierarchical { get; set; }
 	public string? TypeId { get; set; }
 	public CustomAttributeValue[]? Values { get; set; }
 }
-public record UserTaskTypeLink {
+public partial record UserTaskTypeLink {
 	public string UserId { get; init; } = null!;
 	public string TypeId { get; init; } = null!;
 }
-public record EntitySetting {
+public partial record EntitySetting {
 	public string ParentId { get; init; } = null!;
 	public string ParentType { get; set; } = null!;
 	public string Group { get; init; } = null!;
 	public string Name { get; init; } = null!;
 	public string Value { get; set; } = null!;
 }
-public record Disk {
+public partial record Disk {
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public string? Unix { get; set; }
 	public string? Windows { get; set; }
 	public Project[]? Projects { get; set; }
 }
-public record UserView {
+public partial record UserView {
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public bool? Global { get; set; }
 	public string? UserId { get; set; }
 	public Resource[]? SharedWith { get; set; }
 }
-public record Scope {
+public partial record Scope {
 	public string Name { get; set; } = null!;
 	public string Id { get; init; } = null!;
 }
-public record ContextCustomAttributeValue {
+public partial record ContextCustomAttributeValue {
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
 	public string? Key { get; set; }
 }
-public record AssetVersionCustomAttributeValue {
+public partial record AssetVersionCustomAttributeValue {
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
 	public string? Key { get; set; }
 }
-public record ListCustomAttributeValue {
+public partial record ListCustomAttributeValue {
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
 	public string? Key { get; set; }
 }
-public record ListObjectCustomAttributeValue {
+public partial record ListObjectCustomAttributeValue {
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
 	public string? Key { get; set; }
 }
-public record UserCustomAttributeValue {
+public partial record UserCustomAttributeValue {
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
 	public string? Key { get; set; }
 }
-public record AssetCustomAttributeValue {
+public partial record AssetCustomAttributeValue {
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
 	public string? Key { get; set; }
 }
-public record ContextCustomAttributeLink : CustomAttributeLink {
+public partial record ContextCustomAttributeLink : CustomAttributeLink {
 }
-public record ContextCustomAttributeLinkFrom : CustomAttributeLinkFrom {
+public partial record ContextCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 }
-public record AssetVersionCustomAttributeLink : CustomAttributeLink {
+public partial record AssetVersionCustomAttributeLink : CustomAttributeLink {
 }
-public record AssetVersionCustomAttributeLinkFrom : CustomAttributeLinkFrom {
+public partial record AssetVersionCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 }
-public record ListCustomAttributeLink : CustomAttributeLink {
+public partial record ListCustomAttributeLink : CustomAttributeLink {
 }
-public record ListCustomAttributeLinkFrom : CustomAttributeLinkFrom {
+public partial record ListCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 }
-public record UserCustomAttributeLink : CustomAttributeLink {
+public partial record UserCustomAttributeLink : CustomAttributeLink {
 }
-public record UserCustomAttributeLinkFrom : CustomAttributeLinkFrom {
+public partial record UserCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 }
-public record GroupCustomAttributeLink : CustomAttributeLink {
+public partial record GroupCustomAttributeLink : CustomAttributeLink {
 }
-public record GroupCustomAttributeLinkFrom : CustomAttributeLinkFrom {
+public partial record GroupCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 }
-public record AssetCustomAttributeLink : CustomAttributeLink {
+public partial record AssetCustomAttributeLink : CustomAttributeLink {
 }
-public record AssetCustomAttributeLinkFrom : CustomAttributeLinkFrom {
+public partial record AssetCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 }
-public record ComponentCustomAttributeLink : CustomAttributeLink {
+public partial record ComponentCustomAttributeLink : CustomAttributeLink {
 }
-public record ComponentCustomAttributeLinkFrom : CustomAttributeLinkFrom {
+public partial record ComponentCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 }
