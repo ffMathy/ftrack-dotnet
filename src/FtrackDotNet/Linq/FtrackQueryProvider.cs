@@ -1,9 +1,12 @@
 using System.Linq.Expressions;
 using FtrackDotNet.Clients;
+using FtrackDotNet.UnitOfWork;
 
 namespace FtrackDotNet.Linq;
 
-internal class FtrackQueryProvider(IFtrackClient client) : IQueryProvider, IAsyncQueryProvider
+internal class FtrackQueryProvider(
+    IFtrackClient client,
+    IFtrackTransactionState ftrackTransactionState) : IQueryProvider, IAsyncQueryProvider
 {
     private readonly IFtrackClient _client = client ?? throw new ArgumentNullException(nameof(client));
     private readonly FtrackExpressionVisitor _visitor = new FtrackExpressionVisitor();
@@ -43,6 +46,10 @@ internal class FtrackQueryProvider(IFtrackClient client) : IQueryProvider, IAsyn
 
         // 2. Call into the IFtrackClient with the query definition
         var results = await _client.QueryAsync<TResult>(query);
+        foreach(var result in (IEnumerable<object>)results!)
+        {
+            ftrackTransactionState.CurrentTransaction.Value?.ChangeDetector.TrackEntity(result);
+        }
 
         return results;
     }

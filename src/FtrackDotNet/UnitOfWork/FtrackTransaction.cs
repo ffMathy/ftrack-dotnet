@@ -1,6 +1,6 @@
 namespace FtrackDotNet.UnitOfWork;
 
-internal class FtrackTransaction : IFtrackTransaction
+public class FtrackTransaction : IFtrackTransaction
 {
     internal IChangeDetector ChangeDetector { get; }
     

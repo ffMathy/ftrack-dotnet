@@ -8,9 +8,10 @@ namespace FtrackDotNet;
 
 public class FtrackContext(
     IFtrackClient ftrackClient,
-    IFtrackTransactionFactory ftrackTransactionFactory)
+    IFtrackTransactionFactory ftrackTransactionFactory,
+    IFtrackTransactionState ftrackTransactionState)
 {
-    private FtrackQueryProvider Provider => new(ftrackClient);
+    private FtrackQueryProvider Provider => new(ftrackClient, ftrackTransactionState);
     
     public IFtrackTransaction BeginTransaction() => ftrackTransactionFactory.Create();
 

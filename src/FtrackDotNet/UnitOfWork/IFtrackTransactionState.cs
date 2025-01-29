@@ -2,5 +2,5 @@ namespace FtrackDotNet.UnitOfWork;
 
 public interface IFtrackTransactionState
 {
-    AsyncLocal<IFtrackTransaction?> CurrentTransaction { get; }    
+    AsyncLocal<FtrackTransaction?> CurrentTransaction { get; }    
 }
