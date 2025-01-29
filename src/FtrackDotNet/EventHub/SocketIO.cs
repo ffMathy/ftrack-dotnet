@@ -336,19 +336,20 @@ public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
         await CloseAsync();
 
         // Clean up final references
-        _heartbeatTimer?.Dispose();
+        await CastAndDisposeAsync(_heartbeatTimer);
         _heartbeatTimer = null;
 
         await CastAndDisposeAsync(_webSocket);
         await CastAndDisposeAsync(_cancellationTokenSource);
     }
 
-    private static async ValueTask CastAndDisposeAsync(IDisposable resource)
+    private static async ValueTask CastAndDisposeAsync(IDisposable? resource)
     {
-        // In .NET 8, CancellationTokenSource has CancelAsync(), 
-        // but it still only implements IDisposable, not IAsyncDisposable.
-        // If you have other resources that do implement IAsyncDisposable, 
-        // this pattern ensures a proper async dispose.
+        if (resource == null)
+        {
+            return;
+        }
+        
         if (resource is IAsyncDisposable asyncDisposable)
             await asyncDisposable.DisposeAsync();
         else

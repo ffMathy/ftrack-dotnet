@@ -168,26 +168,43 @@ public class FtrackEventHubClient(
         };
         builder.Scheme = builder.Scheme == "https" ? "wss" : "ws";
 
+        await DisconnectAsync();
+        
         _socketIo = socketIoFactory.Create(builder.Uri);
 
-        // Listen to low-level socket events
-        _socketIo.OnConnect += () => OnConnect?.Invoke();
-        _socketIo.OnDisconnect += () => OnDisconnect?.Invoke();
-        _socketIo.OnError += ex => OnError?.Invoke(ex);
-
-        _socketIo.OnEvent += (payload) =>
-        {
-            var result = JsonSerializer.Deserialize<FtrackEventEnvelope>(payload.ToString(), new JsonSerializerOptions()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.KebabCaseLower
-            });
-            foreach (var @event in result.Args)
-            {
-                OnEventReceived?.Invoke(@event);
-            }
-        };
+        _socketIo.OnConnect += FireOnConnect;
+        _socketIo.OnDisconnect += FireOnDisconnect;
+        _socketIo.OnError += FireOnError;
+        _socketIo.OnEvent += FireOnEvent;
 
         await _socketIo.ConnectAsync();
+    }
+
+    private void FireOnEvent(JsonElement payload)
+    {
+        var result = JsonSerializer.Deserialize<FtrackEventEnvelope>(payload.ToString(), new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.KebabCaseLower
+        });
+        foreach (var @event in result.Args)
+        {
+            OnEventReceived?.Invoke(@event);
+        }
+    }
+
+    private void FireOnError(Exception ex)
+    {
+        OnError?.Invoke(ex);
+    }
+
+    private void FireOnDisconnect()
+    {
+        OnDisconnect?.Invoke();
+    }
+
+    private void FireOnConnect()
+    {
+        OnConnect?.Invoke();
     }
 
     private async Task<string> GetSessionIdAsync()
@@ -212,6 +229,12 @@ public class FtrackEventHubClient(
 
         await _socketIo.CloseAsync();
         await _socketIo.DisposeAsync();
+
+        _socketIo.OnConnect -= FireOnConnect;
+        _socketIo.OnDisconnect -= FireOnDisconnect;
+        _socketIo.OnError -= FireOnError;
+        _socketIo.OnEvent -= FireOnEvent;
+        
         _socketIo = null;
     }
 
