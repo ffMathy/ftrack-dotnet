@@ -3,6 +3,7 @@ using FtrackDotNet;
 using FtrackDotNet.Clients;
 using FtrackDotNet.EventHub;
 using FtrackDotNet.Models;
+using FtrackDotNet.UnitOfWork;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable once UnusedType.Global
@@ -14,13 +15,15 @@ public static class FtrackServiceCollectionExtensions
         this IServiceCollection services,
         Action<FtrackOptions>? configureOptions = null)
     {
-        services.AddScoped<FtrackContext>();
-        services.AddScoped<IFtrackClient, FtrackClient>();
+        services.AddTransient<FtrackContext>();
+        services.AddTransient<IFtrackClient, FtrackClient>();
         
         services.AddScoped<ISocketIOFactory, SocketIOFactory>();
         services.AddScoped<IFtrackEventHubClient, FtrackEventHubClient>();
         
-        services.AddScoped<IChangeDetector, ChangeDetector>();
+        services.AddTransient<IChangeDetector, ChangeDetector>();
+        services.AddTransient<IFtrackTransactionFactory, FtrackTransactionFactory>();
+        services.AddSingleton<IFtrackTransactionState, FtrackTransactionState>();
         
         var builder = services
             .AddOptions<FtrackOptions>()

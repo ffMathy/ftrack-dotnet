@@ -1,12 +1,6 @@
 
 
-namespace FtrackDotNet.Models;
-
-internal class TrackedEntity
-{
-    public WeakReference EntityReference { get; init; } = null!;
-    public object ValueSnapshot { get; set; } = null!;
-}
+namespace FtrackDotNet.UnitOfWork;
 
 internal class ChangeDetector : IChangeDetector
 {
@@ -82,19 +76,25 @@ internal class ChangeDetector : IChangeDetector
                || type == typeof(decimal);
     }
 
-    public void OnChangesSaved()
+    public void RefreshSnapshots()
     {
+        var keysToRemove = new HashSet<int>();
         foreach (var keyValuePair in _trackedEntities)
         {
             var entity = keyValuePair.Value.EntityReference.Target;
             if (entity == null)
             {
-                _trackedEntities.Remove(keyValuePair.Key);
+                keysToRemove.Add(keyValuePair.Key);
                 continue;
             }
             
             var valueSnapshot = TakeValueSnapshot(entity);
             _trackedEntities[keyValuePair.Key].ValueSnapshot = valueSnapshot;
+        }
+
+        foreach (var key in keysToRemove)
+        {
+            _trackedEntities.Remove(key);
         }
     }
 }

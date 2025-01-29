@@ -1,7 +1,7 @@
-namespace FtrackDotNet.Models;
+namespace FtrackDotNet.UnitOfWork;
 
 public interface IChangeDetector
 {
     void TrackEntity(object entity);
-    void OnChangesSaved();
+    void RefreshSnapshots();
 }

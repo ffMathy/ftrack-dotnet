@@ -1,13 +1,18 @@
 ﻿using FtrackDotNet.Clients;
 using FtrackDotNet.Linq;
 using FtrackDotNet.Models;
+using FtrackDotNet.UnitOfWork;
 using Type = FtrackDotNet.Models.Type;
 
 namespace FtrackDotNet;
 
-public class FtrackContext(IFtrackClient ftrackClient)
+public class FtrackContext(
+    IFtrackClient ftrackClient,
+    IFtrackTransactionFactory ftrackTransactionFactory)
 {
     private FtrackQueryProvider Provider => new(ftrackClient);
+    
+    public IFtrackTransaction BeginTransaction() => ftrackTransactionFactory.Create();
 
     public IQueryable<TypedContext> TypedContexts => new FtrackQueryable<TypedContext>(Provider);
     public IQueryable<Context> Contexts => new FtrackQueryable<Context>(Provider);
