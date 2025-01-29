@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using FtrackDotNet.Models;
 using Microsoft.Extensions.Options;
 
 namespace FtrackDotNet.Clients;
@@ -13,7 +14,8 @@ internal class FtrackClient : IDisposable, IFtrackClient
     /// Typically you pass in a HttpClientFactory in real apps, 
     /// but for brevity we'll create an HttpClient here.
     /// </summary>
-    public FtrackClient(IOptionsSnapshot<FtrackOptions> options)
+    public FtrackClient(
+        IOptionsSnapshot<FtrackOptions> options)
     {
         _http = new HttpClient
         {

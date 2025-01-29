@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using FtrackDotNet;
 using FtrackDotNet.Clients;
 using FtrackDotNet.EventHub;
+using FtrackDotNet.Models;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable once UnusedType.Global
@@ -18,6 +19,8 @@ public static class FtrackServiceCollectionExtensions
         
         services.AddScoped<ISocketIOFactory, SocketIOFactory>();
         services.AddScoped<IFtrackEventHubClient, FtrackEventHubClient>();
+        
+        services.AddScoped<IChangeDetector, ChangeDetector>();
         
         var builder = services
             .AddOptions<FtrackOptions>()
