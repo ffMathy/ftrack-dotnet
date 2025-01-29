@@ -1,4 +1,5 @@
-﻿using FtrackDotNet.EventHub;
+﻿using FtrackDotNet;
+using FtrackDotNet.EventHub;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -33,8 +34,8 @@ hub.OnError += ex => Console.WriteLine($"[Error] {ex.Message}");
 
 await hub.ConnectAsync();
 
-// Subscribe to a test topic
 await hub.SubscribeAsync("my.custom.topic");
+await hub.SubscribeAsync("ftrack.update");
 
 // Publish an event
 await hub.PublishAsync(new FtrackEvent
@@ -42,6 +43,8 @@ await hub.PublishAsync(new FtrackEvent
     Topic = "my.custom.topic",
     Data = "Hello from .NET!"
 });
+
+var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
 
 Console.WriteLine("Press ENTER to quit...");
 Console.ReadLine();
