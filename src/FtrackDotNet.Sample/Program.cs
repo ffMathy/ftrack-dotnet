@@ -24,12 +24,6 @@ hub.OnEventReceived += evt =>
     Console.WriteLine($"[EventReceived] Topic={evt.Topic}, Data={evt.Data}");
 };
 
-// Fired specifically for the event's topic
-hub.OnTopicEvent += (topic, evt) =>
-{
-    Console.WriteLine($"[TopicEvent] {topic}, Data={evt.Data}");
-};
-
 hub.OnError += ex => Console.WriteLine($"[Error] {ex.Message}");
 
 await hub.ConnectAsync();

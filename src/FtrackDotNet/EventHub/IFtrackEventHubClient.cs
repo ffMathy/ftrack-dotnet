@@ -23,12 +23,6 @@ public interface IFtrackEventHubClient : IAsyncDisposable
     event Action<FtrackEvent>? OnEventReceived;
 
     /// <summary>
-    /// Fired when a specific topic event is received.
-    /// The first parameter is the topic name, the second is the event.
-    /// </summary>
-    event Action<string, FtrackEvent>? OnTopicEvent;
-
-    /// <summary>
     /// Corresponds to `publish(event)` in the JS code.
     /// Calls socket.emit('publish', event).
     /// </summary>

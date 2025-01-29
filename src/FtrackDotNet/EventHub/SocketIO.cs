@@ -11,7 +11,7 @@ namespace FtrackDotNet.EventHub;
 /// This class emulates its basic client behavior in .NET.
 /// @see https://github.com/ftrackhq/ftrack-javascript/blob/main/source/simple_socketio.ts
 /// </summary>
-public class SocketIO : IAsyncDisposable, ISocketIO
+public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
 {
     private const string PACKET_TYPE_DISCONNECT = "0";
     private const string PACKET_TYPE_CONNECT = "1";
@@ -21,10 +21,9 @@ public class SocketIO : IAsyncDisposable, ISocketIO
     private const string PACKET_TYPE_EVENT = "5";
     private const string PACKET_TYPE_ACKNOWLEDGE = "6";
     private const string PACKET_TYPE_ERROR = "7";
-    
-    private readonly Uri _uri;
-    private ClientWebSocket _webSocket;
-    private CancellationTokenSource _cancellationTokenSource;
+
+    private ClientWebSocket _webSocket = new();
+    private CancellationTokenSource _cancellationTokenSource = new();
 
     private bool _connected = false;
     private bool _reconnecting = false;  // guard against multiple concurrent reconnect attempts
@@ -44,15 +43,7 @@ public class SocketIO : IAsyncDisposable, ISocketIO
     public event Action? OnConnect;
     public event Action? OnDisconnect;
     public event Action<Exception>? OnError;
-    public event Action<string, object?>? OnEvent;
-
-    public SocketIO(Uri url)
-    {
-        _uri = url;
-
-        _cancellationTokenSource = new CancellationTokenSource();
-        _webSocket = new ClientWebSocket();
-    }
+    public event Action<JsonElement>? OnEvent;
 
     /// <summary>
     /// Initiates the connection, starts heartbeat, then enters receive loop.
@@ -63,7 +54,7 @@ public class SocketIO : IAsyncDisposable, ISocketIO
 
         try
         {
-            await _webSocket.ConnectAsync(_uri, _cancellationTokenSource.Token);
+            await _webSocket.ConnectAsync(url, _cancellationTokenSource.Token);
             _connected = true;
             
             StartHeartbeat();
@@ -158,7 +149,7 @@ public class SocketIO : IAsyncDisposable, ISocketIO
     {
         if (string.IsNullOrEmpty(message) || _disposed) return;
 
-        var split = message.Split(":", StringSplitOptions.RemoveEmptyEntries);
+        var split = message.Split(":", 2, StringSplitOptions.RemoveEmptyEntries);
         var packetType = split[0];
 
         Debug.WriteLine("Received: " + message);
@@ -202,17 +193,8 @@ public class SocketIO : IAsyncDisposable, ISocketIO
     {
         try
         {
-            var payload = System.Text.Json.JsonSerializer.Deserialize<object[]>(json);
-            if (payload?.Length > 0)
-            {
-                var eventName = payload[0] as string;
-                var eventData = payload.Length > 1 ? payload[1] : null;
-
-                if (!string.IsNullOrEmpty(eventName))
-                {
-                    OnEvent?.Invoke(eventName, eventData);
-                }
-            }
+            var payload = JsonSerializer.Deserialize<JsonElement>(json);
+            OnEvent?.Invoke(payload);
         }
         catch (Exception ex)
         {
@@ -243,18 +225,23 @@ public class SocketIO : IAsyncDisposable, ISocketIO
     /// Send a raw string over the WebSocket.
     /// Returns a Task so callers may handle (or ignore) exceptions.
     /// </summary>
-    private async Task SendRawAsync(string message)
+    public async Task EmitEventAsync(string message)
+    {
+        await SendRawAsync($"{PACKET_TYPE_EVENT}:::{message}");
+    }
+
+    private async Task SendRawAsync(string fullMessage)
     {
         if (_disposed || !_connected || _webSocket.State != WebSocketState.Open)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
-
-        Debug.WriteLine("Sending: " + message);
+        
+        Debug.WriteLine("Sending: " + fullMessage);
 
         try
         {
-            var bytes = Encoding.UTF8.GetBytes(message);
+            var bytes = Encoding.UTF8.GetBytes(fullMessage);
             await _webSocket.SendAsync(
                 new ArraySegment<byte>(bytes),
                 WebSocketMessageType.Text,
@@ -266,24 +253,6 @@ public class SocketIO : IAsyncDisposable, ISocketIO
         {
             OnError?.Invoke(ex);
         }
-    }
-
-    public Task EmitMessageAsync(string eventName, object? data)
-    {
-        if (_disposed) 
-            throw new InvalidOperationException("Event hub not connected.");
-
-        var payloadJson = JsonSerializer.Serialize(new
-        {
-            name = eventName,
-            args = new [] { data }
-        }, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-        });
-
-        var fullMessage = $"{PACKET_TYPE_EVENT}:::{payloadJson}";
-        return SendRawAsync(fullMessage);
     }
 
     /// <summary>
