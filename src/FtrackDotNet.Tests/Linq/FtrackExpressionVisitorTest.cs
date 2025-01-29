@@ -1,5 +1,6 @@
 using FtrackDotNet.Clients;
 using FtrackDotNet.Linq;
+using FtrackDotNet.UnitOfWork;
 using Moq;
 
 namespace FtrackDotNet.Tests.Linq;
@@ -29,7 +30,7 @@ public class FtrackExpressionVisitorTest
     {
         // Arrange
         var mockClient = new Mock<IFtrackClient>();
-        var queryable = new FtrackQueryable<FtrackTask>(new FtrackQueryProvider(mockClient.Object));
+        var queryable = new FtrackQueryable<FtrackTask>(new FtrackQueryProvider(mockClient.Object, new Mock<IFtrackTransactionState>().Object));
 
         // Act
         await queryable
@@ -51,7 +52,7 @@ public class FtrackExpressionVisitorTest
     {
         // Arrange
         var mockClient = new Mock<IFtrackClient>();
-        var queryable = new FtrackQueryable<FtrackTask>(new FtrackQueryProvider(mockClient.Object));
+        var queryable = new FtrackQueryable<FtrackTask>(new FtrackQueryProvider(mockClient.Object, new Mock<IFtrackTransactionState>().Object));
 
         // Act
         await queryable
@@ -74,7 +75,7 @@ public class FtrackExpressionVisitorTest
     {
         // Arrange
         var mockClient = new Mock<IFtrackClient>();
-        var queryable = new FtrackQueryable<FtrackTask>(new FtrackQueryProvider(mockClient.Object));
+        var queryable = new FtrackQueryable<FtrackTask>(new FtrackQueryProvider(mockClient.Object, new Mock<IFtrackTransactionState>().Object));
 
         // Act
         await queryable
