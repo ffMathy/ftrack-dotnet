@@ -1,16 +1,18 @@
-
+using FtrackDotNet.Models;
+using Type = System.Type;
 
 namespace FtrackDotNet.UnitOfWork;
 
-internal class ChangeDetector : IChangeDetector
+internal class ChangeTracker : IChangeTracker
 {
     private readonly Dictionary<int, TrackedEntity> _trackedEntities = new();
-    
-    public void TrackEntity(object entity)
+
+    public void TrackEntity(IFtrackEntity entity, TrackedEntityOperationType operationType)
     {
         var id = entity.GetHashCode();
-        if (_trackedEntities.ContainsKey(id))
+        if (_trackedEntities.TryGetValue(id, out var trackedEntity))
         {
+            trackedEntity.Operation = operationType;
             return;
         }
 
@@ -18,33 +20,34 @@ internal class ChangeDetector : IChangeDetector
         
         var valueSnapshot = TakeValueSnapshot(entity);
 
-        var referenceTypeProperties = type
+        var relationalProperties = type
             .GetProperties()
-            .Where(x => !IsSimple(x.PropertyType))
+            .Where(x => x.PropertyType.GetInterfaces().Any(x => x == typeof(IFtrackEntity)))
             .ToArray();
-        foreach (var property in referenceTypeProperties)
+        foreach (var property in relationalProperties)
         {
-            var value = property.GetValue(entity);
+            var value = property.GetValue(entity) as IFtrackEntity;
             if (value == null)
             {
                 continue;
             }
 
-            TrackEntity(value);
+            TrackEntity(value, operationType);
         }
         
         _trackedEntities.Add(id, new TrackedEntity()
         {
             EntityReference = new WeakReference(entity),
-            ValueSnapshot = valueSnapshot
+            ValueSnapshot = valueSnapshot,
+            Operation = operationType
         });
     }
 
-    private object TakeValueSnapshot(object entity)
+    private IFtrackEntity TakeValueSnapshot(IFtrackEntity entity)
     {
         var type = entity.GetType();
         
-        var valueSnapshot = Activator.CreateInstance(type);
+        var valueSnapshot = (IFtrackEntity?)Activator.CreateInstance(type);
         if (valueSnapshot == null)
         {
             throw new InvalidOperationException("Could not create value snapshot.");
@@ -63,7 +66,7 @@ internal class ChangeDetector : IChangeDetector
         return valueSnapshot;
     }
 
-    private bool IsSimple(System.Type type)
+    private static bool IsSimple(Type type)
     {
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
@@ -81,8 +84,7 @@ internal class ChangeDetector : IChangeDetector
         var keysToRemove = new HashSet<int>();
         foreach (var keyValuePair in _trackedEntities)
         {
-            var entity = keyValuePair.Value.EntityReference.Target;
-            if (entity == null)
+            if (keyValuePair.Value.EntityReference.Target is not IFtrackEntity entity)
             {
                 keysToRemove.Add(keyValuePair.Key);
                 continue;
@@ -97,4 +99,10 @@ internal class ChangeDetector : IChangeDetector
             _trackedEntities.Remove(key);
         }
     }
+}
+
+public struct Change
+{
+    public IFtrackEntity Entity { get; set; }
+    public TrackedEntityOperationType Operation { get; set; }
 }

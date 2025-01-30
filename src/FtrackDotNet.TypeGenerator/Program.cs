@@ -4,6 +4,7 @@ using FtrackDotNet;
 using FtrackDotNet.Clients;
 using FtrackDotNet.Extensions;
 using FtrackDotNet.Models;
+using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -93,6 +94,7 @@ outputBuilder.AppendLine("// </auto-generated>");
 outputBuilder.AppendLine("using System.Text.Json;");
 outputBuilder.AppendLine("#pragma warning disable CS8669");
 outputBuilder.AppendLine("namespace FtrackDotNet.Models;");
+outputBuilder.AppendLine();
 
 var typeNamesAlreadyInInbuiltModels = typeof(FtrackContext).Assembly
     .GetTypes()
@@ -116,13 +118,22 @@ foreach (var schema in schemas)
         typedContextSchema :
         schemas.SingleOrDefault(x => x.Id == schema.Mixin?.Ref);
 
-    outputBuilder.Append($"public partial record {className}");
+    outputBuilder.Append($"public partial record {className} : ");
     if (baseSchema != null)
     {
-        outputBuilder.Append($" : {baseSchema.Id}");
+        outputBuilder.Append($"{baseSchema.Id}");
+        outputBuilder.Append(", ");
     }
 
+    outputBuilder.AppendLine("IFtrackEntity");
+
     outputBuilder.AppendLine(" {");
+    
+    outputBuilder.AppendLine($"\tpublic string EntityType => \"{className}\";");
+    outputBuilder.AppendLine($"\tpublic PrimaryKey[] GetPrimaryKeys() => new [] {{ {schema
+        .PrimaryKey
+        .Select(p => $"new PrimaryKey {{ Name = \"{p.FromSnakeCaseToPascalCase()}\", Value = {p.FromSnakeCaseToPascalCase()} }} }};")
+        .Aggregate((x, y) => $"{x}, {y}")}");
 
     var properties = schema.Properties
         .Where(x =>

@@ -1,15 +1,18 @@
 using System.Linq.Expressions;
 using FtrackDotNet.Clients;
+using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
 
 namespace FtrackDotNet.Linq;
 
 internal class FtrackQueryProvider(
     IFtrackClient client,
-    IFtrackTransactionState ftrackTransactionState) : IQueryProvider, IAsyncQueryProvider
+    IChangeTracker changeTracker) : IFtrackQueryProvider
 {
     private readonly IFtrackClient _client = client ?? throw new ArgumentNullException(nameof(client));
-    private readonly FtrackExpressionVisitor _visitor = new FtrackExpressionVisitor();
+    private readonly FtrackExpressionVisitor _visitor = new();
+    
+    private bool SkipTracking { get; init; }
 
     public IQueryable CreateQuery(Expression expression)
     {
@@ -46,11 +49,31 @@ internal class FtrackQueryProvider(
 
         // 2. Call into the IFtrackClient with the query definition
         var results = await _client.QueryAsync<TResult>(query);
-        foreach(var result in (IEnumerable<object>)results!)
-        {
-            ftrackTransactionState.CurrentTransaction.Value?.ChangeDetector.TrackEntity(result);
-        }
+        TrackFetchedEntities(results);
 
         return results;
+    }
+
+    private void TrackFetchedEntities<TResult>(TResult results)
+    {
+        if (SkipTracking)
+        {
+            return;
+        }
+        
+        foreach (var result in (IEnumerable<IFtrackEntity>) results!)
+        {
+            changeTracker.TrackEntity(result, TrackedEntityOperationType.Update);
+        }
+    }
+
+    public IFtrackQueryProvider AsNoTracking()
+    {
+        return new FtrackQueryProvider(
+            _client,
+            changeTracker)
+        {
+            SkipTracking = true
+        };
     }
 }

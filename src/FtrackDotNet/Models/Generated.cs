@@ -95,7 +95,8 @@ public partial record Project : Context {
 	public CalendarEvent[]? CalendarEvents { get; set; }
 	public UserSecurityRoleProject[]? UserSecurityRoleProjects { get; set; }
 }
-public partial record TypedContext : Context {
+public partial record TypedContext : Context, IFtrackEntity
+{
 	public double Bid { get; set; }
 	public double? TimeLogged { get; set; }
 	public double? BidTimeLoggedDifference { get; set; }
@@ -167,13 +168,19 @@ public partial record UserSession {
 	public string? AccessedTime { get; set; }
 	public string? CreationTime { get; set; }
 }
-public partial record Priority {
+public partial record Priority : IFtrackEntity
+{
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public double? Value { get; set; }
 	public int? Sort { get; set; }
 	public string? Color { get; set; }
 	public Task[]? Tasks { get; set; }
+	public string EntityType { get; set; }
+	public FtrackPrimaryKey[] GetPrimaryKeys()
+	{
+		throw new NotImplementedException();
+	}
 }
 public partial record Dashboard {
 	public string Id { get; init; } = null!;
@@ -191,7 +198,13 @@ public partial record ReviewSessionObjectStatus {
 	public string CreatedAt { get; set; } = null!;
 	public string? ResourceId { get; set; }
 }
-public partial record ObjectType {
+public partial record ObjectType : IFtrackEntity
+{
+	public string EntityType { get; set; }
+	public FtrackPrimaryKey[] GetPrimaryKeys()
+	{
+		throw new NotImplementedException();
+	}
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public int Sort { get; set; }
@@ -206,7 +219,13 @@ public partial record ObjectType {
 	public bool? IsPrioritizable { get; set; }
 	public Task[]? Tasks { get; set; }
 }
-public partial record Status {
+public partial record Status : IFtrackEntity
+{
+	public string EntityType { get; set; }
+	public FtrackPrimaryKey[] GetPrimaryKeys()
+	{
+		throw new NotImplementedException();
+	}
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public int? Sort { get; set; }
@@ -364,13 +383,25 @@ public partial record CustomAttributeType {
 	public bool Core { get; set; }
 	public CustomAttributeConfiguration[]? CustomAttributeConfigurations { get; set; }
 }
-public partial record TaskTemplate {
+public partial record TaskTemplate : IFtrackEntity
+{
+	public string EntityType { get; set; }
+	public FtrackPrimaryKey[] GetPrimaryKeys()
+	{
+		throw new NotImplementedException();
+	}
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public string ProjectSchemaId { get; set; } = null!;
 	public TaskTemplateItem[]? Items { get; set; }
 }
-public partial record ProjectSchema {
+public partial record ProjectSchema : IFtrackEntity
+{
+	public string EntityType { get; set; }
+	public FtrackPrimaryKey[] GetPrimaryKeys()
+	{
+		throw new NotImplementedException();
+	}
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? AssetVersionWorkflowSchemaId { get; set; }
@@ -445,7 +476,13 @@ public partial record DashboardResource {
 	public string DashboardId { get; init; } = null!;
 	public string ResourceId { get; init; } = null!;
 }
-public partial record Context {
+public partial record Context : IFtrackEntity
+{
+	public string EntityType { get; set; }
+	public FtrackPrimaryKey[] GetPrimaryKeys()
+	{
+		throw new NotImplementedException();
+	}
 	public string ContextType { get; set; } = null!;
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
@@ -495,7 +532,13 @@ public partial record BaseUser : Resource {
 	public string? ThumbnailId { get; set; }
 	public object? ThumbnailUrl { get; set; }
 }
-public partial record Type {
+public partial record Type : IFtrackEntity
+{
+	public string EntityType { get; set; }
+	public FtrackPrimaryKey[] GetPrimaryKeys()
+	{
+		throw new NotImplementedException();
+	}
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string Color { get; set; } = null!;
@@ -570,7 +613,13 @@ public partial record NoteLabelLink {
 	public string NoteId { get; init; } = null!;
 	public string LabelId { get; init; } = null!;
 }
-public partial record TaskTypeSchema {
+public partial record TaskTypeSchema : IFtrackEntity
+{
+	public string EntityType { get; set; }
+	public FtrackPrimaryKey[] GetPrimaryKeys()
+	{
+		throw new NotImplementedException();
+	}
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public Type[]? Types { get; set; }
@@ -786,7 +835,13 @@ public partial record Group : Resource {
 	public CustomAttributeLink[]? CustomAttributeLinks { get; set; }
 	public CustomAttributeLinkFrom[]? CustomAttributeLinksFrom { get; set; }
 }
-public partial record CustomAttributeConfiguration : CustomConfigurationBase {
+public partial record CustomAttributeConfiguration : CustomConfigurationBase, IFtrackEntity
+{
+	public string EntityType { get; set; }
+	public FtrackPrimaryKey[] GetPrimaryKeys()
+	{
+		throw new NotImplementedException();
+	}
 	public JsonElement? Default { get; set; }
 	public bool? IsHierarchical { get; set; }
 	public string? TypeId { get; set; }

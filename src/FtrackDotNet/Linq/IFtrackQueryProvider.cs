@@ -2,7 +2,9 @@ using System.Linq.Expressions;
 
 namespace FtrackDotNet.Linq;
 
-internal interface IAsyncQueryProvider : IQueryProvider
+public interface IFtrackQueryProvider : IQueryProvider
 {
     Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default);
+
+    IFtrackQueryProvider AsNoTracking();
 }

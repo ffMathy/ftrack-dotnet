@@ -1,3 +1,5 @@
+using FtrackDotNet.Models;
+
 namespace FtrackDotNet.Linq;
 
 using System;
@@ -7,21 +9,28 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
-internal class FtrackQueryable<T> : IQueryable<T>, IOrderedQueryable<T>, IAsyncEnumerable<T>
+public class FtrackQueryable<T> : IFtrackQueryable<T>
 {
-    private readonly FtrackQueryProvider _provider;
+    private readonly IFtrackQueryProvider _provider;
     private readonly Expression _expression;
 
-    public FtrackQueryable(FtrackQueryProvider provider)
+    public FtrackQueryable(IFtrackQueryProvider provider)
     {
         _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         _expression = Expression.Constant(this);
     }
 
-    public FtrackQueryable(FtrackQueryProvider provider, Expression expression)
+    public FtrackQueryable(IFtrackQueryProvider provider, Expression expression)
     {
         _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         _expression = expression ?? throw new ArgumentNullException(nameof(expression));
+    }
+
+    public IFtrackQueryable<T> AsNoTracking()
+    {
+        return new FtrackQueryable<T>(
+            _provider.AsNoTracking(),
+            _expression);
     }
 
     public Type ElementType => typeof(T);

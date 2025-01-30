@@ -15,15 +15,14 @@ public static class FtrackServiceCollectionExtensions
         this IServiceCollection services,
         Action<FtrackOptions>? configureOptions = null)
     {
-        services.AddTransient<FtrackContext>();
-        services.AddTransient<IFtrackClient, FtrackClient>();
+        services.AddScoped<FtrackContext>();
+        services.AddScoped<IFtrackClient, FtrackClient>();
         
         services.AddScoped<ISocketIOFactory, SocketIOFactory>();
         services.AddScoped<IFtrackEventHubClient, FtrackEventHubClient>();
         
-        services.AddTransient<IChangeDetector, ChangeDetector>();
-        services.AddTransient<IFtrackTransactionFactory, FtrackTransactionFactory>();
-        services.AddSingleton<IFtrackTransactionState, FtrackTransactionState>();
+        services.AddTransient<IChangeTracker, ChangeTracker>();
+        services.AddTransient<IFtrackDataSetFactory, FtrackDataSetFactory>();
         
         var builder = services
             .AddOptions<FtrackOptions>()
