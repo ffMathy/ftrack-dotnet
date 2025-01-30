@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using FtrackDotNet;
-using FtrackDotNet.Clients;
+using FtrackDotNet.Api;
 using FtrackDotNet.EventHub;
 using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;

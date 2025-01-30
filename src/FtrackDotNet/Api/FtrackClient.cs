@@ -1,9 +1,9 @@
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using FtrackDotNet.Models;
 using Microsoft.Extensions.Options;
 
-namespace FtrackDotNet.Clients;
+namespace FtrackDotNet.Api;
 
 internal class FtrackClient : IDisposable, IFtrackClient
 {
@@ -38,6 +38,7 @@ internal class FtrackClient : IDisposable, IFtrackClient
 
     public async Task<T> QueryAsync<T>(string query)
     {
+        Debug.WriteLine($"Querying: {query}");
         var result = await CallAsync<Dictionary<string, object>, QueryResponseWrapper<T>[]>(
             new Dictionary<string, object>
             {
@@ -63,15 +64,25 @@ internal class FtrackClient : IDisposable, IFtrackClient
 
         var responseBody = await MakeRawRequestAsync(HttpMethod.Post, "api", json);
 
-        var result = (TResponse)JsonSerializer.Deserialize(
+        var result = JsonSerializer.Deserialize<JsonElement>(
             responseBody,
-            typeof(TResponse),
-            new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-            })!;
+            GetJsonSerializerOptions());
 
-        return result;
+        if (result.ValueKind == JsonValueKind.Object && result.TryGetProperty("exception", out _))
+        {
+            var response = result.Deserialize<FtrackServerErrorResponse>(GetJsonSerializerOptions())!;
+            throw new FtrackServerException(response!);
+        }
+
+        return (TResponse)result.Deserialize(typeof(TResponse), GetJsonSerializerOptions())!;
+    }
+
+    private static JsonSerializerOptions GetJsonSerializerOptions()
+    {
+        return new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        };
     }
 
     public async Task<string> MakeRawRequestAsync(HttpMethod method, string relativeUrl, string? json = null)

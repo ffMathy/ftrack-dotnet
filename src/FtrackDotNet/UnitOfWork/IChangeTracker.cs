@@ -4,6 +4,6 @@ namespace FtrackDotNet.UnitOfWork;
 
 public interface IChangeTracker
 {
-    void TrackEntity(IFtrackEntity entity, TrackedEntityOperationType operationType);
+    void TrackEntity(object entity, TrackedEntityOperationType operationType);
     void RefreshSnapshots();
 }

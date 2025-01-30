@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using FtrackDotNet.Clients;
+using FtrackDotNet.Api;
 using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
 
@@ -19,7 +19,7 @@ internal class FtrackQueryProvider(
         // Return a non-generic IQueryable
         var elementType = expression.Type.GetGenericArguments().First();
         var queryableType = typeof(FtrackQueryable<>).MakeGenericType(elementType);
-        return (IQueryable)Activator.CreateInstance(queryableType, this, expression);
+        return (IQueryable)Activator.CreateInstance(queryableType, this, expression)!;
     }
 
     public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
@@ -50,20 +50,24 @@ internal class FtrackQueryProvider(
         // 2. Call into the IFtrackClient with the query definition
         var results = await _client.QueryAsync<TResult>(query);
         TrackFetchedEntities(results);
-
         return results;
     }
 
-    private void TrackFetchedEntities<TResult>(TResult results)
+    private void TrackFetchedEntities(object results)
     {
         if (SkipTracking)
         {
             return;
         }
-        
-        foreach (var result in (IEnumerable<IFtrackEntity>) results!)
+
+        if (results is IEnumerable<dynamic> enumerable)
         {
-            changeTracker.TrackEntity(result, TrackedEntityOperationType.Update);
+            foreach (var result in enumerable)
+            {
+                TrackFetchedEntities(result);
+            }
+        } else {
+            changeTracker.TrackEntity(results, TrackedEntityOperationType.Update);
         }
     }
 

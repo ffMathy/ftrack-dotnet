@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FtrackDotNet.Models;
 using Type = System.Type;
 
@@ -7,7 +8,7 @@ internal class ChangeTracker : IChangeTracker
 {
     private readonly Dictionary<int, TrackedEntity> _trackedEntities = new();
 
-    public void TrackEntity(IFtrackEntity entity, TrackedEntityOperationType operationType)
+    public void TrackEntity(object entity, TrackedEntityOperationType operationType)
     {
         var id = entity.GetHashCode();
         if (_trackedEntities.TryGetValue(id, out var trackedEntity))
@@ -15,6 +16,8 @@ internal class ChangeTracker : IChangeTracker
             trackedEntity.Operation = operationType;
             return;
         }
+
+        Debug.WriteLine("Tracking entity: " + id);
 
         var type = entity.GetType();
         
@@ -43,14 +46,14 @@ internal class ChangeTracker : IChangeTracker
         });
     }
 
-    private IFtrackEntity TakeValueSnapshot(IFtrackEntity entity)
+    private object TakeValueSnapshot(object entity)
     {
         var type = entity.GetType();
         
-        var valueSnapshot = (IFtrackEntity?)Activator.CreateInstance(type);
+        var valueSnapshot = Activator.CreateInstance(type);
         if (valueSnapshot == null)
         {
-            throw new InvalidOperationException("Could not create value snapshot.");
+            throw new InvalidOperationException("Could not create value snapshot of type: " + type);
         }
         
         var valueTypeProperties = type
@@ -103,6 +106,6 @@ internal class ChangeTracker : IChangeTracker
 
 public struct Change
 {
-    public IFtrackEntity Entity { get; set; }
+    public object Entity { get; set; }
     public TrackedEntityOperationType Operation { get; set; }
 }

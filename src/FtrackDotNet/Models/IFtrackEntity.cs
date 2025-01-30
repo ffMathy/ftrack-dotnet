@@ -6,6 +6,7 @@ public struct FtrackPrimaryKey {
 }
     
 public interface IFtrackEntity {
-    public string EntityType { get; }
+    // ReSharper disable once InconsistentNaming
+    public string __entity_type__ { get; }
     public FtrackPrimaryKey[] GetPrimaryKeys();
 }

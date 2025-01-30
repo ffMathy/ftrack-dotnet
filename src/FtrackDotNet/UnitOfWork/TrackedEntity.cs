@@ -5,7 +5,7 @@ namespace FtrackDotNet.UnitOfWork;
 internal class TrackedEntity
 {
     public WeakReference EntityReference { get; init; } = null!;
-    public IFtrackEntity ValueSnapshot { get; set; } = null!;
+    public object ValueSnapshot { get; set; } = null!;
     public TrackedEntityOperationType? Operation { get; set; }
 }
 
