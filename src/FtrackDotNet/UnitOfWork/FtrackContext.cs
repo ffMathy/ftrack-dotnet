@@ -20,7 +20,8 @@ public class FtrackContext(
     
     public async ValueTask SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        // var changes = changeTracker.GetChanges();
+        var changes = changeTracker.GetChanges();
+        throw new NotImplementedException();
 
         changeTracker.RefreshSnapshots();
     }

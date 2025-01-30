@@ -1,4 +1,6 @@
+using System.Collections.Frozen;
 using System.Diagnostics;
+using System.Reflection;
 using FtrackDotNet.Models;
 using Type = System.Type;
 
@@ -23,10 +25,7 @@ internal class ChangeTracker : IChangeTracker
         
         var valueSnapshot = TakeValueSnapshot(entity);
 
-        var relationalProperties = type
-            .GetProperties()
-            .Where(x => x.PropertyType.GetInterfaces().Any(x => x == typeof(IFtrackEntity)))
-            .ToArray();
+        var relationalProperties = GetRelationalProperties(type);
         foreach (var property in relationalProperties)
         {
             var value = property.GetValue(entity) as IFtrackEntity;
@@ -46,15 +45,21 @@ internal class ChangeTracker : IChangeTracker
         });
     }
 
-    private object TakeValueSnapshot(object entity)
+    private static PropertyInfo[] GetRelationalProperties(Type type)
+    {
+        return type
+            .GetProperties()
+            .Where(x => x.PropertyType
+                .GetInterfaces()
+                .Any(x => x == typeof(IFtrackEntity)))
+            .ToArray();
+    }
+
+    private Dictionary<string, object?> TakeValueSnapshot(object entity)
     {
         var type = entity.GetType();
         
-        var valueSnapshot = Activator.CreateInstance(type);
-        if (valueSnapshot == null)
-        {
-            throw new InvalidOperationException("Could not create value snapshot of type: " + type);
-        }
+        var valueSnapshot = new Dictionary<string, object?>();
         
         var valueTypeProperties = type
             .GetProperties()
@@ -63,7 +68,7 @@ internal class ChangeTracker : IChangeTracker
         foreach (var property in valueTypeProperties)
         {
             var value = property.GetValue(entity);
-            property.SetValue(valueSnapshot, value);
+            valueSnapshot.Add(property.Name, value);
         }
 
         return valueSnapshot;
@@ -82,12 +87,38 @@ internal class ChangeTracker : IChangeTracker
                || type == typeof(decimal);
     }
 
+    public Change[] GetChanges()
+    {
+        return _trackedEntities
+            .Select(x => new Change()
+            {
+                Entity = x.Value.EntityReference.Target!,
+                Operation = x.Value.Operation!.Value,
+                Differences = GetDifferencesForEntitySinceSnapshot(x.Value.EntityReference.Target!, x.Value.ValueSnapshot)
+            })
+            .ToArray();
+    }
+
+    private IDictionary<string,object?> GetDifferencesForEntitySinceSnapshot(
+        object entityReferenceTarget, 
+        IReadOnlyDictionary<string,object?> valueSnapshot)
+    {
+        return GetRelationalProperties(entityReferenceTarget.GetType())
+            .Where(x => valueSnapshot.ContainsKey(x.Name))
+            .Select(x => new {
+                Value = x.GetValue(entityReferenceTarget),
+                PropertyName = x.Name
+            })
+            .Where(x => !object.Equals(x.Value, valueSnapshot[x.PropertyName]))
+            .ToFrozenDictionary(x => x.PropertyName, x => x.Value);
+    }
+
     public void RefreshSnapshots()
     {
         var keysToRemove = new HashSet<int>();
         foreach (var keyValuePair in _trackedEntities)
         {
-            if (keyValuePair.Value.EntityReference.Target is not IFtrackEntity entity)
+            if (keyValuePair.Value.EntityReference.Target is not { } entity)
             {
                 keysToRemove.Add(keyValuePair.Key);
                 continue;
@@ -108,4 +139,5 @@ public struct Change
 {
     public object Entity { get; set; }
     public TrackedEntityOperationType Operation { get; set; }
+    public IDictionary<string, object?> Differences { get; init; }
 }
