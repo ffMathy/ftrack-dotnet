@@ -45,17 +45,21 @@ internal class FtrackClient : IDisposable, IFtrackClient
     public async Task<T> CallAsync<T>(IEnumerable<FtrackOperation> operations, CancellationToken cancellationToken = default)
     {
         var result = await MakeApiRequestAsync<IEnumerable<FtrackOperation>, QueryResponseWrapper<T>[]>(operations);
-        return result.Select(x => x.Data).Single();
+        return result
+            .Select(x => x.Data)
+            .Single();
     }
 
     public async Task<QuerySchemasSchemaResponse[]> QuerySchemasAsync(CancellationToken cancellationToken = default)
     {
-        return await CallAsync<QuerySchemasSchemaResponse[]>([new FtrackQuerySchemasOperation()]);
+        return await CallAsync<QuerySchemasSchemaResponse[]>(
+            [new FtrackQuerySchemasOperation()], 
+            cancellationToken);
     }
 
     private async Task<TResponse> MakeApiRequestAsync<TRequest, TResponse>(TRequest request)
     {
-        var json = JsonSerializer.Serialize(new[] { request });
+        var json = JsonSerializer.Serialize(new[] { request }, GetJsonSerializerOptions());
 
         var responseBody = await MakeRawRequestAsync(HttpMethod.Post, "api", json);
 
@@ -90,10 +94,10 @@ internal class FtrackClient : IDisposable, IFtrackClient
         {
             Content = content
         };
-        var response = await _http.SendAsync(message);
+        var response = await _http.SendAsync(message, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var responseBody = await response.Content.ReadAsStringAsync();
+        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
         return responseBody;
     }
 }
