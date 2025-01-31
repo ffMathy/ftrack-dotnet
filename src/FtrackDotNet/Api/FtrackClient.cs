@@ -9,21 +9,16 @@ internal class FtrackClient : IDisposable, IFtrackClient
 {
     private readonly HttpClient _http;
 
-    /// <summary>
-    /// Create a new FtrackClient with the given options.
-    /// Typically you pass in a HttpClientFactory in real apps, 
-    /// but for brevity we'll create an HttpClient here.
-    /// </summary>
     public FtrackClient(
-        IOptionsSnapshot<FtrackOptions> options)
+        IOptionsMonitor<FtrackOptions> options)
     {
         _http = new HttpClient
         {
-            BaseAddress = new Uri(options.Value.ServerUrl, UriKind.Absolute),
+            BaseAddress = new Uri(options.CurrentValue.ServerUrl, UriKind.Absolute),
         };
 
-        _http.DefaultRequestHeaders.Add("Ftrack-User", options.Value.ApiUser);
-        _http.DefaultRequestHeaders.Add("Ftrack-Api-Key", options.Value.ApiKey);
+        _http.DefaultRequestHeaders.Add("Ftrack-User", options.CurrentValue.ApiUser);
+        _http.DefaultRequestHeaders.Add("Ftrack-Api-Key", options.CurrentValue.ApiKey);
     }
 
     /// <summary>
@@ -36,29 +31,29 @@ internal class FtrackClient : IDisposable, IFtrackClient
         _http.Dispose();
     }
 
-    public async Task<T> QueryAsync<T>(string query)
+    public async Task<T> QueryAsync<T>(string query, CancellationToken cancellationToken = default)
     {
         Debug.WriteLine($"Querying: {query}");
-        var result = await CallAsync<Dictionary<string, object>, QueryResponseWrapper<T>[]>(
-            new Dictionary<string, object>
+        return await CallAsync<T>([
+            new FtrackQueryOperation()
             {
-                { "action", "query" },
-                { "expression", query }
-            });
+                Expression = query
+            }
+        ]);
+    }
+
+    public async Task<T> CallAsync<T>(IEnumerable<FtrackOperation> operations, CancellationToken cancellationToken = default)
+    {
+        var result = await MakeApiRequestAsync<IEnumerable<FtrackOperation>, QueryResponseWrapper<T>[]>(operations);
         return result.Select(x => x.Data).Single();
     }
 
-    public async Task<QuerySchemasSchemaResponse[]> QuerySchemasAsync()
+    public async Task<QuerySchemasSchemaResponse[]> QuerySchemasAsync(CancellationToken cancellationToken = default)
     {
-        var result = await CallAsync<Dictionary<string, object>, QuerySchemasSchemaResponse[][]>(
-            new Dictionary<string, object>
-            {
-                { "action", "query_schemas" },
-            });
-        return result.Single();
+        return await CallAsync<QuerySchemasSchemaResponse[]>([new FtrackQuerySchemasOperation()]);
     }
 
-    private async Task<TResponse> CallAsync<TRequest, TResponse>(TRequest request)
+    private async Task<TResponse> MakeApiRequestAsync<TRequest, TResponse>(TRequest request)
     {
         var json = JsonSerializer.Serialize(new[] { request });
 
@@ -85,7 +80,7 @@ internal class FtrackClient : IDisposable, IFtrackClient
         };
     }
 
-    public async Task<string> MakeRawRequestAsync(HttpMethod method, string relativeUrl, string? json = null)
+    public async Task<string> MakeRawRequestAsync(HttpMethod method, string relativeUrl, string? json = null, CancellationToken cancellationToken = default)
     {
         var content = json != null ? 
             new StringContent(json, Encoding.UTF8, "application/json") : 
@@ -101,4 +96,43 @@ internal class FtrackClient : IDisposable, IFtrackClient
         var responseBody = await response.Content.ReadAsStringAsync();
         return responseBody;
     }
+}
+
+public abstract class FtrackOperation
+{
+    public abstract string Action { get; }
+    public object Metadata { get; init; }
+}
+
+public class FtrackQuerySchemasOperation : FtrackOperation
+{
+    public override string Action => "query_schemas";
+}
+
+public class FtrackQueryOperation : FtrackOperation
+{
+    public override string Action => "query";
+    public required string Expression { get; init; }
+}
+
+public class FtrackCreateOperation : FtrackOperation
+{
+    public override string Action => "create";
+    public required string EntityType { get; init; }
+    public required object EntityData { get; init; }
+}
+
+public class FtrackUpdateOperation : FtrackOperation
+{
+    public override string Action => "update";
+    public required string EntityType { get; init; }
+    public required object EntityKey { get; init; }
+    public required object EntityData { get; init; }
+}
+
+public class FtrackDeleteOperation : FtrackOperation
+{
+    public override string Action => "delete";
+    public required string EntityType { get; init; }
+    public required object EntityKey { get; init; }
 }

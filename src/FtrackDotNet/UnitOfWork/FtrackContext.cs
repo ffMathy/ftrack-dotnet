@@ -1,10 +1,12 @@
-﻿using FtrackDotNet.Models;
+﻿using FtrackDotNet.Api;
+using FtrackDotNet.Models;
 using Type = FtrackDotNet.Models.Type;
 
 namespace FtrackDotNet.UnitOfWork;
 
 public class FtrackContext(
     IFtrackDataSetFactory ftrackDataSetFactory,
+    IFtrackClient ftrackClient,
     IChangeTracker changeTracker)
 {
     public FtrackDataSet<TypedContext> TypedContexts => ftrackDataSetFactory.Create<TypedContext>();
@@ -20,8 +22,29 @@ public class FtrackContext(
     
     public async ValueTask SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var changes = changeTracker.GetChanges();
-        throw new NotImplementedException();
+        var operations = changeTracker
+            .GetChanges()
+            .Select(x => x.Operation switch
+            {
+                TrackedEntityOperationType.Create => (FtrackOperation)new FtrackCreateOperation()
+                {
+                    EntityType = x.Entity.GetType().Name,
+                    EntityData = x.Entity
+                },
+                TrackedEntityOperationType.Update => (FtrackOperation)new FtrackUpdateOperation()
+                {
+                    EntityType = x.Entity.GetType().Name,
+                    EntityKey = new object(),
+                    EntityData = x.Entity
+                },
+                TrackedEntityOperationType.Delete => (FtrackOperation)new FtrackDeleteOperation()
+                {
+                    EntityType = x.Entity.GetType().Name,
+                    EntityKey = new object(),
+                },
+                _ => throw new InvalidOperationException("Unknown operation: " + x.Operation)
+            });
+        await ftrackClient.CallAsync<object>(operations, cancellationToken);
 
         changeTracker.RefreshSnapshots();
     }

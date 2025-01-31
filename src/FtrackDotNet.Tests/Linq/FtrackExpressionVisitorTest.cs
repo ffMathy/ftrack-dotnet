@@ -54,7 +54,7 @@ public class FtrackExpressionVisitorTest
             "select name from FtrackTask where",
             "(bid > 10)");
         _mockFtrackClient.Verify(
-            client => client.QueryAsync<object>(query), 
+            client => client.QueryAsync<object>(query, CancellationToken.None), 
             Times.Once);
     }
     
@@ -75,7 +75,7 @@ public class FtrackExpressionVisitorTest
             "((bid > 10) and",
             "(name = \"foobar\"))");
         _mockFtrackClient.Verify(
-            client => client.QueryAsync<object>(query), 
+            client => client.QueryAsync<object>(query, CancellationToken.None), 
             Times.Once);
     }
     
@@ -101,7 +101,7 @@ public class FtrackExpressionVisitorTest
         var query = SanitizeMultilineQuery(
             "select name, bid from FtrackTask where ((((bid > 10) and (name like \"%foo\" and name like \"bar%\")) and name like \"%foobar%\") and ((parent.parent.name = \"baz\") or parent.children any (((name = \"fuz\") and (parent.name = \"blah\"))))) order by name descending offset 5 limit 10");
         _mockFtrackClient.Verify(
-            client => client.QueryAsync<object>(query), 
+            client => client.QueryAsync<object>(query, CancellationToken.None), 
             Times.Once);
     }
 }

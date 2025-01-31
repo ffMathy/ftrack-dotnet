@@ -16,7 +16,7 @@ public static class FtrackServiceCollectionExtensions
         Action<FtrackOptions>? configureOptions = null)
     {
         services.AddScoped<FtrackContext>();
-        services.AddScoped<IFtrackClient, FtrackClient>();
+        services.AddSingleton<IFtrackClient, FtrackClient>();
         
         services.AddScoped<ISocketIOFactory, SocketIOFactory>();
         services.AddScoped<IFtrackEventHubClient, FtrackEventHubClient>();
