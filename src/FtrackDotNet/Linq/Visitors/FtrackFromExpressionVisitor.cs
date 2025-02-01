@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using FtrackDotNet.Models;
 
 namespace FtrackDotNet.Linq.Visitors;
 
@@ -18,7 +19,13 @@ internal class FtrackFromExpressionVisitor : ExpressionVisitor
     protected override Expression VisitConstant(ConstantExpression node)
     {
         var type = node.Value?.GetType();
-        if (type is { IsGenericType: true, GenericTypeArguments: [{ Name: var genericTypeName }] } && type.GetGenericTypeDefinition() == typeof(FtrackQueryable<>))
+        if (type is
+            {
+                IsGenericType: true, 
+                GenericTypeArguments: [{ Name: var genericTypeName }]
+            } && 
+            (type.GetGenericTypeDefinition() == typeof(FtrackQueryable<>) ||
+            type.GetGenericTypeDefinition() == typeof(FtrackDataSet<>)))
         {
             _fromExpression = $" from {genericTypeName}";
         }

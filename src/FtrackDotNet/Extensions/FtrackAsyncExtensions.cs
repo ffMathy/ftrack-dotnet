@@ -1,13 +1,7 @@
+using System.Linq.Expressions;
 using FtrackDotNet.Linq;
 
-namespace FtrackDotNet;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
+namespace FtrackDotNet.Extensions;
 
 public static class FtrackAsyncExtensions
 {
@@ -18,7 +12,7 @@ public static class FtrackAsyncExtensions
         this IQueryable<T> source,
         CancellationToken cancellationToken = default)
     {
-        if (source.Provider is IAsyncQueryProvider asyncProvider)
+        if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             // Execute the expression asynchronously to get IEnumerable<T>
             var result = await asyncProvider
@@ -55,13 +49,13 @@ public static class FtrackAsyncExtensions
         CancellationToken cancellationToken = default)
     {
         // We'll emulate "First" by forcing Take(1) then check if empty.
-        if (source.Provider is IAsyncQueryProvider asyncProvider)
+        if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             // Build a "Take(1)" expression
             var expression = Expression.Call(
                 typeof(Queryable),
                 nameof(Queryable.Take),
-                new[] { typeof(T) },
+                [typeof(T)],
                 source.Expression,
                 Expression.Constant(1));
 
@@ -92,12 +86,12 @@ public static class FtrackAsyncExtensions
         CancellationToken cancellationToken = default)
     {
         // Similar approach to FirstAsync, but if no elements, return default.
-        if (source.Provider is IAsyncQueryProvider asyncProvider)
+        if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             var expression = Expression.Call(
                 typeof(Queryable),
                 nameof(Queryable.Take),
-                new[] { typeof(T) },
+                [typeof(T)],
                 source.Expression,
                 Expression.Constant(1));
 
@@ -128,12 +122,12 @@ public static class FtrackAsyncExtensions
         CancellationToken cancellationToken = default)
     {
         // Emulate "Single": Take(2), ensure exactly 1 element
-        if (source.Provider is IAsyncQueryProvider asyncProvider)
+        if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             var expression = Expression.Call(
                 typeof(Queryable),
                 nameof(Queryable.Take),
-                new[] { typeof(T) },
+                [typeof(T)],
                 source.Expression,
                 Expression.Constant(2));
 
@@ -169,12 +163,12 @@ public static class FtrackAsyncExtensions
         this IQueryable<T> source,
         CancellationToken cancellationToken = default)
     {
-        if (source.Provider is IAsyncQueryProvider asyncProvider)
+        if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             var expression = Expression.Call(
                 typeof(Queryable),
                 nameof(Queryable.Take),
-                new[] { typeof(T) },
+                [typeof(T)],
                 source.Expression,
                 Expression.Constant(2));
 
@@ -240,13 +234,13 @@ public static class FtrackAsyncExtensions
         this IQueryable<T> source,
         CancellationToken cancellationToken = default)
     {
-        if (source.Provider is IAsyncQueryProvider asyncProvider)
+        if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             // .Take(1)
             var expression = Expression.Call(
                 typeof(Queryable),
                 nameof(Queryable.Take),
-                new[] { typeof(T) },
+                [typeof(T)],
                 source.Expression,
                 Expression.Constant(1));
 
@@ -294,7 +288,7 @@ public static class FtrackAsyncExtensions
         this IQueryable<T> source,
         CancellationToken cancellationToken = default)
     {
-        if (source.Provider is IAsyncQueryProvider asyncProvider)
+        if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             // Naive approach: get all, then count in memory
             var results = await asyncProvider
@@ -316,7 +310,7 @@ public static class FtrackAsyncExtensions
         this IQueryable<T> source,
         CancellationToken cancellationToken = default)
     {
-        if (source.Provider is IAsyncQueryProvider asyncProvider)
+        if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             var results = await asyncProvider
                 .ExecuteAsync<IEnumerable<T>>(source.Expression, cancellationToken)

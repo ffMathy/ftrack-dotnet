@@ -1,8 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using FtrackDotNet;
-using FtrackDotNet.Clients;
+using FtrackDotNet.Api;
 using FtrackDotNet.EventHub;
 using FtrackDotNet.Models;
+using FtrackDotNet.UnitOfWork;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable once UnusedType.Global
@@ -15,12 +16,13 @@ public static class FtrackServiceCollectionExtensions
         Action<FtrackOptions>? configureOptions = null)
     {
         services.AddScoped<FtrackContext>();
-        services.AddScoped<IFtrackClient, FtrackClient>();
+        services.AddSingleton<IFtrackClient, FtrackClient>();
         
         services.AddScoped<ISocketIOFactory, SocketIOFactory>();
         services.AddScoped<IFtrackEventHubClient, FtrackEventHubClient>();
         
-        services.AddScoped<IChangeDetector, ChangeDetector>();
+        services.AddScoped<IChangeTracker, ChangeTracker>();
+        services.AddTransient<IFtrackDataSetFactory, FtrackDataSetFactory>();
         
         var builder = services
             .AddOptions<FtrackOptions>()

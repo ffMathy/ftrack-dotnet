@@ -1,6 +1,6 @@
 namespace FtrackDotNet.EventHub;
 
-public class SocketIOFactory : ISocketIOFactory
+internal class SocketIOFactory : ISocketIOFactory
 {
     public ISocketIO Create(Uri url)
     {

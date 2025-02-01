@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace FtrackDotNet.Clients;
+namespace FtrackDotNet.Api;
 
 /// <summary>
 /// A helper model to map FTrack's query response JSON.
