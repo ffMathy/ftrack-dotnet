@@ -10,9 +10,10 @@ public class FtrackDataSet<T>(
     : FtrackQueryable<T>(ftrackQueryProvider)
     where T : IFtrackEntity
 {
-    public void Add(T entity)
+    public T Add(T entity)
     {
         changeTracker.TrackEntity(entity, TrackedEntityOperationType.Create);
+        return entity;
     }
 
     public void Remove(T entity)

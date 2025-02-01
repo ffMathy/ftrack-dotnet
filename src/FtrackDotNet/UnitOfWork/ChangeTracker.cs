@@ -113,7 +113,7 @@ internal class ChangeTracker : IChangeTracker
             .ToFrozenDictionary(x => x.PropertyName, x => x.Value);
     }
 
-    public void RefreshSnapshots()
+    public void OnSaved()
     {
         var keysToRemove = new HashSet<int>();
         foreach (var keyValuePair in _trackedEntities)
@@ -122,6 +122,11 @@ internal class ChangeTracker : IChangeTracker
             {
                 keysToRemove.Add(keyValuePair.Key);
                 continue;
+            }
+
+            if (keyValuePair.Value.Operation == TrackedEntityOperationType.Create)
+            {
+                keyValuePair.Value.Operation = TrackedEntityOperationType.Update;
             }
             
             var valueSnapshot = TakeValueSnapshot(entity);

@@ -1,4 +1,5 @@
-﻿using FtrackDotNet.Api;
+﻿using System.Text.Json;
+using FtrackDotNet.Api;
 using FtrackDotNet.Models;
 using Type = FtrackDotNet.Models.Type;
 
@@ -9,6 +10,7 @@ public class FtrackContext(
     IFtrackClient ftrackClient,
     IChangeTracker changeTracker)
 {
+    public FtrackDataSet<Project> Projects => ftrackDataSetFactory.Create<Project>();
     public FtrackDataSet<TypedContext> TypedContexts => ftrackDataSetFactory.Create<TypedContext>();
     public FtrackDataSet<Context> Contexts => ftrackDataSetFactory.Create<Context>();
     public FtrackDataSet<ObjectType> ObjectTypes => ftrackDataSetFactory.Create<ObjectType>();
@@ -44,8 +46,8 @@ public class FtrackContext(
                 },
                 _ => throw new InvalidOperationException("Unknown operation: " + x.Operation)
             });
-        await ftrackClient.CallAsync<object>(operations, cancellationToken);
+        var responses = await ftrackClient.CallAsync<JsonElement>(operations, cancellationToken);
 
-        changeTracker.RefreshSnapshots();
+        changeTracker.OnSaved();
     }
 }

@@ -21,7 +21,7 @@ public static class FtrackServiceCollectionExtensions
         services.AddScoped<ISocketIOFactory, SocketIOFactory>();
         services.AddScoped<IFtrackEventHubClient, FtrackEventHubClient>();
         
-        services.AddTransient<IChangeTracker, ChangeTracker>();
+        services.AddScoped<IChangeTracker, ChangeTracker>();
         services.AddTransient<IFtrackDataSetFactory, FtrackDataSetFactory>();
         
         var builder = services
