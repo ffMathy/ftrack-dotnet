@@ -45,7 +45,7 @@ internal class FtrackClient : IDisposable, IFtrackClient
 
     public async Task<T[]> CallAsync<T>(IEnumerable<FtrackOperation> operations, CancellationToken cancellationToken = default)
     {
-        var result = await MakeApiRequestAsync<QueryResponseWrapper<T>[]>(operations);
+        var result = await MakeApiRequestAsync<QueryResponseWrapper<T>[]>(operations, cancellationToken);
         return result
             .Select(x => x.Data)
             .ToArray()!;
@@ -53,18 +53,19 @@ internal class FtrackClient : IDisposable, IFtrackClient
 
     public async Task<QuerySchemasSchemaResponse[]> QuerySchemasAsync(CancellationToken cancellationToken = default)
     {
-        return await CallAsync<QuerySchemasSchemaResponse>(
-            [new FtrackQuerySchemasOperation()], 
+        var result = await MakeApiRequestAsync<QuerySchemasSchemaResponse[][]>(
+            new FtrackOperation[] {new FtrackQuerySchemasOperation()}, 
             cancellationToken);
+        return result.Single();
     }
 
-    private async Task<TResponse> MakeApiRequestAsync<TResponse>(object request)
+    private async Task<TResponse> MakeApiRequestAsync<TResponse>(object request, CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(
+        var requestJson = JsonSerializer.Serialize(
             request,
             GetJsonSerializerOptions());
 
-        var responseBody = await MakeRawRequestAsync(HttpMethod.Post, "api", json);
+        var responseBody = await MakeRawRequestAsync(HttpMethod.Post, "api", requestJson, cancellationToken);
 
         var result = JsonSerializer.Deserialize<JsonElement>(
             responseBody,
@@ -73,7 +74,7 @@ internal class FtrackClient : IDisposable, IFtrackClient
         if (result.ValueKind == JsonValueKind.Object && result.TryGetProperty("exception", out _))
         {
             var response = result.Deserialize<FtrackServerErrorResponse>(GetJsonSerializerOptions())!;
-            throw new FtrackServerException(response!);
+            throw new FtrackServerException(requestJson, response!);
         }
 
         return (TResponse)result.Deserialize(typeof(TResponse), GetJsonSerializerOptions())!;

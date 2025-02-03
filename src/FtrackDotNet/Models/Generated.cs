@@ -13,7 +13,8 @@ public partial record ReviewSessionFolder : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ReviewSessionFolder";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ReviewSessionFolder.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Name { get; set; } = null!;
 	public string? ProjectId { get; set; }
 	public string Id { get; init; } = null!;
@@ -22,12 +23,14 @@ public partial record ReviewSessionFolder : IFtrackEntity
 public partial record AssetVersionStatusChange : StatusChange {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "AssetVersionStatusChange";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => AssetVersionStatusChange.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record User : BaseUser {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "User";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => User.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Username { get; set; } = null!;
 	public bool IsActive { get; set; }
 	public bool? RequireDetailsUpdate { get; set; }
@@ -47,7 +50,8 @@ public partial record ReviewSessionInvitee : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ReviewSessionInvitee";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ReviewSessionInvitee.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Email { get; set; } = null!;
 	public string Name { get; set; } = null!;
 	public string? LastSentAt { get; set; }
@@ -63,7 +67,8 @@ public partial record ApiKey : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ApiKey";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ApiKey.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Identifier { get; set; }
 	public string? ResourceId { get; set; }
@@ -79,7 +84,8 @@ public partial record ReviewSessionObjectAnnotation : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ReviewSessionObjectAnnotation";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ReviewSessionObjectAnnotation.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string? ReviewSessionObjectId { get; set; }
 	public string Id { get; init; } = null!;
 	public string? Data { get; set; }
@@ -91,7 +97,8 @@ public partial record CustomAttributeLinkFrom : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "CustomAttributeLinkFrom";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => CustomAttributeLinkFrom.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string? Id { get; init; }
 	public string FromId { get; set; } = null!;
 	public string? FromEntityType { get; set; }
@@ -103,7 +110,8 @@ public partial record ComponentLocation : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ComponentLocation";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ComponentLocation.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string? ComponentId { get; set; }
 	public string? LocationId { get; set; }
 	public string? ResourceIdentifier { get; set; }
@@ -113,7 +121,8 @@ public partial record ComponentLocation : IFtrackEntity
 public partial record Project : Context {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Project";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Project.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string? FullName { get; set; }
 	public string? Root { get; set; }
 	public string? StartDate { get; set; }
@@ -134,7 +143,8 @@ public partial record Project : Context {
 public partial record TypedContext : Context {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "TypedContext";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => TypedContext.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public double Bid { get; set; }
 	public double? TimeLogged { get; set; }
 	public double? BidTimeLoggedDifference { get; set; }
@@ -160,7 +170,8 @@ public partial record Event : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Event";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Event.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public int Id { get; init; }
 	public string? ParentType { get; set; }
 	public string? ParentId { get; set; }
@@ -176,26 +187,30 @@ public partial record ManagerType : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ManagerType";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ManagerType.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 }
 public partial record Collaborator : BaseUser {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Collaborator";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Collaborator.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string? CreatedFromSharedUrl { get; set; }
 }
 public partial record TypedContextStatusChange : StatusChange {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "TypedContextStatusChange";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => TypedContextStatusChange.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record CustomConfigurationBase : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "CustomConfigurationBase";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => CustomConfigurationBase.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Key { get; set; }
 	public string? EntityType { get; set; }
@@ -213,7 +228,8 @@ public partial record CustomAttributeLink : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "CustomAttributeLink";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => CustomAttributeLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string? Id { get; init; }
 	public string FromId { get; set; } = null!;
 	public string? FromEntityType { get; set; }
@@ -225,7 +241,8 @@ public partial record UserSession : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "UserSession";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => UserSession.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? UserId { get; set; }
 	public bool? Valid { get; set; }
@@ -236,7 +253,8 @@ public partial record Priority : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Priority";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Priority.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public double? Value { get; set; }
@@ -248,7 +266,8 @@ public partial record Dashboard : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Dashboard";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Dashboard.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? CreatedById { get; set; }
@@ -260,7 +279,8 @@ public partial record ReviewSessionObjectStatus : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ReviewSessionObjectStatus";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ReviewSessionObjectStatus.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string? ReviewSessionInviteeId { get; set; }
 	public string? ReviewSessionObjectId { get; set; }
 	public string? Status { get; set; }
@@ -272,7 +292,8 @@ public partial record ObjectType : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ObjectType";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ObjectType.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public int Sort { get; set; }
@@ -291,7 +312,8 @@ public partial record Status : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Status";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Status.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public int? Sort { get; set; }
@@ -303,7 +325,8 @@ public partial record Setting : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Setting";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Name", Value = Name }, new FtrackPrimaryKey { Name = "Group", Value = Group } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Setting.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Name", Value = entity.Name }, new FtrackPrimaryKey { Name = "Group", Value = entity.Group } };
 	public string Name { get; init; } = null!;
 	public string Group { get; init; } = null!;
 	public string? Value { get; set; }
@@ -312,7 +335,8 @@ public partial record Appointment : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Appointment";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Appointment.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string Type { get; set; } = null!;
 	public string ResourceId { get; set; } = null!;
@@ -322,7 +346,8 @@ public partial record AssetVersion : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "AssetVersion";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => AssetVersion.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? ProjectId { get; set; }
 	public string? AssetId { get; set; }
@@ -355,7 +380,8 @@ public partial record CalendarEvent : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "CalendarEvent";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => CalendarEvent.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Name { get; set; } = null!;
 	public string Start { get; set; } = null!;
 	public string End { get; set; } = null!;
@@ -376,7 +402,8 @@ public partial record ReviewSessionObject : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ReviewSessionObject";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ReviewSessionObject.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Name { get; set; } = null!;
 	public string Description { get; set; } = null!;
 	public string Version { get; set; } = null!;
@@ -393,7 +420,8 @@ public partial record StatusRuleGroup : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "StatusRuleGroup";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => StatusRuleGroup.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string EntityType { get; set; } = null!;
 	public string SchemaId { get; set; } = null!;
@@ -405,7 +433,8 @@ public partial record SplitTaskPart : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "SplitTaskPart";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => SplitTaskPart.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Label { get; set; }
 	public string StartDate { get; set; } = null!;
@@ -416,7 +445,8 @@ public partial record NoteLabel : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "NoteLabel";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => NoteLabel.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public int? Sort { get; set; }
@@ -426,7 +456,8 @@ public partial record ReviewSession : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ReviewSession";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ReviewSession.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Name { get; set; } = null!;
 	public string? Availability { get; set; }
 	public string Description { get; set; } = null!;
@@ -454,7 +485,8 @@ public partial record UserApplicationState : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "UserApplicationState";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "UserId", Value = UserId }, new FtrackPrimaryKey { Name = "Key", Value = Key } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => UserApplicationState.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "UserId", Value = entity.UserId }, new FtrackPrimaryKey { Name = "Key", Value = entity.Key } };
 	public string UserId { get; init; } = null!;
 	public string Key { get; init; } = null!;
 	public string Value { get; set; } = null!;
@@ -463,7 +495,8 @@ public partial record ListCategory : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ListCategory";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ListCategory.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public List[]? Lists { get; set; }
@@ -472,21 +505,24 @@ public partial record UserType : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "UserType";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => UserType.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 }
 public partial record NoteAnnotationComponent : NoteComponent {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "NoteAnnotationComponent";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = ComponentId }, new FtrackPrimaryKey { Name = "NoteId", Value = NoteId } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => NoteAnnotationComponent.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = entity.ComponentId }, new FtrackPrimaryKey { Name = "NoteId", Value = entity.NoteId } };
 	public object? Data { get; set; }
 }
 public partial record Timer : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Timer";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Timer.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string Comment { get; set; } = null!;
@@ -497,14 +533,16 @@ public partial record Timer : IFtrackEntity
 public partial record ContainerComponent : Component {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "ContainerComponent";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => ContainerComponent.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public Component[]? Members { get; set; }
 }
 public partial record CustomAttributeType : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "CustomAttributeType";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => CustomAttributeType.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? FormConfig { get; set; }
@@ -515,7 +553,8 @@ public partial record TaskTemplate : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "TaskTemplate";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => TaskTemplate.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public string ProjectSchemaId { get; set; } = null!;
@@ -525,7 +564,8 @@ public partial record ProjectSchema : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ProjectSchema";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ProjectSchema.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? AssetVersionWorkflowSchemaId { get; set; }
@@ -540,7 +580,8 @@ public partial record CalendarEventResource : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "CalendarEventResource";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => CalendarEventResource.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string CalendarEventId { get; set; } = null!;
 	public string ResourceId { get; set; } = null!;
 	public string Id { get; init; } = null!;
@@ -551,7 +592,8 @@ public partial record Component : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Component";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Component.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string SystemType { get; set; } = null!;
 	public string Name { get; set; } = null!;
 	public int? Size { get; set; }
@@ -569,7 +611,8 @@ public partial record Feed : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Feed";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Feed.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? OwnerId { get; set; }
 	public int? SocialId { get; set; }
@@ -582,7 +625,8 @@ public partial record ActionLog : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ActionLog";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ActionLog.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public int? Id { get; init; }
 	public string? Message { get; set; }
 	public string? Status { get; set; }
@@ -593,7 +637,8 @@ public partial record DashboardWidget : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "DashboardWidget";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => DashboardWidget.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Type { get; set; }
 	public string? DashboardId { get; set; }
@@ -604,7 +649,8 @@ public partial record Resource : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Resource";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Resource.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string ResourceType { get; set; } = null!;
 	public string Id { get; init; } = null!;
 	public Appointment[]? Appointments { get; set; }
@@ -615,13 +661,15 @@ public partial record Resource : IFtrackEntity
 public partial record NoteCategory : NoteLabel {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "NoteCategory";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => NoteCategory.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record NoteComponent : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "NoteComponent";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = ComponentId }, new FtrackPrimaryKey { Name = "NoteId", Value = NoteId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => NoteComponent.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = entity.ComponentId }, new FtrackPrimaryKey { Name = "NoteId", Value = entity.NoteId } };
 	public string ComponentId { get; init; } = null!;
 	public string NoteId { get; init; } = null!;
 	public object? Url { get; set; }
@@ -631,7 +679,8 @@ public partial record DashboardResource : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "DashboardResource";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "DashboardId", Value = DashboardId }, new FtrackPrimaryKey { Name = "ResourceId", Value = ResourceId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => DashboardResource.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "DashboardId", Value = entity.DashboardId }, new FtrackPrimaryKey { Name = "ResourceId", Value = entity.ResourceId } };
 	public string DashboardId { get; init; } = null!;
 	public string ResourceId { get; init; } = null!;
 }
@@ -639,7 +688,8 @@ public partial record Context : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Context";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Context.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string ContextType { get; set; } = null!;
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
@@ -667,7 +717,8 @@ public partial record Membership : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Membership";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Membership.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string GroupId { get; set; } = null!;
 	public string UserId { get; set; } = null!;
@@ -676,7 +727,8 @@ public partial record WorkflowSchema : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "WorkflowSchema";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => WorkflowSchema.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public Status[]? Statuses { get; set; }
@@ -686,7 +738,8 @@ public partial record StatusRule : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "StatusRule";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => StatusRule.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string StatusRuleGroupId { get; set; } = null!;
 	public string StatusId { get; set; } = null!;
@@ -694,13 +747,15 @@ public partial record StatusRule : IFtrackEntity
 public partial record TypedContextStatusRuleGroup : StatusRuleGroup {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "TypedContextStatusRuleGroup";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => TypedContextStatusRuleGroup.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string ObjectTypeId { get; set; } = null!;
 }
 public partial record BaseUser : Resource {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "BaseUser";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => BaseUser.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string? FirstName { get; set; }
 	public string? LastName { get; set; }
 	public string? Email { get; set; }
@@ -711,7 +766,8 @@ public partial record Type : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Type";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Type.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string Color { get; set; } = null!;
@@ -724,7 +780,8 @@ public partial record JobComponent : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "JobComponent";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = ComponentId }, new FtrackPrimaryKey { Name = "JobId", Value = JobId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => JobComponent.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = entity.ComponentId }, new FtrackPrimaryKey { Name = "JobId", Value = entity.JobId } };
 	public string ComponentId { get; init; } = null!;
 	public string JobId { get; init; } = null!;
 	public object? Url { get; set; }
@@ -733,7 +790,8 @@ public partial record Trigger : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Trigger";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Trigger.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string Filter { get; set; } = null!;
 	public string? AutomationId { get; set; }
@@ -741,14 +799,16 @@ public partial record Trigger : IFtrackEntity
 public partial record SequenceComponent : ContainerComponent {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "SequenceComponent";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => SequenceComponent.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public int Padding { get; set; }
 }
 public partial record UserSecurityRoleProject : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "UserSecurityRoleProject";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => UserSecurityRoleProject.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? UserSecurityRoleId { get; set; }
 	public string? ProjectId { get; set; }
@@ -757,7 +817,8 @@ public partial record SettingComponent : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "SettingComponent";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = ComponentId }, new FtrackPrimaryKey { Name = "Name", Value = Name }, new FtrackPrimaryKey { Name = "Group", Value = Group } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => SettingComponent.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = entity.ComponentId }, new FtrackPrimaryKey { Name = "Name", Value = entity.Name }, new FtrackPrimaryKey { Name = "Group", Value = entity.Group } };
 	public string ComponentId { get; init; } = null!;
 	public string Name { get; init; } = null!;
 	public string Group { get; init; } = null!;
@@ -768,7 +829,8 @@ public partial record Manager : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Manager";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Manager.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? ContextId { get; set; }
 	public string? TypeId { get; set; }
@@ -777,7 +839,8 @@ public partial record Manager : IFtrackEntity
 public partial record WebhookAction : Action {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "WebhookAction";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => WebhookAction.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string WebhookUrl { get; set; } = null!;
 	public string? Headers { get; set; }
 }
@@ -785,7 +848,8 @@ public partial record WorkflowSchemaStatus : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "WorkflowSchemaStatus";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "WorkflowSchemaId", Value = WorkflowSchemaId }, new FtrackPrimaryKey { Name = "StatusId", Value = StatusId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => WorkflowSchemaStatus.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "WorkflowSchemaId", Value = entity.WorkflowSchemaId }, new FtrackPrimaryKey { Name = "StatusId", Value = entity.StatusId } };
 	public string WorkflowSchemaId { get; init; } = null!;
 	public string StatusId { get; init; } = null!;
 }
@@ -793,7 +857,8 @@ public partial record CustomAttributeValue : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "CustomAttributeValue";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = EntityId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => CustomAttributeValue.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = entity.ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = entity.EntityId } };
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
@@ -801,14 +866,16 @@ public partial record CustomAttributeValue : IFtrackEntity
 public partial record AssetVersionList : List {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "AssetVersionList";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => AssetVersionList.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public AssetVersion[]? Items { get; set; }
 }
 public partial record TaskTemplateItem : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "TaskTemplateItem";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => TaskTemplateItem.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string TemplateId { get; set; } = null!;
 	public string TaskTypeId { get; set; } = null!;
@@ -817,7 +884,8 @@ public partial record SchemaType : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "SchemaType";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "TypeId", Value = TypeId }, new FtrackPrimaryKey { Name = "SchemaId", Value = SchemaId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => SchemaType.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "TypeId", Value = entity.TypeId }, new FtrackPrimaryKey { Name = "SchemaId", Value = entity.SchemaId } };
 	public string TypeId { get; init; } = null!;
 	public string SchemaId { get; init; } = null!;
 	public int? Sort { get; set; }
@@ -826,7 +894,8 @@ public partial record SchemaStatus : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "SchemaStatus";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "StatusId", Value = StatusId }, new FtrackPrimaryKey { Name = "SchemaId", Value = SchemaId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => SchemaStatus.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "StatusId", Value = entity.StatusId }, new FtrackPrimaryKey { Name = "SchemaId", Value = entity.SchemaId } };
 	public string StatusId { get; init; } = null!;
 	public string SchemaId { get; init; } = null!;
 	public int? Sort { get; set; }
@@ -835,7 +904,8 @@ public partial record NoteLabelLink : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "NoteLabelLink";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "NoteId", Value = NoteId }, new FtrackPrimaryKey { Name = "LabelId", Value = LabelId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => NoteLabelLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "NoteId", Value = entity.NoteId }, new FtrackPrimaryKey { Name = "LabelId", Value = entity.LabelId } };
 	public string NoteId { get; init; } = null!;
 	public string LabelId { get; init; } = null!;
 }
@@ -843,7 +913,8 @@ public partial record TaskTypeSchema : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "TaskTypeSchema";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => TaskTypeSchema.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public Type[]? Types { get; set; }
@@ -852,7 +923,8 @@ public partial record Timelog : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Timelog";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Timelog.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string Comment { get; set; } = null!;
@@ -866,7 +938,8 @@ public partial record AssetVersionLink : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "AssetVersionLink";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => AssetVersionLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string FromId { get; set; } = null!;
 	public string ToId { get; set; } = null!;
@@ -876,7 +949,8 @@ public partial record SecurityRole : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "SecurityRole";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => SecurityRole.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? Type { get; set; }
@@ -886,7 +960,8 @@ public partial record ListObject : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ListObject";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ListObject.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string EntityId { get; set; } = null!;
 	public string ListId { get; set; } = null!;
@@ -896,7 +971,8 @@ public partial record ReviewSessionObjectAnnotationComponent : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ReviewSessionObjectAnnotationComponent";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = ComponentId }, new FtrackPrimaryKey { Name = "ReviewSessionObjectId", Value = ReviewSessionObjectId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ReviewSessionObjectAnnotationComponent.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ComponentId", Value = entity.ComponentId }, new FtrackPrimaryKey { Name = "ReviewSessionObjectId", Value = entity.ReviewSessionObjectId } };
 	public string ComponentId { get; init; } = null!;
 	public string FrameNumber { get; set; } = null!;
 	public string ReviewSessionObjectId { get; init; } = null!;
@@ -906,14 +982,16 @@ public partial record ReviewSessionObjectAnnotationComponent : IFtrackEntity
 public partial record TypedContextList : List {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "TypedContextList";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => TypedContextList.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public Task[]? Items { get; set; }
 }
 public partial record ProjectSchemaOverride : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ProjectSchemaOverride";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ProjectSchemaOverride.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? ProjectSchemaId { get; set; }
 	public string? WorkflowSchemaId { get; set; }
@@ -923,7 +1001,8 @@ public partial record Job : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Job";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Job.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string Status { get; set; } = null!;
 	public string? UserId { get; set; }
@@ -937,7 +1016,8 @@ public partial record UserSecurityRole : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "UserSecurityRole";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => UserSecurityRole.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? UserId { get; set; }
 	public string? SecurityRoleId { get; set; }
@@ -949,7 +1029,8 @@ public partial record Asset : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Asset";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Asset.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? ProjectId { get; set; }
 	public string? Name { get; set; }
@@ -966,7 +1047,8 @@ public partial record TypedContextLink : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "TypedContextLink";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => TypedContextLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string FromId { get; set; } = null!;
 	public string ToId { get; set; } = null!;
@@ -977,7 +1059,8 @@ public partial record TypedContextLink : IFtrackEntity
 public partial record CustomAttributeLinkConfiguration : CustomConfigurationBase {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "CustomAttributeLinkConfiguration";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => CustomAttributeLinkConfiguration.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public bool? OneToOne { get; set; }
 	public string EntityTypeTo { get; set; } = null!;
 	public string? ObjectTypeIdTo { get; set; }
@@ -986,7 +1069,8 @@ public partial record Action : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Action";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Action.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string? Id { get; init; }
 	public string AutomationId { get; set; } = null!;
 }
@@ -994,7 +1078,8 @@ public partial record Automation : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Automation";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Automation.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public string? Description { get; set; }
@@ -1007,13 +1092,15 @@ public partial record Automation : IFtrackEntity
 public partial record FileComponent : Component {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "FileComponent";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => FileComponent.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record CustomAttributeGroup : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "CustomAttributeGroup";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => CustomAttributeGroup.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public CustomAttributeConfiguration[]? CustomAttributeConfigurations { get; set; }
@@ -1022,7 +1109,8 @@ public partial record Recipient : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Recipient";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "NoteId", Value = NoteId }, new FtrackPrimaryKey { Name = "ResourceId", Value = ResourceId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Recipient.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "NoteId", Value = entity.NoteId }, new FtrackPrimaryKey { Name = "ResourceId", Value = entity.ResourceId } };
 	public string NoteId { get; init; } = null!;
 	public string ResourceId { get; init; } = null!;
 	public string? TextMentioned { get; set; }
@@ -1031,7 +1119,8 @@ public partial record AssetType : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "AssetType";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => AssetType.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public string Short { get; set; } = null!;
@@ -1042,7 +1131,8 @@ public partial record Note : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Note";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Note.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? ParentId { get; set; }
 	public string? ParentType { get; set; }
@@ -1067,7 +1157,8 @@ public partial record Location : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Location";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Location.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Name { get; set; } = null!;
 	public string? Label { get; set; }
 	public string? Description { get; set; }
@@ -1078,7 +1169,8 @@ public partial record TaskTypeSchemaType : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "TaskTypeSchemaType";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "TaskTypeSchemaId", Value = TaskTypeSchemaId }, new FtrackPrimaryKey { Name = "TypeId", Value = TypeId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => TaskTypeSchemaType.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "TaskTypeSchemaId", Value = entity.TaskTypeSchemaId }, new FtrackPrimaryKey { Name = "TypeId", Value = entity.TypeId } };
 	public string TaskTypeSchemaId { get; init; } = null!;
 	public string TypeId { get; init; } = null!;
 }
@@ -1086,7 +1178,8 @@ public partial record State : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "State";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => State.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public string? Short { get; set; }
@@ -1095,20 +1188,23 @@ public partial record ProjectSchemaObjectType : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ProjectSchemaObjectType";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ObjectTypeId", Value = ObjectTypeId }, new FtrackPrimaryKey { Name = "ProjectSchemaId", Value = ProjectSchemaId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ProjectSchemaObjectType.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ObjectTypeId", Value = entity.ObjectTypeId }, new FtrackPrimaryKey { Name = "ProjectSchemaId", Value = entity.ProjectSchemaId } };
 	public string ObjectTypeId { get; init; } = null!;
 	public string ProjectSchemaId { get; init; } = null!;
 }
 public partial record AssetVersionStatusRuleGroup : StatusRuleGroup {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "AssetVersionStatusRuleGroup";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => AssetVersionStatusRuleGroup.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record Metadata : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Metadata";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ParentId", Value = ParentId }, new FtrackPrimaryKey { Name = "Key", Value = Key } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Metadata.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ParentId", Value = entity.ParentId }, new FtrackPrimaryKey { Name = "Key", Value = entity.Key } };
 	public string ParentId { get; init; } = null!;
 	public string ParentType { get; set; } = null!;
 	public string Key { get; init; } = null!;
@@ -1118,7 +1214,8 @@ public partial record StatusChange : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "StatusChange";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => StatusChange.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? ParentId { get; set; }
 	public string? ParentType { get; set; }
@@ -1131,7 +1228,8 @@ public partial record Schema : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Schema";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Schema.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string ProjectSchemaId { get; set; } = null!;
 	public string TypeId { get; set; } = null!;
@@ -1143,7 +1241,8 @@ public partial record List : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "List";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => List.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public bool IsOpen { get; set; }
@@ -1159,7 +1258,8 @@ public partial record List : IFtrackEntity
 public partial record Group : Resource {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Group";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Group.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Name { get; set; } = null!;
 	public bool Local { get; set; }
 	public string? ParentId { get; set; }
@@ -1173,7 +1273,8 @@ public partial record Group : Resource {
 public partial record CustomAttributeConfiguration : CustomConfigurationBase {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "CustomAttributeConfiguration";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => CustomAttributeConfiguration.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public JsonElement? Default { get; set; }
 	public bool? IsHierarchical { get; set; }
 	public string? TypeId { get; set; }
@@ -1183,7 +1284,8 @@ public partial record UserTaskTypeLink : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "UserTaskTypeLink";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "TypeId", Value = TypeId }, new FtrackPrimaryKey { Name = "UserId", Value = UserId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => UserTaskTypeLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "TypeId", Value = entity.TypeId }, new FtrackPrimaryKey { Name = "UserId", Value = entity.UserId } };
 	public string UserId { get; init; } = null!;
 	public string TypeId { get; init; } = null!;
 }
@@ -1191,7 +1293,8 @@ public partial record EntitySetting : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "EntitySetting";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ParentId", Value = ParentId }, new FtrackPrimaryKey { Name = "Group", Value = Group }, new FtrackPrimaryKey { Name = "Name", Value = Name } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => EntitySetting.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ParentId", Value = entity.ParentId }, new FtrackPrimaryKey { Name = "Group", Value = entity.Group }, new FtrackPrimaryKey { Name = "Name", Value = entity.Name } };
 	public string ParentId { get; init; } = null!;
 	public string ParentType { get; set; } = null!;
 	public string Group { get; init; } = null!;
@@ -1202,7 +1305,8 @@ public partial record Disk : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Disk";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Disk.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string Name { get; set; } = null!;
 	public string? Unix { get; set; }
@@ -1213,7 +1317,8 @@ public partial record UserView : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "UserView";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => UserView.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Id { get; init; } = null!;
 	public string? Name { get; set; }
 	public bool? Global { get; set; }
@@ -1224,65 +1329,77 @@ public partial record Scope : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "Scope";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => Scope.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 	public string Name { get; set; } = null!;
 	public string Id { get; init; } = null!;
 }
 public partial record Milestone : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Milestone";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Milestone.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record Task : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Task";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Task.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record Episode : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Episode";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Episode.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record Scene : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Scene";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Scene.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record Folder : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Folder";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Folder.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record Image : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Image";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Image.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record AssetBuild : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "AssetBuild";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => AssetBuild.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record Shot : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Shot";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Shot.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record Sequence : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Sequence";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Sequence.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record Information : TypedContext {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "Information";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => Information.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record ContextCustomAttributeValue : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ContextCustomAttributeValue";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = EntityId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ContextCustomAttributeValue.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = entity.ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = entity.EntityId } };
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
@@ -1292,7 +1409,8 @@ public partial record AssetVersionCustomAttributeValue : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "AssetVersionCustomAttributeValue";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = EntityId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => AssetVersionCustomAttributeValue.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = entity.ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = entity.EntityId } };
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
@@ -1302,7 +1420,8 @@ public partial record ListCustomAttributeValue : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ListCustomAttributeValue";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = EntityId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ListCustomAttributeValue.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = entity.ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = entity.EntityId } };
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
@@ -1312,7 +1431,8 @@ public partial record ListObjectCustomAttributeValue : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "ListObjectCustomAttributeValue";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = EntityId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => ListObjectCustomAttributeValue.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = entity.ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = entity.EntityId } };
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
@@ -1322,7 +1442,8 @@ public partial record UserCustomAttributeValue : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "UserCustomAttributeValue";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = EntityId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => UserCustomAttributeValue.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = entity.ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = entity.EntityId } };
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
@@ -1332,7 +1453,8 @@ public partial record AssetCustomAttributeValue : IFtrackEntity
  {
 	[JsonPropertyName("__entity_type__")]
 	public virtual string __entity_type__ => "AssetCustomAttributeValue";
-	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = EntityId } };
+	public virtual FtrackPrimaryKey[] GetPrimaryKeys() => AssetCustomAttributeValue.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "ConfigurationId", Value = entity.ConfigurationId }, new FtrackPrimaryKey { Name = "EntityId", Value = entity.EntityId } };
 	public string ConfigurationId { get; init; } = null!;
 	public JsonElement? Value { get; set; }
 	public string EntityId { get; init; } = null!;
@@ -1341,70 +1463,84 @@ public partial record AssetCustomAttributeValue : IFtrackEntity
 public partial record ContextCustomAttributeLink : CustomAttributeLink {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "ContextCustomAttributeLink";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => ContextCustomAttributeLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record ContextCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "ContextCustomAttributeLinkFrom";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => ContextCustomAttributeLinkFrom.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record AssetVersionCustomAttributeLink : CustomAttributeLink {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "AssetVersionCustomAttributeLink";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => AssetVersionCustomAttributeLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record AssetVersionCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "AssetVersionCustomAttributeLinkFrom";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => AssetVersionCustomAttributeLinkFrom.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record ListCustomAttributeLink : CustomAttributeLink {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "ListCustomAttributeLink";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => ListCustomAttributeLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record ListCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "ListCustomAttributeLinkFrom";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => ListCustomAttributeLinkFrom.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record UserCustomAttributeLink : CustomAttributeLink {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "UserCustomAttributeLink";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => UserCustomAttributeLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record UserCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "UserCustomAttributeLinkFrom";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => UserCustomAttributeLinkFrom.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record GroupCustomAttributeLink : CustomAttributeLink {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "GroupCustomAttributeLink";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => GroupCustomAttributeLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record GroupCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "GroupCustomAttributeLinkFrom";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => GroupCustomAttributeLinkFrom.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record AssetCustomAttributeLink : CustomAttributeLink {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "AssetCustomAttributeLink";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => AssetCustomAttributeLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record AssetCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "AssetCustomAttributeLinkFrom";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => AssetCustomAttributeLinkFrom.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record ComponentCustomAttributeLink : CustomAttributeLink {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "ComponentCustomAttributeLink";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => ComponentCustomAttributeLink.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }
 public partial record ComponentCustomAttributeLinkFrom : CustomAttributeLinkFrom {
 	[JsonPropertyName("__entity_type__")]
 	public override string __entity_type__ => "ComponentCustomAttributeLinkFrom";
-	public override FtrackPrimaryKey[] GetPrimaryKeys() => new [] { new FtrackPrimaryKey { Name = "Id", Value = Id } };
+	public override FtrackPrimaryKey[] GetPrimaryKeys() => ComponentCustomAttributeLinkFrom.GetPrimaryKeys(this);
+	public static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] { new FtrackPrimaryKey { Name = "Id", Value = entity.Id } };
 }

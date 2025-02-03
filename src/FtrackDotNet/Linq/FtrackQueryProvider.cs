@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using FtrackDotNet.Api;
 using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
+using Type = System.Type;
 
 namespace FtrackDotNet.Linq;
 
@@ -17,9 +18,14 @@ internal class FtrackQueryProvider(
     public IQueryable CreateQuery(Expression expression)
     {
         // Return a non-generic IQueryable
-        var elementType = expression.Type.GetGenericArguments().First();
+        var elementType = GetElementTypeFromExpression(expression);
         var queryableType = typeof(FtrackQueryable<>).MakeGenericType(elementType);
         return (IQueryable)Activator.CreateInstance(queryableType, this, expression)!;
+    }
+
+    private static Type GetElementTypeFromExpression(Expression expression)
+    {
+        return expression.Type.GetGenericArguments().First();
     }
 
     public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
@@ -46,14 +52,15 @@ internal class FtrackQueryProvider(
     {
         // 1. Visit expression tree -> get a FtrackQueryDefinition
         var query = _visitor.Translate(expression);
+        var elementType = GetElementTypeFromExpression(expression);
 
         // 2. Call into the IFtrackClient with the query definition
         var results = await _client.QueryAsync<TResult>(query);
-        TrackFetchedEntities(results);
-        return results;
+        TrackFetchedEntities(results, elementType);
+        return results.Single();
     }
 
-    private void TrackFetchedEntities(object results)
+    private void TrackFetchedEntities(object results, Type elementType)
     {
         if (SkipTracking)
         {
@@ -64,10 +71,10 @@ internal class FtrackQueryProvider(
         {
             foreach (var result in enumerable)
             {
-                TrackFetchedEntities(result);
+                TrackFetchedEntities(result, result.GetType());
             }
         } else {
-            changeTracker.TrackEntity(results, TrackedEntityOperationType.Update);
+            changeTracker.TrackEntity(results, elementType.Name, TrackedEntityOperationType.Update);
         }
     }
 

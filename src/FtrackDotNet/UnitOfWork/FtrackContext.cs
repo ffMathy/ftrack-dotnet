@@ -30,19 +30,19 @@ public class FtrackContext(
             {
                 TrackedEntityOperationType.Create => (FtrackOperation)new FtrackCreateOperation()
                 {
-                    EntityType = x.Entity.GetType().Name,
-                    EntityData = x.Entity
+                    EntityType = x.Entity.Type,
+                    EntityData = x.Entity.Reference.Target!
                 },
                 TrackedEntityOperationType.Update => (FtrackOperation)new FtrackUpdateOperation()
                 {
-                    EntityType = x.Entity.GetType().Name,
-                    EntityKey = new object(),
-                    EntityData = x.Entity
+                    EntityType = x.Entity.Type,
+                    EntityKey = x.Entity.Key,
+                    EntityData = x.Entity.Reference.Target!
                 },
                 TrackedEntityOperationType.Delete => (FtrackOperation)new FtrackDeleteOperation()
                 {
-                    EntityType = x.Entity.GetType().Name,
-                    EntityKey = new object(),
+                    EntityType = x.Entity.Type,
+                    EntityKey = x.Entity.Key,
                 },
                 _ => throw new InvalidOperationException("Unknown operation: " + x.Operation)
             });

@@ -10,7 +10,7 @@ internal class ChangeTracker : IChangeTracker
 {
     private readonly Dictionary<int, TrackedEntity> _trackedEntities = new();
 
-    public void TrackEntity(object entity, TrackedEntityOperationType operationType)
+    public void TrackEntity(object entity, string entityType, TrackedEntityOperationType operationType)
     {
         var id = entity.GetHashCode();
         if (_trackedEntities.TryGetValue(id, out var trackedEntity))
@@ -34,12 +34,14 @@ internal class ChangeTracker : IChangeTracker
                 continue;
             }
 
-            TrackEntity(value, operationType);
+            TrackEntity(value, value.GetType().Name, operationType);
         }
         
         _trackedEntities.Add(id, new TrackedEntity()
         {
-            EntityReference = new WeakReference(entity),
+            Entity = new EntityReference() {
+                Reference = new WeakReference(entity),
+            },
             ValueSnapshot = valueSnapshot,
             Operation = operationType
         });
@@ -92,9 +94,9 @@ internal class ChangeTracker : IChangeTracker
         return _trackedEntities
             .Select(x => new Change()
             {
-                Entity = x.Value.EntityReference.Target!,
                 Operation = x.Value.Operation!.Value,
-                Differences = GetDifferencesForEntitySinceSnapshot(x.Value.EntityReference.Target!, x.Value.ValueSnapshot)
+                Differences = GetDifferencesForEntitySinceSnapshot(x.Value.Entity.Reference.Target!, x.Value.ValueSnapshot),
+                Entity = x.Value.Entity
             })
             .ToArray();
     }
@@ -118,7 +120,7 @@ internal class ChangeTracker : IChangeTracker
         var keysToRemove = new HashSet<int>();
         foreach (var keyValuePair in _trackedEntities)
         {
-            if (keyValuePair.Value.EntityReference.Target is not { } entity)
+            if (keyValuePair.Value.Entity.Reference.Target is not { } entity)
             {
                 keysToRemove.Add(keyValuePair.Key);
                 continue;
@@ -140,9 +142,16 @@ internal class ChangeTracker : IChangeTracker
     }
 }
 
+public struct EntityReference
+{
+    public string Type { get; set; }
+    public object Key { get; set; }
+    public WeakReference Reference { get; set; }
+}
+
 public struct Change
 {
-    public object Entity { get; set; }
+    public EntityReference Entity { get; set; }
     public TrackedEntityOperationType Operation { get; set; }
     public IDictionary<string, object?> Differences { get; init; }
 }

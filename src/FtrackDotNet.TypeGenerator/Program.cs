@@ -113,7 +113,7 @@ foreach (var schema in schemas)
     var className = schema.Id;
     if(typeNamesAlreadyInInbuiltModels.Contains(className))
     {
-        continue;
+        // continue;
     }
     
     var isTypedContextSchema =
@@ -139,9 +139,11 @@ foreach (var schema in schemas)
     outputBuilder.AppendLine($"\t[JsonPropertyName(\"__entity_type__\")]");
     outputBuilder.AppendLine($"\tpublic {propertyAccessModifier} string __entity_type__ => \"{className}\";");
     
-    outputBuilder.AppendLine($"\tpublic {propertyAccessModifier} FtrackPrimaryKey[] GetPrimaryKeys() => new [] {{ {schema
+    outputBuilder.AppendLine($"\tpublic {propertyAccessModifier} FtrackPrimaryKey[] GetPrimaryKeys() => {className}.GetPrimaryKeys(this);");
+    
+    outputBuilder.AppendLine($"\tpublic static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] {{ {schema
         .PrimaryKey
-        .Select(p => $"new FtrackPrimaryKey {{ Name = \"{p.FromSnakeCaseToPascalCase()}\", Value = {p.FromSnakeCaseToPascalCase()} }}")
+        .Select(p => $"new FtrackPrimaryKey {{ Name = \"{p.FromSnakeCaseToPascalCase()}\", Value = entity.{p.FromSnakeCaseToPascalCase()} }}")
         .Aggregate((x, y) => $"{x}, {y}")} }};");
 
     var properties = schema.Properties

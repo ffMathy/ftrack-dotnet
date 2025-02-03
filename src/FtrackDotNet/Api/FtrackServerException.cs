@@ -7,8 +7,11 @@ public class FtrackServerErrorResponse
 
 public class FtrackServerException : Exception
 {
-    public FtrackServerException(FtrackServerErrorResponse response) : base(
-        $"The Ftrack server returned an error: [{response.Exception}]: {response.Content}")
+    public FtrackServerException(
+        string requestJson,
+        FtrackServerErrorResponse response
+    ) : base(
+        $"The Ftrack server returned an error: [{response.Exception}]: {response.Content} for request: {requestJson}")
     {
         Response = response.Content;
         Category = response.Exception;
