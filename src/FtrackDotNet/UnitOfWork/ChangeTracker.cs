@@ -10,7 +10,7 @@ internal class ChangeTracker : IChangeTracker
 {
     private readonly Dictionary<int, TrackedEntity> _trackedEntities = new();
 
-    public void TrackEntity(object entity, string entityType, TrackedEntityOperationType operationType)
+    public void TrackEntity(object entity, Type entityType, TrackedEntityOperationType operationType)
     {
         var id = entity.GetHashCode();
         if (_trackedEntities.TryGetValue(id, out var trackedEntity))
@@ -34,14 +34,14 @@ internal class ChangeTracker : IChangeTracker
                 continue;
             }
 
-            TrackEntity(value, value.GetType().Name, operationType);
+            TrackEntity(value, value.GetType(), operationType);
         }
         
         _trackedEntities.Add(id, new TrackedEntity()
         {
             Entity = new EntityReference() {
                 Reference = new WeakReference(entity),
-                Type = entityType,
+                Type = entityType.Name,
             },
             ValueSnapshot = valueSnapshot,
             Operation = operationType

@@ -12,17 +12,17 @@ public class FtrackDataSet<T>(
 {
     public T Add(T entity)
     {
-        changeTracker.TrackEntity(entity, typeof(T).Name, TrackedEntityOperationType.Create);
+        changeTracker.TrackEntity(entity, typeof(T), TrackedEntityOperationType.Create);
         return entity;
     }
 
     public void Remove(T entity)
     {
-        changeTracker.TrackEntity(entity, typeof(T).Name, TrackedEntityOperationType.Delete);
+        changeTracker.TrackEntity(entity, typeof(T), TrackedEntityOperationType.Delete);
     }
     
     public void Attach(T entity)
     {
-        changeTracker.TrackEntity(entity, typeof(T).Name, TrackedEntityOperationType.Update);
+        changeTracker.TrackEntity(entity, typeof(T), TrackedEntityOperationType.Update);
     }
 }

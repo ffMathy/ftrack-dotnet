@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using FtrackDotNet.Api;
+using FtrackDotNet.Linq.Visitors;
 using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
 using Type = System.Type;
@@ -25,7 +26,10 @@ internal class FtrackQueryProvider(
 
     private static Type GetElementTypeFromExpression(Expression expression)
     {
-        return expression.Type.GetGenericArguments().First();
+        var visitor = new FtrackFromExpressionVisitor();
+        visitor.Visit(expression);
+        
+        return visitor.Type;
     }
 
     public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
@@ -74,7 +78,7 @@ internal class FtrackQueryProvider(
                 TrackFetchedEntities(result, result.GetType());
             }
         } else {
-            changeTracker.TrackEntity(results, elementType.Name, TrackedEntityOperationType.Update);
+            changeTracker.TrackEntity(results, elementType, TrackedEntityOperationType.Update);
         }
     }
 
