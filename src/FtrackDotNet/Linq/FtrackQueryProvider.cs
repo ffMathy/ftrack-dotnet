@@ -55,7 +55,7 @@ internal class FtrackQueryProvider(
         var elementType = GetElementTypeFromExpression(expression);
 
         // 2. Call into the IFtrackClient with the query definition
-        var results = await _client.QueryAsync<TResult>(query);
+        var results = await _client.QueryAsync<TResult>(query, cancellationToken);
         TrackFetchedEntities(results, elementType);
         return results.Single();
     }

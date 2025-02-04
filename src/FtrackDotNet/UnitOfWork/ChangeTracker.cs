@@ -41,6 +41,7 @@ internal class ChangeTracker : IChangeTracker
         {
             Entity = new EntityReference() {
                 Reference = new WeakReference(entity),
+                Type = entityType,
             },
             ValueSnapshot = valueSnapshot,
             Operation = operationType
