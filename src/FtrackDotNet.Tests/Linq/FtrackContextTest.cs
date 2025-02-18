@@ -17,7 +17,7 @@ public class FtrackContextTest
         // Arrange
         await using var scope = StartHost();
 
-        var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
+        var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
 
         // Act
         var entities = await ftrackContext.TypedContexts
@@ -34,7 +34,7 @@ public class FtrackContextTest
         // Arrange
         await using var scope = StartHost();
 
-        var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
+        var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
 
         var project = ftrackContext.Projects.Add(new Project()
         {
@@ -60,7 +60,7 @@ public class FtrackContextTest
         hostBuilder.ConfigureAppConfiguration(x => x
             .AddUserSecrets<FtrackContextTest>());
         hostBuilder.ConfigureServices(services =>
-            services.AddFtrack());
+            services.AddFtrack<CustomFtrackContext>());
 
         var host = hostBuilder.Build();
         var scope = host.Services.CreateAsyncScope();

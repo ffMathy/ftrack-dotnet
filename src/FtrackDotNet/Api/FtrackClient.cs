@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
 
 namespace FtrackDotNet.Api;
@@ -32,20 +33,29 @@ internal class FtrackClient : IDisposable, IFtrackClient
         _http.Dispose();
     }
 
-    public async Task<T[]> QueryAsync<T>(string query, CancellationToken cancellationToken = default)
+    public async Task<JsonElement[]> QueryAsync(
+        string query,
+        CancellationToken cancellationToken = default)
     {
         Debug.WriteLine($"Querying: {query}");
-        return await CallAsync<T>([
-            new FtrackQueryOperation()
-            {
-                Expression = query
-            }
-        ]);
+        return await CallAsync(
+            [
+                new FtrackQueryOperation()
+                {
+                    Expression = query
+                }
+            ],
+            cancellationToken);
     }
 
-    public async Task<T[]> CallAsync<T>(IEnumerable<FtrackOperation> operations, CancellationToken cancellationToken = default)
+    public async Task<JsonElement[]> CallAsync(
+        IEnumerable<FtrackOperation> operations,
+        CancellationToken cancellationToken = default)
     {
-        var result = await MakeApiRequestAsync<QueryResponseWrapper<T>[]>(operations, cancellationToken);
+        var result =
+            await MakeApiRequestAsync<QueryResponseWrapper<JsonElement>[]>(
+                operations,
+                cancellationToken);
         return result
             .Select(x => x.Data)
             .ToArray()!;
@@ -54,46 +64,43 @@ internal class FtrackClient : IDisposable, IFtrackClient
     public async Task<QuerySchemasSchemaResponse[]> QuerySchemasAsync(CancellationToken cancellationToken = default)
     {
         var result = await MakeApiRequestAsync<QuerySchemasSchemaResponse[][]>(
-            new FtrackOperation[] {new FtrackQuerySchemasOperation()}, 
+            new FtrackOperation[] {new FtrackQuerySchemasOperation()},
             cancellationToken);
         return result.Single();
     }
 
-    private async Task<TResponse> MakeApiRequestAsync<TResponse>(object request, CancellationToken cancellationToken = default)
+    private async Task<TResponse> MakeApiRequestAsync<TResponse>(
+        object request,
+        CancellationToken cancellationToken = default)
     {
         var requestJson = JsonSerializer.Serialize(
             request,
-            GetJsonSerializerOptions());
+            FtrackContext.GetJsonSerializerOptions());
 
+        return await MakeJsonApiRequestAsync<TResponse>(requestJson, cancellationToken);
+    }
+
+    private async Task<TResponse> MakeJsonApiRequestAsync<TResponse>(string requestJson, CancellationToken cancellationToken)
+    {
         var responseBody = await MakeRawRequestAsync(HttpMethod.Post, "api", requestJson, cancellationToken);
 
         var result = JsonSerializer.Deserialize<JsonElement>(
             responseBody,
-            GetJsonSerializerOptions());
+            FtrackContext.GetJsonSerializerOptions());
 
         if (result.ValueKind == JsonValueKind.Object && result.TryGetProperty("exception", out _))
         {
-            var response = result.Deserialize<FtrackServerErrorResponse>(GetJsonSerializerOptions())!;
+            var response = result.Deserialize<FtrackServerErrorResponse>(FtrackContext.GetJsonSerializerOptions())!;
             throw new FtrackServerException(requestJson, response!);
         }
 
-        return (TResponse)result.Deserialize(typeof(TResponse), GetJsonSerializerOptions())!;
+        return (TResponse) result.Deserialize(typeof(TResponse), FtrackContext.GetJsonSerializerOptions())!;
     }
 
-    private static JsonSerializerOptions GetJsonSerializerOptions()
+    public async Task<string> MakeRawRequestAsync(HttpMethod method, string relativeUrl, string? json = null,
+        CancellationToken cancellationToken = default)
     {
-        return new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
-    }
-
-    public async Task<string> MakeRawRequestAsync(HttpMethod method, string relativeUrl, string? json = null, CancellationToken cancellationToken = default)
-    {
-        var content = json != null ? 
-            new StringContent(json, Encoding.UTF8, "application/json") : 
-            null;
+        var content = json != null ? new StringContent(json, Encoding.UTF8, "application/json") : null;
 
         var message = new HttpRequestMessage(method, relativeUrl)
         {
@@ -134,6 +141,8 @@ public class FtrackCreateOperation : FtrackOperation
 {
     public override string Action => "create";
     public required string EntityType { get; init; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public required object EntityData { get; init; }
 }
 
@@ -142,6 +151,8 @@ public class FtrackUpdateOperation : FtrackOperation
     public override string Action => "update";
     public required string EntityType { get; init; }
     public required object EntityKey { get; init; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public required object EntityData { get; init; }
 }
 

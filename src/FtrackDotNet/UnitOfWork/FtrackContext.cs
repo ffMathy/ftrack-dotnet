@@ -1,26 +1,47 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using FtrackDotNet.Api;
 using FtrackDotNet.Models;
 using Type = FtrackDotNet.Models.Type;
 
 namespace FtrackDotNet.UnitOfWork;
 
-public class FtrackContext(
-    IFtrackDataSetFactory ftrackDataSetFactory,
+internal delegate FtrackPrimaryKey[]? GetPrimaryKeysForEntityDelegate(dynamic? entity);
+
+public partial class FtrackContext(
     IFtrackClient ftrackClient,
     IChangeTracker changeTracker)
 {
-    public FtrackDataSet<Project> Projects => ftrackDataSetFactory.Create<Project>();
-    public FtrackDataSet<TypedContext> TypedContexts => ftrackDataSetFactory.Create<TypedContext>();
-    public FtrackDataSet<Context> Contexts => ftrackDataSetFactory.Create<Context>();
-    public FtrackDataSet<ObjectType> ObjectTypes => ftrackDataSetFactory.Create<ObjectType>();
-    public FtrackDataSet<Priority> Priorities => ftrackDataSetFactory.Create<Priority>();
-    public FtrackDataSet<ProjectSchema> ProjectSchemas => ftrackDataSetFactory.Create<ProjectSchema>();
-    public FtrackDataSet<Status> Statuses => ftrackDataSetFactory.Create<Status>();
-    public FtrackDataSet<TaskTemplate> TaskTemplates => ftrackDataSetFactory.Create<TaskTemplate>();
-    public FtrackDataSet<TaskTypeSchema> TaskTypeSchemas => ftrackDataSetFactory.Create<TaskTypeSchema>();
-    public FtrackDataSet<CustomAttributeConfiguration> CustomAttributeConfigurations => ftrackDataSetFactory.Create<CustomAttributeConfiguration>();
-    public FtrackDataSet<Type> Types => ftrackDataSetFactory.Create<Type>();
+    private static readonly Dictionary<string, GetPrimaryKeysForEntityDelegate> PrimaryKeyAccessorsByEntityTypeName =
+        new Dictionary<string, GetPrimaryKeysForEntityDelegate>();
+    
+    internal static JsonSerializerOptions GetJsonSerializerOptions(JsonIgnoreCondition jsonIgnoreCondition = JsonIgnoreCondition.Never) => new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        DefaultIgnoreCondition = jsonIgnoreCondition
+    };
+    
+    internal static FtrackPrimaryKey[] GetPrimaryKeysForEntity(string ftrackEntityTypeName, dynamic? entity)
+    {
+        if (!PrimaryKeyAccessorsByEntityTypeName.TryGetValue(ftrackEntityTypeName, out var primaryKeyAccessor))
+        {
+            return [];
+        }
+
+        return primaryKeyAccessor(entity);
+    }
+    
+    internal static void RegisterFtrackType(System.Type type)
+    {
+        var getPrimaryKeysMethod = type
+            .GetMethods()
+            .Single(x => x is { IsStatic: true, Name: nameof(IFtrackEntity.GetPrimaryKeys) });
+        
+        PrimaryKeyAccessorsByEntityTypeName.TryAdd(type.Name, entity => (FtrackPrimaryKey[])(
+            getPrimaryKeysMethod.Invoke(null, [entity]) ?? 
+            throw new InvalidOperationException("Primary keys not found.")));
+    }
     
     public async ValueTask SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -36,17 +57,18 @@ public class FtrackContext(
                 TrackedEntityOperationType.Update => (FtrackOperation)new FtrackUpdateOperation()
                 {
                     EntityType = x.Entity.Type,
-                    EntityKey = x.Entity.Key,
+                    EntityKey = x.Entity.PrimaryKeys,
                     EntityData = x.Entity.Reference.Target!
                 },
                 TrackedEntityOperationType.Delete => (FtrackOperation)new FtrackDeleteOperation()
                 {
                     EntityType = x.Entity.Type,
-                    EntityKey = x.Entity.Key,
+                    EntityKey = x.Entity.PrimaryKeys,
                 },
                 _ => throw new InvalidOperationException("Unknown operation: " + x.Operation)
             });
-        var responses = await ftrackClient.CallAsync<JsonElement>(operations, cancellationToken);
+        
+        var responses = await ftrackClient.CallAsync(operations, cancellationToken);
 
         changeTracker.OnSaved();
     }

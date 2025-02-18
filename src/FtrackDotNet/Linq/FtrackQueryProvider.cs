@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Linq.Expressions;
+using System.Text.Json;
 using FtrackDotNet.Api;
 using FtrackDotNet.Linq.Visitors;
 using FtrackDotNet.Models;
@@ -13,7 +15,7 @@ internal class FtrackQueryProvider(
 {
     private readonly IFtrackClient _client = client ?? throw new ArgumentNullException(nameof(client));
     private readonly FtrackExpressionVisitor _visitor = new();
-    
+
     private bool SkipTracking { get; init; }
 
     public IQueryable CreateQuery(Expression expression)
@@ -21,14 +23,14 @@ internal class FtrackQueryProvider(
         // Return a non-generic IQueryable
         var elementType = GetElementTypeFromExpression(expression);
         var queryableType = typeof(FtrackQueryable<>).MakeGenericType(elementType);
-        return (IQueryable)Activator.CreateInstance(queryableType, this, expression)!;
+        return (IQueryable) Activator.CreateInstance(queryableType, this, expression)!;
     }
 
     private static Type GetElementTypeFromExpression(Expression expression)
     {
         var visitor = new FtrackFromExpressionVisitor();
         visitor.Visit(expression);
-        
+
         return visitor.Type;
     }
 
@@ -51,7 +53,7 @@ internal class FtrackQueryProvider(
 
     // The async path
     public async Task<TResult> ExecuteAsync<TResult>(
-        Expression expression, 
+        Expression expression,
         CancellationToken cancellationToken)
     {
         // 1. Visit expression tree -> get a FtrackQueryDefinition
@@ -59,27 +61,47 @@ internal class FtrackQueryProvider(
         var elementType = GetElementTypeFromExpression(expression);
 
         // 2. Call into the IFtrackClient with the query definition
-        var results = await _client.QueryAsync<TResult>(query, cancellationToken);
-        TrackFetchedEntities(results, elementType);
-        return results.Single();
-    }
+        var jsonResults = await _client.QueryAsync(query, cancellationToken);
 
-    private void TrackFetchedEntities(object results, Type elementType)
-    {
-        if (SkipTracking)
+        var jsonElements = jsonResults.Single();
+        if (jsonElements.ValueKind != JsonValueKind.Array)
         {
-            return;
+            throw new InvalidOperationException("Expected result from Ftrack to be an array, but got: " +
+                                                jsonElements.ValueKind);
         }
 
-        if (results is IEnumerable<dynamic> enumerable)
+        if(typeof(TResult) is not { IsGenericType: true, GenericTypeArguments: [var genericType] })
         {
-            foreach (var result in enumerable)
+            throw new InvalidOperationException("Expected TResult to be a generic type.");
+        }
+
+        var results = (IList) Activator.CreateInstance(
+            typeof(List<>).MakeGenericType(genericType),
+            new object?[]
             {
-                TrackFetchedEntities(result, result.GetType());
+                jsonElements.GetArrayLength()
+            })!;
+        foreach (var jsonElement in jsonElements.EnumerateArray())
+        {
+            if (SkipTracking)
+            {
+                continue;
             }
-        } else {
-            changeTracker.TrackEntity(results, elementType, TrackedEntityOperationType.Update);
+
+            var realObject = jsonElement.Deserialize(genericType, FtrackContext.GetJsonSerializerOptions());
+            if (realObject == null)
+            {
+                throw new InvalidOperationException("Failed to deserialize object.");
+            }
+            
+            changeTracker.TrackEntity(
+                jsonElement,
+                realObject,
+                TrackedEntityOperationType.Update);
+            results.Add(realObject);
         }
+
+        return (TResult)results;
     }
 
     public IFtrackQueryProvider AsNoTracking()

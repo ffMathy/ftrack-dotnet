@@ -4,6 +4,7 @@ using FtrackDotNet;
 using FtrackDotNet.Api;
 using FtrackDotNet.Extensions;
 using FtrackDotNet.Models;
+using FtrackDotNet.TypeGenerator;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,17 +16,18 @@ hostBuilder.ConfigureAppConfiguration(x => x
     .AddUserSecrets<Program>()
     .AddEnvironmentVariables());
 hostBuilder.ConfigureServices(services =>
-    services.AddFtrack());
+    services.AddFtrack<CustomFtrackContext>());
 
 using var host = hostBuilder.Build();
 await using var scope = host.Services.CreateAsyncScope();
 
-var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
+var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
 var ftrackClient = scope.ServiceProvider.GetRequiredService<IFtrackClient>();
 
 var schemas = await ftrackClient.QuerySchemasAsync();
 
 var types = await ftrackContext.Types
+    .AsNoTracking()
     .OrderBy(x => x.Sort)
     .Select(x => new
     {
@@ -37,6 +39,7 @@ var types = await ftrackContext.Types
     .ToArrayAsync();
 
 var priorities = await ftrackContext.Priorities
+    .AsNoTracking()
     .OrderBy(x => x.Sort)
     .Select(x => new
     {
@@ -49,6 +52,7 @@ var priorities = await ftrackContext.Priorities
     .ToArrayAsync();
 
 var statuses = await ftrackContext.Statuses
+    .AsNoTracking()
     .OrderBy(x => x.Sort)
     .Select(x => new
     {
@@ -61,6 +65,7 @@ var statuses = await ftrackContext.Statuses
     .ToArrayAsync();
 
 var objectTypes = await ftrackContext.ObjectTypes
+    .AsNoTracking()
     .OrderBy(x => x.Sort)
     .Select(x => new
     {
@@ -78,6 +83,7 @@ var objectTypes = await ftrackContext.ObjectTypes
     .ToArrayAsync();
 
 var projectSchemas = await ftrackContext.ProjectSchemas
+    .AsNoTracking()
     .Select(x => new
     {
         x.Name,
@@ -111,10 +117,6 @@ var typedContextSchema = schemas.Single(x => x.Id == nameof(TypedContext));
 foreach (var schema in schemas)
 {
     var className = schema.Id;
-    if(typeNamesAlreadyInInbuiltModels.Contains(className))
-    {
-        // continue;
-    }
     
     var isTypedContextSchema =
         schema.AliasFor.ValueKind == JsonValueKind.Object && 
@@ -141,9 +143,9 @@ foreach (var schema in schemas)
     
     outputBuilder.AppendLine($"\tpublic {propertyAccessModifier} FtrackPrimaryKey[] GetPrimaryKeys() => {className}.GetPrimaryKeys(this);");
     
-    outputBuilder.AppendLine($"\tpublic static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] {{ {schema
+    outputBuilder.AppendLine($"\tpublic static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic? entity = null) => new [] {{ {schema
         .PrimaryKey
-        .Select(p => $"new FtrackPrimaryKey {{ Name = \"{p.FromSnakeCaseToPascalCase()}\", Value = entity.{p.FromSnakeCaseToPascalCase()} }}")
+        .Select(p => $"new FtrackPrimaryKey {{ Name = \"{p.FromSnakeCaseToPascalCase()}\", Value = entity?.{p.FromSnakeCaseToPascalCase()} }}")
         .Aggregate((x, y) => $"{x}, {y}")} }};");
 
     var properties = schema.Properties

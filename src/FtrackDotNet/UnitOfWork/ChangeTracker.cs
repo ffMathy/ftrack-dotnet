@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.Json;
 using FtrackDotNet.Models;
 using Type = System.Type;
 
@@ -10,8 +11,13 @@ internal class ChangeTracker : IChangeTracker
 {
     private readonly Dictionary<int, TrackedEntity> _trackedEntities = new();
 
-    public void TrackEntity(object entity, Type entityType, TrackedEntityOperationType operationType)
+    public void TrackEntity(JsonElement jsonElement, object entity, TrackedEntityOperationType operationType)
     {
+        if (entity == null)
+        {
+            throw new InvalidOperationException("Entity cannot be null.");
+        }
+        
         var id = entity.GetHashCode();
         if (_trackedEntities.TryGetValue(id, out var trackedEntity))
         {
@@ -33,15 +39,25 @@ internal class ChangeTracker : IChangeTracker
             {
                 continue;
             }
+            
+            TrackEntity(JsonSerializer.SerializeToElement(value), value, operationType);
+        }
 
-            TrackEntity(value, value.GetType(), operationType);
+        var typeName = jsonElement
+            .GetProperty(nameof(IFtrackEntity.__entity_type__))
+            .GetString();
+        var primaryKeys = FtrackContext.GetPrimaryKeysForEntity(typeName, entity);
+        if (primaryKeys.Length == 0)
+        {
+            return;
         }
         
         _trackedEntities.Add(id, new TrackedEntity()
         {
             Entity = new EntityReference() {
                 Reference = new WeakReference(entity),
-                Type = entityType.Name,
+                Type = typeName,
+                PrimaryKeys = primaryKeys
             },
             ValueSnapshot = valueSnapshot,
             Operation = operationType
@@ -146,7 +162,7 @@ internal class ChangeTracker : IChangeTracker
 public struct EntityReference
 {
     public string Type { get; set; }
-    public object Key { get; set; }
+    public FtrackPrimaryKey[] PrimaryKeys { get; set; }
     public WeakReference Reference { get; set; }
 }
 

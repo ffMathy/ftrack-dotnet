@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.Json;
 using FtrackDotNet.Linq;
 using FtrackDotNet.UnitOfWork;
 
@@ -10,19 +11,34 @@ public class FtrackDataSet<T>(
     : FtrackQueryable<T>(ftrackQueryProvider)
     where T : IFtrackEntity
 {
-    public T Add(T entity)
+    public T Add(object entity)
     {
-        changeTracker.TrackEntity(entity, typeof(T), TrackedEntityOperationType.Create);
-        return entity;
+        if (entity.GetType() != typeof(T))
+        {
+            throw new InvalidOperationException("Entity type does not match the dataset type.");
+        }
+        
+        changeTracker.TrackEntity(JsonSerializer.SerializeToElement(entity, FtrackContext.GetJsonSerializerOptions()), entity, TrackedEntityOperationType.Create);
+        return (T)entity;
     }
 
-    public void Remove(T entity)
+    public void Remove(object entity)
     {
-        changeTracker.TrackEntity(entity, typeof(T), TrackedEntityOperationType.Delete);
+        if (entity.GetType() != typeof(T))
+        {
+            throw new InvalidOperationException("Entity type does not match the dataset type.");
+        }
+        
+        changeTracker.TrackEntity(JsonSerializer.SerializeToElement(entity, FtrackContext.GetJsonSerializerOptions()), entity, TrackedEntityOperationType.Delete);
     }
     
-    public void Attach(T entity)
+    public void Attach(object entity)
     {
-        changeTracker.TrackEntity(entity, typeof(T), TrackedEntityOperationType.Update);
+        if (entity.GetType() != typeof(T))
+        {
+            throw new InvalidOperationException("Entity type does not match the dataset type.");
+        }
+        
+        changeTracker.TrackEntity(JsonSerializer.SerializeToElement(entity, FtrackContext.GetJsonSerializerOptions()), entity, TrackedEntityOperationType.Update);
     }
 }
