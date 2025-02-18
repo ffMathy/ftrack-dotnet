@@ -1,6 +1,10 @@
+using FtrackDotNet.Extensions;
+using FtrackDotNet.Models;
+using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Task = System.Threading.Tasks.Task;
 
 namespace FtrackDotNet.Tests.Linq;
 
@@ -11,22 +15,8 @@ public class FtrackContextTest
     public async Task ToArrayAsync_SimpleQuery_ReturnsResults()
     {
         // Arrange
-        var hostBuilder = Host.CreateDefaultBuilder();
-        hostBuilder.ConfigureAppConfiguration(x => x
-            .AddUserSecrets<FtrackContextTest>());
-        hostBuilder.ConfigureServices(services =>
-            services.AddFtrack());
-        
-        using var host = hostBuilder.Build();
-        await using var scope = host.Services.CreateAsyncScope();
+        await using var scope = StartHost();
 
-        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-        if (configuration.GetChildren().All(x => x.Key != "Ftrack"))
-        {
-            Console.WriteLine("Skipping test due to no configuration found.");
-            return;
-        }
-        
         var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
 
         // Act
@@ -36,5 +26,51 @@ public class FtrackContextTest
 
         // Assert
         Assert.AreNotEqual(0, entities.Length);
+    }
+
+    [TestMethod]
+    public async Task UpdateAsync_NameFetchedAndChanged_UpdatesName()
+    {
+        // Arrange
+        await using var scope = StartHost();
+
+        var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
+
+        var project = ftrackContext.Projects.Add(new Project()
+        {
+            Name = Guid.NewGuid().ToString()
+        });
+        await ftrackContext.SaveChangesAsync();
+
+        // Act
+        project.Name = "new name";
+        await ftrackContext.SaveChangesAsync();
+
+        // Assert
+        var refreshedEntity = await ftrackContext.Projects
+            .Where(t => t.Id == project.Id)
+            .Select(t => new { t.Name })
+            .SingleAsync();
+        Assert.AreEqual("new name", refreshedEntity.Name);
+    }
+
+    private static AsyncServiceScope StartHost()
+    {
+        var hostBuilder = Host.CreateDefaultBuilder();
+        hostBuilder.ConfigureAppConfiguration(x => x
+            .AddUserSecrets<FtrackContextTest>());
+        hostBuilder.ConfigureServices(services =>
+            services.AddFtrack());
+
+        var host = hostBuilder.Build();
+        var scope = host.Services.CreateAsyncScope();
+        
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        if (configuration.GetChildren().All(x => x.Key != "Ftrack"))
+        {
+            throw new InvalidOperationException("Could not find Ftrack configuration to use for testing.");
+        }
+
+        return scope;
     }
 }

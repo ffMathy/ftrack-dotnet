@@ -24,6 +24,7 @@ internal class FtrackExpressionVisitor : ExpressionVisitor
     public string Translate(Expression expression)
     {
         Visit(expression);
+        
         _fromExpressionVisitor.Visit(expression);
 
         if (string.IsNullOrWhiteSpace(_selectExpressionVisitor.SelectExpression))

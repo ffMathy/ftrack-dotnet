@@ -3,10 +3,11 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
-using FtrackDotNet.Clients;
+using FtrackDotNet.Api;
 using FtrackDotNet.Models;
 using Microsoft.Extensions.Options;
 using Action = System.Action;
+using Task = System.Threading.Tasks.Task;
 
 namespace FtrackDotNet.EventHub;
 
