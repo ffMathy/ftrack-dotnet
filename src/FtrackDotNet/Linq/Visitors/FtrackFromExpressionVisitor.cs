@@ -29,8 +29,14 @@ internal class FtrackFromExpressionVisitor : ExpressionVisitor
         return base.VisitConstant(node);
     }
 
-    internal static bool TryParseEntityTypeFromConstantExpression(ConstantExpression node, [NotNullWhen(true)] out Type? entityType)
+    internal static bool TryParseEntityTypeFromConstantExpression(ConstantExpression? node, [NotNullWhen(true)] out Type? entityType)
     {
+        if (node == null)
+        {
+            entityType = null;
+            return false;
+        }
+
         var type = node.Value?.GetType();
         if (type is
             {

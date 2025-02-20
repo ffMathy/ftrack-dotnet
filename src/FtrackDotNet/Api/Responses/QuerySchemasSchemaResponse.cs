@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace FtrackDotNet.Api;
+namespace FtrackDotNet.Api.Responses;
 
 public class QuerySchemasSchemaResponse
 {

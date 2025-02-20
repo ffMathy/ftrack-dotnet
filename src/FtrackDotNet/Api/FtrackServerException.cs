@@ -1,4 +1,4 @@
-namespace FtrackDotNet.Api;
+namespace FtrackDotNet.Api.Models;
 public class FtrackServerErrorResponse
 {
     public string Exception { get; set; }

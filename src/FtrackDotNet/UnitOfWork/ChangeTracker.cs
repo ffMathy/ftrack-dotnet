@@ -2,6 +2,7 @@ using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
+using FtrackDotNet.Extensions;
 using FtrackDotNet.Models;
 using Type = System.Type;
 
@@ -43,10 +44,7 @@ internal class ChangeTracker : IChangeTracker
             TrackEntity(JsonSerializer.SerializeToElement(value), value, operationType);
         }
 
-        var typeName = jsonElement
-            .GetProperty(nameof(IFtrackEntity.__entity_type__))
-            .GetString();
-        var primaryKeys = FtrackContext.GetPrimaryKeysForEntity(typeName, entity);
+        var primaryKeys = FtrackContext.GetPrimaryKeysForEntity(jsonElement);
         if (primaryKeys.Length == 0)
         {
             return;
@@ -56,12 +54,22 @@ internal class ChangeTracker : IChangeTracker
         {
             Entity = new EntityReference() {
                 Reference = new WeakReference(entity),
-                Type = typeName,
+                Type = FtrackContext.GetTypeNameFromJsonElement(jsonElement),
                 PrimaryKeys = primaryKeys
             },
             ValueSnapshot = valueSnapshot,
             Operation = operationType
         });
+    }
+
+    private static PropertyInfo[] GetSimpleProperties(Type type)
+    {
+        return type
+            .GetProperties()
+            .Where(x => x.PropertyType
+                .GetInterfaces()
+                .All(i => i != typeof(IFtrackEntity)))
+            .ToArray();
     }
 
     private static PropertyInfo[] GetRelationalProperties(Type type)
@@ -70,7 +78,7 @@ internal class ChangeTracker : IChangeTracker
             .GetProperties()
             .Where(x => x.PropertyType
                 .GetInterfaces()
-                .Any(x => x == typeof(IFtrackEntity)))
+                .Any(i => i == typeof(IFtrackEntity)))
             .ToArray();
     }
 
@@ -82,7 +90,7 @@ internal class ChangeTracker : IChangeTracker
         
         var valueTypeProperties = type
             .GetProperties()
-            .Where(x => IsSimple(x.PropertyType))
+            .Where(x => x.PropertyType.IsSimple())
             .ToArray();
         foreach (var property in valueTypeProperties)
         {
@@ -93,42 +101,43 @@ internal class ChangeTracker : IChangeTracker
         return valueSnapshot;
     }
 
-    private static bool IsSimple(Type type)
-    {
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-        {
-            return IsSimple(type.GetGenericArguments()[0]);
-        }
-        
-        return type.IsPrimitive 
-               || type.IsEnum
-               || type == typeof(string)
-               || type == typeof(decimal);
-    }
-
     public Change[] GetChanges()
     {
         return _trackedEntities
             .Select(x => new Change()
             {
                 Operation = x.Value.Operation!.Value,
-                Differences = GetDifferencesForEntitySinceSnapshot(x.Value.Entity.Reference.Target!, x.Value.ValueSnapshot),
-                Entity = x.Value.Entity
+                Differences = x.Value.Operation!.Value switch
+                {
+                    TrackedEntityOperationType.Update or TrackedEntityOperationType.Delete => 
+                        GetDifferencesForEntitySinceSnapshot(x.Value.Entity.Reference.Target!, x.Value.ValueSnapshot),
+                    TrackedEntityOperationType.Create => 
+                        GetValuesAsDictionary(x.Value.Entity.Reference.Target!)
+                            .Where(v => v.Value != null)
+                            .ToFrozenDictionary(v => v.Key, v => v.Value),
+                },
+                Entity = x.Value.Entity,
             })
             .ToArray();
     }
 
-    private IDictionary<string,object?> GetDifferencesForEntitySinceSnapshot(
+    private IReadOnlyDictionary<string,object?> GetDifferencesForEntitySinceSnapshot(
         object entityReferenceTarget, 
         IReadOnlyDictionary<string,object?> valueSnapshot)
     {
-        return GetRelationalProperties(entityReferenceTarget.GetType())
-            .Where(x => valueSnapshot.ContainsKey(x.Name))
+        return GetValuesAsDictionary(entityReferenceTarget)
+            .Where(x => valueSnapshot.ContainsKey(x.Key))
+            .Where(x => !Equals(x.Value, valueSnapshot[x.Key]))
+            .ToFrozenDictionary(x => x.Key, x => x.Value);
+    }
+
+    private static IReadOnlyDictionary<string, object?> GetValuesAsDictionary(object entityReferenceTarget)
+    {
+        return GetSimpleProperties(entityReferenceTarget.GetType())
             .Select(x => new {
                 Value = x.GetValue(entityReferenceTarget),
                 PropertyName = x.Name
             })
-            .Where(x => !object.Equals(x.Value, valueSnapshot[x.PropertyName]))
             .ToFrozenDictionary(x => x.PropertyName, x => x.Value);
     }
 
@@ -159,16 +168,16 @@ internal class ChangeTracker : IChangeTracker
     }
 }
 
-public struct EntityReference
+public record EntityReference
 {
-    public string Type { get; set; }
+    public string Type { get; init; }
     public FtrackPrimaryKey[] PrimaryKeys { get; set; }
-    public WeakReference Reference { get; set; }
+    public WeakReference Reference { get; init; }
 }
 
-public struct Change
+public record Change
 {
-    public EntityReference Entity { get; set; }
-    public TrackedEntityOperationType Operation { get; set; }
-    public IDictionary<string, object?> Differences { get; init; }
+    public EntityReference Entity { get; init; }
+    public TrackedEntityOperationType Operation { get; init; }
+    public IReadOnlyDictionary<string, object?> Differences { get; init; }
 }

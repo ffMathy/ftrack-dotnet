@@ -62,7 +62,7 @@ internal class FtrackExpressionVisitor : ExpressionVisitor
                     break;
 
                 case nameof(Queryable.Select):
-                    _selectExpressionVisitor.Visit(node);
+                    _selectExpressionVisitor.VisitMethodCallExpression(node);
                     break;
 
                 case nameof(Queryable.Skip):
@@ -74,9 +74,6 @@ internal class FtrackExpressionVisitor : ExpressionVisitor
                     break;
 
                 case nameof(Queryable.OrderBy):
-                    _orderByExpressionVisitor.Visit(ExpressionSanitizationHelper.StripQuotes(node));
-                    break;
-
                 case nameof(Queryable.OrderByDescending):
                     _orderByExpressionVisitor.Visit(ExpressionSanitizationHelper.StripQuotes(node));
                     break;

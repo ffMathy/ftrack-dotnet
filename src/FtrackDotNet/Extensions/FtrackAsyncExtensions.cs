@@ -141,7 +141,7 @@ public static class FtrackAsyncExtensions
                 throw new InvalidOperationException("Sequence contains no elements");
             }
 
-            T first = enumerator.Current;
+            var first = enumerator.Current;
             if (enumerator.MoveNext())
             {
                 throw new InvalidOperationException("Sequence contains more than one element");
@@ -182,7 +182,7 @@ public static class FtrackAsyncExtensions
                 return default!;
             }
 
-            T first = enumerator.Current;
+            var first = enumerator.Current;
             if (enumerator.MoveNext())
             {
                 throw new InvalidOperationException("Sequence contains more than one element");
@@ -275,7 +275,7 @@ public static class FtrackAsyncExtensions
         );
         
         IQueryable<T> negatedQuery = source.Where(negated);
-        bool failsPredicate = await negatedQuery.AnyAsync(cancellationToken).ConfigureAwait(false);
+        var failsPredicate = await negatedQuery.AnyAsync(cancellationToken).ConfigureAwait(false);
         return !failsPredicate;
     }
 

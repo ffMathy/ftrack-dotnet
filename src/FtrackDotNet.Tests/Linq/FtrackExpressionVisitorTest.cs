@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using FtrackDotNet.Api;
 using FtrackDotNet.Extensions;
 using FtrackDotNet.Linq;
@@ -6,10 +8,12 @@ using Moq;
 
 namespace FtrackDotNet.Tests.Linq;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 internal class FtrackTask
 {
     public double Bid { get; set; }
     public string Name { get; set; } = null!;
+    public DateTimeOffset Time { get; set; }
 
     public FtrackTask[] Children { get; set; } = null!;
 
@@ -42,6 +46,9 @@ public class FtrackExpressionVisitorTest
     public async Task Translate_SimplePropertyInWhere_ReturnsCorrectQuery()
     {
         // Arrange
+        _mockFtrackClient
+            .Setup(x => x.QueryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => [JsonSerializer.SerializeToElement(Array.Empty<object>())]);
         
         // Act
         await _queryable
@@ -59,9 +66,36 @@ public class FtrackExpressionVisitorTest
     }
     
     [TestMethod]
+    public async Task Translate_TimePropertyInWhere_ReturnsCorrectQuery()
+    {
+        // Arrange
+        _mockFtrackClient
+            .Setup(x => x.QueryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => [JsonSerializer.SerializeToElement(Array.Empty<object>())]);
+        
+        var dateTimeOffset = new DateTimeOffset(2024, 01, 01, 0, 0, 0, TimeSpan.Zero);
+        
+        // Act
+        await _queryable
+            .Where(t => t.Time < dateTimeOffset)
+            .Select(t => new { t.Name })
+            .ToArrayAsync();
+
+        // Assert
+        var query = SanitizeMultilineQuery(
+            "select name from FtrackTask where (time < \"2024-01-01T00.00.00\")");
+        _mockFtrackClient.Verify(
+            client => client.QueryAsync(query, CancellationToken.None), 
+            Times.Once);
+    }
+    
+    [TestMethod]
     public async Task Translate_MultiplePropertiesInWhere_ReturnsCorrectQuery()
     {
         // Arrange
+        _mockFtrackClient
+            .Setup(x => x.QueryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => [JsonSerializer.SerializeToElement(Array.Empty<object>())]);
         
         // Act
         await _queryable
@@ -83,6 +117,9 @@ public class FtrackExpressionVisitorTest
     public async Task Translate_HighwayTest_ReturnsCorrectQuery()
     {
         // Arrange
+        _mockFtrackClient
+            .Setup(x => x.QueryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => [JsonSerializer.SerializeToElement(Array.Empty<object>())]);
         
         // Act
         await _queryable

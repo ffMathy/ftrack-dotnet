@@ -56,11 +56,8 @@ internal class FtrackQueryProvider(
         Expression expression,
         CancellationToken cancellationToken)
     {
-        // 1. Visit expression tree -> get a FtrackQueryDefinition
         var query = _visitor.Translate(expression);
-        var elementType = GetElementTypeFromExpression(expression);
 
-        // 2. Call into the IFtrackClient with the query definition
         var jsonResults = await _client.QueryAsync(query, cancellationToken);
 
         var jsonElements = jsonResults.Single();
