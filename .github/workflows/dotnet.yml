@@ -31,3 +31,9 @@ jobs:
         Ftrack__ApiKey: ${{ secrets.FTRACK_API_KEY }}
         Ftrack__ApiUser: ${{ secrets.FTRACK_API_USER }}
         Ftrack__ServerUrl: ${{ secrets.FTRACK_SERVER_URL }}
+
+    - name: Pack NuGet package
+      run: dotnet pack --configuration Release --no-build --output ./nupkgs
+
+    - name: Publish NuGet package
+      run: dotnet nuget push "./nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
