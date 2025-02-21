@@ -12,31 +12,20 @@ using Microsoft.Extensions.Options;
 
 namespace FtrackDotNet.Api;
 
-internal class FtrackClient : IDisposable, IFtrackClient
+internal class FtrackClient : IFtrackClient
 {
     private readonly HttpClient _http;
 
     public FtrackClient(
-        IOptionsMonitor<FtrackOptions> options)
+        IOptionsMonitor<FtrackOptions> options,
+        IHttpClientFactory httpClientFactory)
     {
-        _http = new HttpClient
-        {
-            BaseAddress = new Uri(options.CurrentValue.ServerUrl, UriKind.Absolute),
-            Timeout = options.CurrentValue.RequestTimeout ?? Timeout.InfiniteTimeSpan
-        };
+        _http = httpClientFactory.CreateClient();
+        _http.BaseAddress = new Uri(options.CurrentValue.ServerUrl, UriKind.Absolute);
+        _http.Timeout = options.CurrentValue.RequestTimeout ?? Timeout.InfiniteTimeSpan;
 
         _http.DefaultRequestHeaders.Add("Ftrack-User", options.CurrentValue.ApiUser);
         _http.DefaultRequestHeaders.Add("Ftrack-Api-Key", options.CurrentValue.ApiKey);
-    }
-
-    /// <summary>
-    /// Dispose for our HttpClient if needed.
-    /// In a real production scenario, you might rely on HttpClientFactory or
-    /// not dispose it as frequently.
-    /// </summary>
-    public void Dispose()
-    {
-        _http.Dispose();
     }
 
     public async Task<JsonElement[]> QueryAsync(
