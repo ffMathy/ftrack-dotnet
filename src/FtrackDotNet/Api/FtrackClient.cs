@@ -22,6 +22,7 @@ internal class FtrackClient : IDisposable, IFtrackClient
         _http = new HttpClient
         {
             BaseAddress = new Uri(options.CurrentValue.ServerUrl, UriKind.Absolute),
+            Timeout = options.CurrentValue.RequestTimeout ?? Timeout.InfiniteTimeSpan
         };
 
         _http.DefaultRequestHeaders.Add("Ftrack-User", options.CurrentValue.ApiUser);
