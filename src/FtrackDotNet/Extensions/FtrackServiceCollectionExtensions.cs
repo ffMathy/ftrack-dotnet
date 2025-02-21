@@ -4,6 +4,7 @@ using FtrackDotNet.Api;
 using FtrackDotNet.EventHub;
 using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
+using Microsoft.Extensions.Options;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable once UnusedType.Global
@@ -29,8 +30,16 @@ public static class FtrackServiceCollectionExtensions
             var ftrackType = ftrackDataSetProperty.PropertyType.GetGenericArguments().Single();
             FtrackContext.RegisterFtrackType(ftrackType);
         }
-        
-        services.AddSingleton<IFtrackClient, FtrackClient>();
+
+        services.AddScoped<IFtrackClient, FtrackClient>();
+        services.AddHttpClient<FtrackClient>((serviceProvider, client) =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptionsMonitor<FtrackOptions>>().CurrentValue;
+            client.BaseAddress = new Uri(options.ServerUrl, UriKind.Absolute);
+            client.Timeout = options.RequestTimeout ?? Timeout.InfiniteTimeSpan;
+            client.DefaultRequestHeaders.Add("Ftrack-User", options.ApiUser);
+            client.DefaultRequestHeaders.Add("Ftrack-Api-Key", options.ApiKey);
+        });
         
         services.AddScoped<ISocketIOFactory, SocketIOFactory>();
         services.AddScoped<IFtrackEventHubClient, FtrackEventHubClient>();

@@ -1,6 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using FtrackDotNet.Api.Models;
 using FtrackDotNet.Api.Requests.Operations;
 using FtrackDotNet.Api.Responses;
 

@@ -1,7 +1,5 @@
-﻿using FtrackDotNet;
-using FtrackDotNet.EventHub;
+﻿using FtrackDotNet.EventHub;
 using FtrackDotNet.Sample;
-using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

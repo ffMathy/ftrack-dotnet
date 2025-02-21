@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using System.Reflection.Metadata;
 using FtrackDotNet.Extensions;
 using FtrackDotNet.UnitOfWork;
 

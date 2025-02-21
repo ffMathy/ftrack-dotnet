@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using FtrackDotNet.Api.Models;
 
 namespace FtrackDotNet.Api.Requests.Operations;
 

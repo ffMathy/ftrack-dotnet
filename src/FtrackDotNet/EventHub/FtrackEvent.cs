@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace FtrackDotNet.EventHub;
 
 internal class FtrackEventEnvelope

@@ -4,11 +4,9 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FtrackDotNet.Api;
-using FtrackDotNet.Api.Models;
 using FtrackDotNet.Api.Requests.Operations;
 using FtrackDotNet.Extensions;
 using FtrackDotNet.Models;
-using Type = FtrackDotNet.Models.Type;
 
 namespace FtrackDotNet.UnitOfWork;
 
