@@ -30,8 +30,9 @@ public static class FtrackServiceCollectionExtensions
             var ftrackType = ftrackDataSetProperty.PropertyType.GetGenericArguments().Single();
             FtrackContext.RegisterFtrackType(ftrackType);
         }
-        
-        services.AddHttpClient<IFtrackClient, FtrackClient>((serviceProvider, client) =>
+
+        services.AddScoped<IFtrackClient, FtrackClient>();
+        services.AddHttpClient<FtrackClient>((serviceProvider, client) =>
         {
             var options = serviceProvider.GetRequiredService<IOptionsMonitor<FtrackOptions>>().CurrentValue;
             client.BaseAddress = new Uri(options.ServerUrl, UriKind.Absolute);
