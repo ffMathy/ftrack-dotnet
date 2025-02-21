@@ -4,6 +4,7 @@ using FtrackDotNet.Api;
 using FtrackDotNet.EventHub;
 using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
+using Microsoft.Extensions.Options;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable once UnusedType.Global
