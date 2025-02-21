@@ -7,6 +7,7 @@ using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
 
 #pragma warning disable CA1050
+// ReSharper disable once CheckNamespace
 public static class FtrackServiceCollectionExtensions
 #pragma warning restore CA1050
 {
@@ -37,6 +38,7 @@ public static class FtrackServiceCollectionExtensions
             client.Timeout = options.RequestTimeout ?? Timeout.InfiniteTimeSpan;
             client.DefaultRequestHeaders.Add("Ftrack-User", options.ApiUser);
             client.DefaultRequestHeaders.Add("Ftrack-Api-Key", options.ApiKey);
+            client.DefaultRequestHeaders.Add("Ftrack-Api-Options", "denormalize=1;strict=1");
         });
         
         services.AddScoped<ISocketIOFactory, SocketIOFactory>();

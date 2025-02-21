@@ -6,6 +6,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UserSecretsId>f9a1af70-56d0-4e99-a801-4451ffc50136</UserSecretsId>
+
+        <PackageId>FtrackDotNet.TypeGenerator</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Mathias Lorenzen</Authors>
+        <Description>A type generator for Ftrack, written in .NET. Generates C# classes for all types in Ftrack.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/ffMathy/ftrack-dotnet</RepositoryUrl>
+        <PackageTags>ftrack</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
