@@ -14,7 +14,6 @@ namespace FtrackDotNet.Linq.Visitors
         [return: NotNullIfNotNull("node")]
         public override Expression? Visit(Expression? node)
         {
-            // When visiting the root lambda, pass its parameter for evaluation.
             string whereClause = node is LambdaExpression lambda
                 ? ParsePredicate(lambda.Body, lambda.Parameters.First())
                 : ParsePredicate(node, null);
@@ -27,7 +26,6 @@ namespace FtrackDotNet.Linq.Visitors
             return base.Visit(node);
         }
 
-        // Overload that carries the lambda's parameter (if available)
         private string ParsePredicate(Expression? expression, ParameterExpression? rootParameter)
         {
             if (expression == null)
@@ -70,7 +68,6 @@ namespace FtrackDotNet.Linq.Visitors
 
             if (expression is ParameterExpression)
             {
-                // The lambda parameter itself translates to nothing (its use appears in MemberExpressions).
                 return string.Empty;
             }
 
@@ -158,7 +155,6 @@ namespace FtrackDotNet.Linq.Visitors
             };
         }
 
-        // Recursively evaluates an expression to obtain its constant value.
         private object? EvaluateExpression(Expression? expression)
         {
             if (expression == null)

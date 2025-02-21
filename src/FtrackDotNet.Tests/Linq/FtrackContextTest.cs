@@ -21,10 +21,36 @@ public class FtrackContextTest
         // Act
         var entities = await ftrackContext.TypedContexts
             .Select(t => new { t.Name })
+            .Take(2)
             .ToArrayAsync();
 
         // Assert
         Assert.AreNotEqual(0, entities.Length);
+    }
+    
+    [TestMethod]
+    public async Task AsyncEnumerator_SimpleQuery_EnumeratesAll()
+    {
+        // Arrange
+        await using var scope = StartHost();
+
+        var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
+
+        var results = new List<object>();
+
+        // Act
+        var entities = ftrackContext.TypedContexts
+            .Select(t => new { t.Name })
+            .Take(2)
+            .AsAsyncEnumerable();
+
+        await foreach (var entity in entities)
+        {
+            results.Add(entity);
+        }
+
+        // Assert
+        Assert.AreNotEqual(0, results.Count);
     }
 
     [TestMethod]

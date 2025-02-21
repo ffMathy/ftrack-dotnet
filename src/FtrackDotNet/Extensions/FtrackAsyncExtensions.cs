@@ -5,6 +5,16 @@ namespace FtrackDotNet.Extensions;
 
 public static class FtrackAsyncExtensions
 {
+    public static IAsyncEnumerable<T> AsAsyncEnumerable<T>(this IQueryable<T> source)
+    {
+        if (source is IFtrackQueryable<T> asyncSource)
+        {
+            return asyncSource;
+        }
+        
+        throw new InvalidOperationException("The given IQueryable is not an IFtrackQueryable.");
+    }
+
     /// <summary>
     /// Asynchronously materialize all elements of the query into a List&lt;T&gt;.
     /// </summary>
@@ -14,19 +24,14 @@ public static class FtrackAsyncExtensions
     {
         if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
-            // Execute the expression asynchronously to get IEnumerable<T>
             var result = await asyncProvider
                 .ExecuteAsync<IEnumerable<T>>(source.Expression, cancellationToken)
                 .ConfigureAwait(false);
 
-            // Materialize in memory
             return result.ToList();
         }
-        else
-        {
-            // Fallback to synchronous
-            return source.ToList();
-        }
+
+        return source.ToList();
     }
 
     /// <summary>
@@ -48,10 +53,8 @@ public static class FtrackAsyncExtensions
         this IQueryable<T> source,
         CancellationToken cancellationToken = default)
     {
-        // We'll emulate "First" by forcing Take(1) then check if empty.
         if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
-            // Build a "Take(1)" expression
             var expression = Expression.Call(
                 typeof(Queryable),
                 nameof(Queryable.Take),
@@ -68,11 +71,11 @@ public static class FtrackAsyncExtensions
             {
                 throw new InvalidOperationException("Sequence contains no elements");
             }
+
             return enumerator.Current;
         }
         else
         {
-            // Fallback
             return source.First();
         }
     }
@@ -85,7 +88,6 @@ public static class FtrackAsyncExtensions
         this IQueryable<T> source,
         CancellationToken cancellationToken = default)
     {
-        // Similar approach to FirstAsync, but if no elements, return default.
         if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             var expression = Expression.Call(
@@ -104,11 +106,11 @@ public static class FtrackAsyncExtensions
             {
                 return default!;
             }
+
             return enumerator.Current;
         }
         else
         {
-            // Fallback
             return source.FirstOrDefault();
         }
     }
@@ -121,7 +123,6 @@ public static class FtrackAsyncExtensions
         this IQueryable<T> source,
         CancellationToken cancellationToken = default)
     {
-        // Emulate "Single": Take(2), ensure exactly 1 element
         if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
             var expression = Expression.Call(
@@ -210,6 +211,7 @@ public static class FtrackAsyncExtensions
         {
             throw new InvalidOperationException("Sequence contains no elements");
         }
+
         return list[^1];
     }
 
@@ -236,7 +238,6 @@ public static class FtrackAsyncExtensions
     {
         if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
-            // .Take(1)
             var expression = Expression.Call(
                 typeof(Queryable),
                 nameof(Queryable.Take),
@@ -248,7 +249,6 @@ public static class FtrackAsyncExtensions
                 .ExecuteAsync<IEnumerable<T>>(expression, cancellationToken)
                 .ConfigureAwait(false);
 
-            // If we have at least 1, return true
             return results.GetEnumerator().MoveNext();
         }
         else
@@ -267,13 +267,11 @@ public static class FtrackAsyncExtensions
         Expression<Func<T, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        // "All(p)" means "not any element that fails p"
-        // so we do "Where(not p).Take(1).Any()" => if that is true, then it's not "all".
         var negated = Expression.Lambda<Func<T, bool>>(
             Expression.Not(predicate.Body),
             predicate.Parameters
         );
-        
+
         IQueryable<T> negatedQuery = source.Where(negated);
         var failsPredicate = await negatedQuery.AnyAsync(cancellationToken).ConfigureAwait(false);
         return !failsPredicate;
@@ -290,7 +288,6 @@ public static class FtrackAsyncExtensions
     {
         if (source.Provider is IFtrackQueryProvider asyncProvider)
         {
-            // Naive approach: get all, then count in memory
             var results = await asyncProvider
                 .ExecuteAsync<IEnumerable<T>>(source.Expression, cancellationToken)
                 .ConfigureAwait(false);
@@ -337,9 +334,6 @@ public static class FtrackAsyncExtensions
         T item,
         CancellationToken cancellationToken = default)
     {
-        // We can do a quick expression rewrite: "Where(x => x == item).Take(1).Any()"
-        // But that depends on how your translator handles "x => x == item".
-        // For simplicity, let's do naive in-memory approach:
         var all = await source.ToListAsync(cancellationToken).ConfigureAwait(false);
         return all.Contains(item);
     }
@@ -378,8 +372,6 @@ public static class FtrackAsyncExtensions
         this IQueryable<decimal> source,
         CancellationToken cancellationToken = default)
     {
-        // Overloads for different numeric types (int, long, double, float, decimal, etc.) 
-        // might also be defined. This is just one example.
         var all = await source.ToListAsync(cancellationToken);
         return all.Sum();
     }
@@ -395,7 +387,4 @@ public static class FtrackAsyncExtensions
         if (all.Count == 0) throw new InvalidOperationException("Sequence contains no elements");
         return all.Average();
     }
-
-    // In a real library, you'd replicate SumAsync / AverageAsync 
-    // for int, double, float, long, decimal?, etc., just like LINQ does.
 }

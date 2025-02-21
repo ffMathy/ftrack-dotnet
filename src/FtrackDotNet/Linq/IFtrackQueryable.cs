@@ -1,3 +1,4 @@
 namespace FtrackDotNet.Linq;
 
-public interface IFtrackQueryable<T> : IQueryable<T>, IOrderedQueryable<T>, IAsyncEnumerable<T> {}
+// ReSharper disable once RedundantExtendsListEntry
+public interface IFtrackQueryable<out T> : IQueryable<T>, IOrderedQueryable<T>, IAsyncEnumerable<T> {}

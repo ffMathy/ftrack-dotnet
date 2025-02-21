@@ -25,9 +25,6 @@ internal class FtrackSelectExpressionVisitor : ExpressionVisitor
                 constantExpression,
                 out var entityType))
         {
-            //we always want to select the primary keys of an entity no matter what.
-            //so for instance if the user only selected "name" of a "Task", we still fetch the "id" as well.
-            //if we don't, we won't be able to update the entity again at a later point, as updates are based on primary keys.
             AttachPrimaryKeysOfEntityToSelectClause(entityType);
         }
             

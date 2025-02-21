@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-// ReSharper disable UnusedMember.Global
 
 namespace FtrackDotNet.Extensions;
 
@@ -22,14 +21,12 @@ internal static partial class StringExtensions
 
         var parts = input.Split('_', StringSplitOptions.RemoveEmptyEntries);
 
-        // Capitalize each part: "foo" -> "Foo", "bar" -> "Bar"
         var pascalParts = parts.Select(part => part switch
         {
             { Length: > 0 } => char.ToUpperInvariant(part[0]) + part[1..],
             _ => part
         });
 
-        // Join them all into one PascalCase string
         return string.Concat(pascalParts);
     }
 

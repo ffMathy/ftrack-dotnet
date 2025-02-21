@@ -19,10 +19,24 @@ internal class FtrackQueryProvider(
 
     public IQueryable CreateQuery(Expression expression)
     {
-        // Return a non-generic IQueryable
         var elementType = GetElementTypeFromExpression(expression);
         var queryableType = typeof(FtrackQueryable<>).MakeGenericType(elementType);
         return (IQueryable)Activator.CreateInstance(queryableType, this, expression)!;
+    }
+
+    public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
+    {
+        return new FtrackQueryable<TElement>(this, expression);
+    }
+
+    public object? Execute(Expression expression)
+    {
+        throw new InvalidOperationException("Synchronous execution of Ftrack queries is not supported, and is discouraged.");
+    }
+
+    public TResult Execute<TResult>(Expression expression)
+    {
+        throw new InvalidOperationException("Synchronous execution of Ftrack queries is not supported, and is discouraged.");
     }
 
     private static Type GetElementTypeFromExpression(Expression expression)
@@ -33,24 +47,6 @@ internal class FtrackQueryProvider(
         return visitor.Type;
     }
 
-    public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
-    {
-        return new FtrackQueryable<TElement>(this, expression);
-    }
-
-    public object Execute(Expression expression)
-    {
-        // For synchronous calls
-        throw new InvalidOperationException("Only asynchronous calls are supported.");
-    }
-
-    public TResult Execute<TResult>(Expression expression)
-    {
-        // For synchronous calls
-        throw new InvalidOperationException("Only asynchronous calls are supported.");
-    }
-
-    // The async path
     public async Task<TResult> ExecuteAsync<TResult>(
         Expression expression,
         CancellationToken cancellationToken)

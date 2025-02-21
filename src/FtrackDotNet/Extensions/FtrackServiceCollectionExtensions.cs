@@ -6,8 +6,6 @@ using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
 
-// ReSharper disable once CheckNamespace
-// ReSharper disable once UnusedType.Global
 #pragma warning disable CA1050
 public static class FtrackServiceCollectionExtensions
 #pragma warning restore CA1050
