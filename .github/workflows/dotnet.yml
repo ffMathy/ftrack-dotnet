@@ -5,6 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "*" ]
+  release:
+    types: [ published ]
 
 jobs:
   build:
@@ -33,7 +35,9 @@ jobs:
         Ftrack__ServerUrl: ${{ secrets.FTRACK_SERVER_URL }}
 
     - name: Pack NuGet package
-      run: dotnet pack --configuration Release --no-build --output ./nupkgs
+      if: github.event_name == 'release'
+      run: dotnet pack --configuration Release --no-build --output ./nupkgs -p:PackageVersion=${{ github.event.release.tag_name }}
 
     - name: Publish NuGet package
+      if: github.event_name == 'release'
       run: dotnet nuget push "./nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
