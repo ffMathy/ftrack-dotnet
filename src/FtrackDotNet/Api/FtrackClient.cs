@@ -9,6 +9,9 @@ using FtrackDotNet.Api.Requests.Operations;
 using FtrackDotNet.Api.Responses;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
+using System.Net.Http; // P50d2
+using System.Threading; // P50d2
+using System.Threading.Tasks; // P50d2
 
 namespace FtrackDotNet.Api;
 
