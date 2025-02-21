@@ -17,7 +17,7 @@ public class FtrackContextTest
         // Arrange
         await using var scope = StartHost();
 
-        var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
+        var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
 
         // Act
         var entities = await ftrackContext.TypedContexts
@@ -29,12 +29,12 @@ public class FtrackContextTest
     }
 
     [TestMethod]
-    public async Task UpdateAsync_NameFetchedAndChanged_UpdatesName()
+    public async Task DeleteAsync_NameCreatedAndDeletedById_DeletesEntity()
     {
         // Arrange
         await using var scope = StartHost();
 
-        var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
+        var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
 
         var project = ftrackContext.Projects.Add(new Project()
         {
@@ -42,8 +42,46 @@ public class FtrackContextTest
         });
         await ftrackContext.SaveChangesAsync();
 
+        var refreshedProject = await ftrackContext.Projects
+            .AsNoTracking()
+            .Where(x => x.Id == project.Id)
+            .Select(x => new
+            {
+                x.Id
+            })
+            .FirstOrDefaultAsync();
+        Assert.IsNotNull(refreshedProject);
+
         // Act
-        project.Name = "new name";
+        ftrackContext.Projects.Remove(project);
+        await ftrackContext.SaveChangesAsync();
+
+        // Assert
+        var refreshedProjectAfterDelete = await ftrackContext.Projects
+            .Where(t => t.Id == project.Id)
+            .Select(t => new { t.Name })
+            .SingleOrDefaultAsync();
+        Assert.IsNull(refreshedProjectAfterDelete);
+    }
+
+    [TestMethod]
+    public async Task UpdateAsync_NameFetchedAndChanged_UpdatesName()
+    {
+        // Arrange
+        await using var scope = StartHost();
+
+        var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
+
+        var project = ftrackContext.Projects.Add(new Project()
+        {
+            Name = Guid.NewGuid().ToString()
+        });
+        await ftrackContext.SaveChangesAsync();
+
+        var newName = Guid.NewGuid().ToString();
+
+        // Act
+        project.Name = newName;
         await ftrackContext.SaveChangesAsync();
 
         // Assert
@@ -51,7 +89,7 @@ public class FtrackContextTest
             .Where(t => t.Id == project.Id)
             .Select(t => new { t.Name })
             .SingleAsync();
-        Assert.AreEqual("new name", refreshedEntity.Name);
+        Assert.AreEqual(newName, refreshedEntity.Name);
     }
 
     private static AsyncServiceScope StartHost()
@@ -60,7 +98,7 @@ public class FtrackContextTest
         hostBuilder.ConfigureAppConfiguration(x => x
             .AddUserSecrets<FtrackContextTest>());
         hostBuilder.ConfigureServices(services =>
-            services.AddFtrack());
+            services.AddFtrack<CustomFtrackContext>());
 
         var host = hostBuilder.Build();
         var scope = host.Services.CreateAsyncScope();

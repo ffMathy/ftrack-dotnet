@@ -2,8 +2,10 @@
 using System.Text.Json;
 using FtrackDotNet;
 using FtrackDotNet.Api;
+using FtrackDotNet.Api.Responses;
 using FtrackDotNet.Extensions;
 using FtrackDotNet.Models;
+using FtrackDotNet.TypeGenerator;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,17 +17,18 @@ hostBuilder.ConfigureAppConfiguration(x => x
     .AddUserSecrets<Program>()
     .AddEnvironmentVariables());
 hostBuilder.ConfigureServices(services =>
-    services.AddFtrack());
+    services.AddFtrack<CustomFtrackContext>());
 
 using var host = hostBuilder.Build();
 await using var scope = host.Services.CreateAsyncScope();
 
-var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
+var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
 var ftrackClient = scope.ServiceProvider.GetRequiredService<IFtrackClient>();
 
 var schemas = await ftrackClient.QuerySchemasAsync();
 
 var types = await ftrackContext.Types
+    .AsNoTracking()
     .OrderBy(x => x.Sort)
     .Select(x => new
     {
@@ -37,6 +40,7 @@ var types = await ftrackContext.Types
     .ToArrayAsync();
 
 var priorities = await ftrackContext.Priorities
+    .AsNoTracking()
     .OrderBy(x => x.Sort)
     .Select(x => new
     {
@@ -49,6 +53,7 @@ var priorities = await ftrackContext.Priorities
     .ToArrayAsync();
 
 var statuses = await ftrackContext.Statuses
+    .AsNoTracking()
     .OrderBy(x => x.Sort)
     .Select(x => new
     {
@@ -61,6 +66,7 @@ var statuses = await ftrackContext.Statuses
     .ToArrayAsync();
 
 var objectTypes = await ftrackContext.ObjectTypes
+    .AsNoTracking()
     .OrderBy(x => x.Sort)
     .Select(x => new
     {
@@ -78,6 +84,7 @@ var objectTypes = await ftrackContext.ObjectTypes
     .ToArrayAsync();
 
 var projectSchemas = await ftrackContext.ProjectSchemas
+    .AsNoTracking()
     .Select(x => new
     {
         x.Name,
@@ -111,10 +118,6 @@ var typedContextSchema = schemas.Single(x => x.Id == nameof(TypedContext));
 foreach (var schema in schemas)
 {
     var className = schema.Id;
-    if(typeNamesAlreadyInInbuiltModels.Contains(className))
-    {
-        // continue;
-    }
     
     var isTypedContextSchema =
         schema.AliasFor.ValueKind == JsonValueKind.Object && 
@@ -139,43 +142,31 @@ foreach (var schema in schemas)
     outputBuilder.AppendLine($"\t[JsonPropertyName(\"__entity_type__\")]");
     outputBuilder.AppendLine($"\tpublic {propertyAccessModifier} string __entity_type__ => \"{className}\";");
     
-    outputBuilder.AppendLine($"\tpublic {propertyAccessModifier} FtrackPrimaryKey[] GetPrimaryKeys() => {className}.GetPrimaryKeys(this);");
-    
-    outputBuilder.AppendLine($"\tpublic static new FtrackPrimaryKey[] GetPrimaryKeys(dynamic entity) => new [] {{ {schema
-        .PrimaryKey
-        .Select(p => $"new FtrackPrimaryKey {{ Name = \"{p.FromSnakeCaseToPascalCase()}\", Value = entity.{p.FromSnakeCaseToPascalCase()} }}")
-        .Aggregate((x, y) => $"{x}, {y}")} }};");
-
     var properties = schema.Properties
         .Where(x =>
             !x.Key.StartsWith("_") &&
-            baseSchema?.Properties.ContainsKey(x.Key) != true &&
             x.Value.Type != null)
         .ToArray();
-    foreach (var property in properties)
+    outputBuilder.AppendLine($"\tpublic static new FtrackPrimaryKey[] GetPrimaryKeys(JsonElement entity) => new [] {{ {schema
+        .PrimaryKey
+        .Select(p => {
+            var csharpType = GetCSharpTypeFromFtrackType(properties.Single(x => x.Key == p));
+            return $"new FtrackPrimaryKey {{ Name = \"{p}\", Value = entity.ValueKind == JsonValueKind.Object && entity.TryGetProperty(\"{p}\", out var {p}) ? {p}.Deserialize(typeof({csharpType})) : default }}";
+        })
+        .Aggregate((x, y) => $"{x}, {y}")} }};");
+
+    foreach (var property in properties.Where(x => baseSchema?.Properties.ContainsKey(x.Key) != true))
     {
-        var csharpType = property.Value.Type switch
-        {
-            "integer" => "int",
-            "variable" => "JsonElement",
-            "string" => "string",
-            "boolean" => "bool",
-            "object" => "object",
-            "number" => "double",
-            "array" or "mapped_array" => property.Value.Items switch
-            {
-                var items => $"{items.Ref}[]"
-            },
-            var type => throw new NotImplementedException(type)
-        };
+        var csharpType = GetCSharpTypeFromFtrackType(property);
         
         var csharpValueTypes = new[] { "int", "bool", "double" };
         var isSimpleCsharpType = csharpValueTypes.Contains(csharpType);
         
         var isRequired = schema.Required.Contains(property.Key);
         var isPrimaryKey = schema.PrimaryKey.Contains(property.Key);
+        var isImmutable = schema.Immutable.Contains(property.Key);
         
-        outputBuilder.AppendLine($"\tpublic {csharpType}{(isRequired ? "" : "?")} {property.Key.FromSnakeCaseToPascalCase()} {{ get; {(isPrimaryKey ? "init" : "set")}; }}{(isRequired && !isSimpleCsharpType ? " = null!;" : "")}");
+        outputBuilder.AppendLine($"\tpublic {csharpType}{(isRequired ? "" : "?")} {property.Key.FromSnakeCaseToPascalCase()} {{ get; {(isPrimaryKey || isImmutable ? "init" : "set")}; }}{(isRequired && !isSimpleCsharpType ? " = default!;" : "")}");
     }
 
     outputBuilder.AppendLine("}");
@@ -184,3 +175,25 @@ foreach (var schema in schemas)
 await File.WriteAllTextAsync("Generated.cs", outputBuilder.ToString());
 
 Console.WriteLine("Done!");
+
+string GetCSharpTypeFromFtrackType(KeyValuePair<string, QuerySchemasSchemaPropertyResponse> keyValuePair)
+{
+    return keyValuePair.Value.Type switch
+    {
+        "integer" => "int",
+        "variable" => "JsonElement",
+        "string" => keyValuePair.Value.Format switch
+        {
+            "date-time" => "DateTimeOffset",
+            _ => "string"
+        },
+        "boolean" => "bool",
+        "object" => "object",
+        "number" => "double",
+        "array" or "mapped_array" => keyValuePair.Value.Items switch
+        {
+            var items => $"{items.Ref}[]"
+        },
+        var type => throw new NotImplementedException(type)
+    };
+}

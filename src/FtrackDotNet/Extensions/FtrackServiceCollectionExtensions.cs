@@ -11,11 +11,25 @@ using FtrackDotNet.UnitOfWork;
 public static class FtrackServiceCollectionExtensions
 #pragma warning restore CA1050
 {
-    public static IServiceCollection AddFtrack(
+    public static IServiceCollection AddFtrack<TFtrackContext>(
         this IServiceCollection services,
-        Action<FtrackOptions>? configureOptions = null)
+        Action<FtrackOptions>? configureOptions = null) where TFtrackContext : FtrackContext
     {
-        services.AddScoped<FtrackContext>();
+        services.AddScoped<TFtrackContext>();
+        services.AddScoped<FtrackContext>(serviceProvider => serviceProvider.GetRequiredService<TFtrackContext>());
+        
+        var ftrackContextType = typeof(TFtrackContext);
+        var ftrackDataSetProperties = ftrackContextType
+            .GetProperties()
+            .Where(t => 
+                t.PropertyType.IsGenericType && 
+                t.PropertyType.GetGenericTypeDefinition() == typeof(FtrackDataSet<>));
+        foreach(var ftrackDataSetProperty in ftrackDataSetProperties)
+        {
+            var ftrackType = ftrackDataSetProperty.PropertyType.GetGenericArguments().Single();
+            FtrackContext.RegisterFtrackType(ftrackType);
+        }
+        
         services.AddSingleton<IFtrackClient, FtrackClient>();
         
         services.AddScoped<ISocketIOFactory, SocketIOFactory>();

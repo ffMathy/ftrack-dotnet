@@ -62,9 +62,7 @@ internal class FtrackExpressionVisitor : ExpressionVisitor
                     break;
 
                 case nameof(Queryable.Select):
-                    // node.Arguments[1] is the lambda: x => new { x.FieldA, x.FieldB, ... }
-                    var selectLambdaExpression = (LambdaExpression)ExpressionSanitizationHelper.StripQuotes(node.Arguments[1]);
-                    _selectExpressionVisitor.Visit(selectLambdaExpression.Body);
+                    _selectExpressionVisitor.VisitMethodCallExpression(node);
                     break;
 
                 case nameof(Queryable.Skip):
@@ -76,9 +74,6 @@ internal class FtrackExpressionVisitor : ExpressionVisitor
                     break;
 
                 case nameof(Queryable.OrderBy):
-                    _orderByExpressionVisitor.Visit(ExpressionSanitizationHelper.StripQuotes(node));
-                    break;
-
                 case nameof(Queryable.OrderByDescending):
                     _orderByExpressionVisitor.Visit(ExpressionSanitizationHelper.StripQuotes(node));
                     break;

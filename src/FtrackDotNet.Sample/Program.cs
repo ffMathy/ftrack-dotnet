@@ -1,5 +1,6 @@
 ﻿using FtrackDotNet;
 using FtrackDotNet.EventHub;
+using FtrackDotNet.Sample;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +10,7 @@ var hostBuilder = Host.CreateDefaultBuilder();
 hostBuilder.ConfigureAppConfiguration(x => x
     .AddUserSecrets<Program>());
 hostBuilder.ConfigureServices(services =>
-    services.AddFtrack());
+    services.AddFtrack<CustomFtrackContext>());
         
 using var host = hostBuilder.Build();
 await using var scope = host.Services.CreateAsyncScope();
@@ -39,7 +40,7 @@ await hub.PublishAsync(new FtrackEvent
     Data = "Hello from .NET!"
 });
 
-var ftrackContext = scope.ServiceProvider.GetRequiredService<FtrackContext>();
+var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
 
 Console.WriteLine("Press ENTER to quit...");
 Console.ReadLine();

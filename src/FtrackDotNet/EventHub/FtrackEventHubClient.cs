@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using System.Web;
 using FtrackDotNet.Api;
 using FtrackDotNet.Models;
+using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
 using Action = System.Action;
 using Task = System.Threading.Tasks.Task;
@@ -70,10 +71,7 @@ public class FtrackEventHubClient(
         {
             Name = "ftrack.event",
             Args = [@event]
-        }, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-        });
+        }, FtrackContext.GetJsonSerializerOptions(JsonIgnoreCondition.WhenWritingNull));
 
         return _socketIo.EmitEventAsync(payloadJson);
     }
@@ -183,10 +181,7 @@ public class FtrackEventHubClient(
 
     private void FireOnEvent(JsonElement payload)
     {
-        var result = JsonSerializer.Deserialize<FtrackEventEnvelope>(payload.ToString(), new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.KebabCaseLower
-        });
+        var result = JsonSerializer.Deserialize<FtrackEventEnvelope>(payload.ToString(), FtrackContext.GetJsonSerializerOptions());
         foreach (var @event in result.Args)
         {
             OnEventReceived?.Invoke(@event);
