@@ -21,8 +21,7 @@ internal class FtrackOrderByExpressionVisitor : ExpressionVisitor
         }
         
         var isDescending = methodCallExpression.Method.Name == nameof(Queryable.OrderByDescending);
-        
-        // node.Arguments[1] is the lambda: x => x.Field
+
         var lambda = (LambdaExpression)ExpressionSanitizationHelper.StripQuotes(methodCallExpression.Arguments[1]);
         
         if (lambda.Body is not MemberExpression member) 

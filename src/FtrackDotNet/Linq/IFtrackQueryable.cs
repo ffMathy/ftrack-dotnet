@@ -1,3 +1,3 @@
 namespace FtrackDotNet.Linq;
 
-public interface IFtrackQueryable<T> : IQueryable<T>, IOrderedQueryable<T>, IAsyncEnumerable<T> {}
+public interface IFtrackQueryable<out T> : IQueryable<T>, IAsyncEnumerable<T> {}

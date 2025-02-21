@@ -46,7 +46,6 @@ internal class FtrackExpressionVisitor : ExpressionVisitor
 
     protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        // Handle Where, Select, Skip, Take, OrderBy, etc.
         if (node.Method.DeclaringType == typeof(Queryable))
         {
             switch (node.Method.Name)
@@ -80,7 +79,6 @@ internal class FtrackExpressionVisitor : ExpressionVisitor
             }
         }
 
-        // Visit the rest of the expression tree
         return base.VisitMethodCall(node);
     }
 }

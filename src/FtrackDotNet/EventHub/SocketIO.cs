@@ -25,18 +25,15 @@ public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
     private CancellationTokenSource _cancellationTokenSource = new();
 
     private bool _connected = false;
-    private bool _reconnecting = false;  // guard against multiple concurrent reconnect attempts
-    private bool _disposed = false;      // prevent usage after disposal
+    private bool _reconnecting = false;
+    private bool _disposed = false;
 
-    // Heartbeat interval. Matches the ~25s from simple_socketio.ts
     private readonly TimeSpan _heartbeatInterval = TimeSpan.FromSeconds(25);
 
-    // Reconnection delay. Matches the ~2s from simple_socketio.ts
     private readonly TimeSpan _reconnectDelay = TimeSpan.FromSeconds(2);
 
     private Timer? _heartbeatTimer;
 
-    // For reading from the socket
     private const int BufferSize = 4096;
 
     public event Action? OnConnect;
@@ -49,7 +46,7 @@ public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
     /// </summary>
     public async Task ConnectAsync()
     {
-        if (_disposed) return;  // Don't connect if already disposed
+        if (_disposed) return;
 
         try
         {
@@ -74,7 +71,6 @@ public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
     /// </summary>
     private async Task ReceiveLoop()
     {
-        // Use a small buffer for each frame, and a MemoryStream to accumulate
         var buffer = new byte[BufferSize];
         using var memoryStream = new MemoryStream();
 
@@ -89,20 +85,17 @@ public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
 
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    // The server closed the connection
                     Debug.WriteLine("Server closed the Event Hub connection.");
                     break;
                 }
                 else if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    // Accumulate the frame data
                     memoryStream.Write(buffer, 0, result.Count);
 
                     if (result.EndOfMessage)
                     {
-                        // We've got a full text message
                         var messageBytes = memoryStream.ToArray();
-                        memoryStream.SetLength(0);  // reset for the next message
+                        memoryStream.SetLength(0);
 
                         var message = Encoding.UTF8.GetString(messageBytes);
                         await HandleMessage(message);
@@ -110,18 +103,15 @@ public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
                 }
                 else
                 {
-                    // If it's binary or something else, ignore or handle as needed
                 }
             }
             catch (Exception ex)
             {
-                // Possibly an I/O error or cancellation
                 OnError?.Invoke(ex);
                 break;
             }
         }
 
-        // Exiting the loop means the socket is no longer open/valid
         _connected = false;
         OnDisconnect?.Invoke();
 
@@ -175,7 +165,6 @@ public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
         }
         else if (packetType == PACKET_TYPE_DISCONNECT)
         {
-            // Server closed the connection
             _connected = false;
             OnDisconnect?.Invoke();
             _ = ScheduleReconnectAsync();
@@ -206,7 +195,7 @@ public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
     /// </summary>
     private void StartHeartbeat()
     {
-        StopHeartbeat(); // stop any existing timer first
+        StopHeartbeat();
 
         _heartbeatTimer = new Timer(_ =>
         {
@@ -331,10 +320,8 @@ public class SocketIO(Uri url) : IAsyncDisposable, ISocketIO
         
         _disposed = true;
 
-        // Stop everything gracefully
         await CloseAsync();
 
-        // Clean up final references
         await CastAndDisposeAsync(_heartbeatTimer);
         _heartbeatTimer = null;
 

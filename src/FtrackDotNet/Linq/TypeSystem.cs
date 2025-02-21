@@ -42,19 +42,15 @@ internal static class TypeSystem
 
     private static Type? FindIEnumerable(Type? sequenceType)
     {
-        // Special case for string, which implements IEnumerable<char>, but typically 
-        // we don't treat string as a sequence in this context.
         if (sequenceType == null || sequenceType == typeof(string))
             return null;
 
-        // If seqType is an array, return IEnumerable<T> for its element type
         if (sequenceType.IsArray)
         {
             return typeof(IEnumerable<>).MakeGenericType(
                 sequenceType.GetElementType() ?? throw new InvalidOperationException());
         }
 
-        // If seqType is a generic type, check if it implements IEnumerable<T>
         if (sequenceType.IsGenericType)
         {
             foreach (var genericArgumentType in sequenceType.GetGenericArguments())
@@ -67,7 +63,6 @@ internal static class TypeSystem
             }
         }
 
-        // Check all the interfaces implemented by seqType
         var interfaceTypes = sequenceType.GetInterfaces();
         foreach (var interfaceType in interfaceTypes)
         {
@@ -76,7 +71,6 @@ internal static class TypeSystem
                 return enumerableType;
         }
 
-        // Finally, check the base type (recursively), unless it's object
         var baseType = sequenceType.BaseType;
         if (baseType != null && baseType != typeof(object))
         {

@@ -39,18 +39,21 @@ public class FtrackQueryable<T> : IFtrackQueryable<T>
 
     public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
-        // When iterating asynchronously, we'll let the provider handle
-        // how we fetch data from Ftrack and return an enumerator
-        var results = await _provider.ExecuteAsync<T>(_expression, cancellationToken);
-        throw new NotImplementedException();
-        yield return default;
+        var results = await _provider.ExecuteAsync<IEnumerable<T>>(_expression, cancellationToken);
+        foreach (var result in results)
+        {
+            yield return result;
+        }
     }
 
     public IEnumerator<T> GetEnumerator()
     {
-        // For synchronous enumeration, we can do a blocking call
-        throw new NotImplementedException("Synchronous enumeration of Ftrack entities is not supported.");
+        throw new InvalidOperationException(
+            "Synchronous iteration of Ftrack results is not supported, as it is discouraged.");
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 }
