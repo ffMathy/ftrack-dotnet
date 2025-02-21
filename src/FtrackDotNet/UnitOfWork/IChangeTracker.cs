@@ -1,6 +1,4 @@
 using System.Text.Json;
-using FtrackDotNet.Models;
-using Type = System.Type;
 
 namespace FtrackDotNet.UnitOfWork;
 

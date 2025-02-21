@@ -1,5 +1,4 @@
 using FtrackDotNet.Api;
-using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
 
 namespace FtrackDotNet.Sample;

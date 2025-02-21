@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using System.Text.Json;
 using FtrackDotNet.Api;
 using FtrackDotNet.Linq.Visitors;
-using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
 using Type = System.Type;
 

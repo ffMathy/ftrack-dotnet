@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json;
-using FtrackDotNet;
 using FtrackDotNet.Api;
 using FtrackDotNet.Api.Responses;
 using FtrackDotNet.Extensions;

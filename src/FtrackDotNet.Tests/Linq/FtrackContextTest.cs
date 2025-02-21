@@ -1,6 +1,5 @@
 using FtrackDotNet.Extensions;
 using FtrackDotNet.Models;
-using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

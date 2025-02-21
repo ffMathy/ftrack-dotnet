@@ -1,5 +1,3 @@
-using FtrackDotNet.Models;
-
 namespace FtrackDotNet.Linq;
 
 using System;

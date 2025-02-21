@@ -1,7 +1,6 @@
 using FtrackDotNet.Api;
 using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
-using Type = FtrackDotNet.Models.Type;
 
 namespace FtrackDotNet.Tests;
 

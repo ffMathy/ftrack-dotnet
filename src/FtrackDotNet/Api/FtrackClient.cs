@@ -1,17 +1,12 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using FtrackDotNet.Api.Models;
 using FtrackDotNet.Api.Requests;
 using FtrackDotNet.Api.Requests.Operations;
 using FtrackDotNet.Api.Responses;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
-using System.Net.Http; // P50d2
-using System.Threading; // P50d2
-using System.Threading.Tasks; // P50d2
 
 namespace FtrackDotNet.Api;
 

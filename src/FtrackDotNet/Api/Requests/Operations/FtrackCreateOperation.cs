@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace FtrackDotNet.Api.Requests.Operations;
 
 public class FtrackCreateOperation : FtrackOperation
