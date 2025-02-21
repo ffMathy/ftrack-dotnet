@@ -146,7 +146,7 @@ internal class ChangeTracker : IChangeTracker
         var keysToRemove = new HashSet<int>();
         foreach (var keyValuePair in _trackedEntities)
         {
-            if (keyValuePair.Value.Entity.Reference.Target is not { } entity)
+            if (keyValuePair.Value.Entity.Reference.Target is not { } entity || keyValuePair.Value.Operation == TrackedEntityOperationType.Delete)
             {
                 keysToRemove.Add(keyValuePair.Key);
                 continue;

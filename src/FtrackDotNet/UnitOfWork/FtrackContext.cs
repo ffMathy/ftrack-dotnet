@@ -119,6 +119,11 @@ public partial class FtrackContext(
             var change = changes[i];
             var response = responses[i];
 
+            if (response.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
             change.Entity.PrimaryKeys = GetPrimaryKeysForEntity(response);
 
             var target = change.Entity.Reference.Target!;

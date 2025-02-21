@@ -24,6 +24,6 @@ public class FtrackDateJsonConverter : JsonConverter<DateTimeOffset>
 
     public static string ConvertDateTimeOffsetToString(DateTimeOffset value)
     {
-        return value.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss");
+        return value.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
     }
 }

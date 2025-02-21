@@ -83,7 +83,7 @@ public class FtrackExpressionVisitorTest
 
         // Assert
         var query = SanitizeMultilineQuery(
-            "select name from FtrackTask where (time < \"2024-01-01T00.00.00\")");
+            "select name from FtrackTask where (time < \"2024-01-01T00:00:00\")");
         _mockFtrackClient.Verify(
             client => client.QueryAsync(query, CancellationToken.None), 
             Times.Once);

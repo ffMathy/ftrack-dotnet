@@ -23,7 +23,7 @@ internal class FtrackQueryProvider(
         // Return a non-generic IQueryable
         var elementType = GetElementTypeFromExpression(expression);
         var queryableType = typeof(FtrackQueryable<>).MakeGenericType(elementType);
-        return (IQueryable) Activator.CreateInstance(queryableType, this, expression)!;
+        return (IQueryable)Activator.CreateInstance(queryableType, this, expression)!;
     }
 
     private static Type GetElementTypeFromExpression(Expression expression)
@@ -67,12 +67,12 @@ internal class FtrackQueryProvider(
                                                 jsonElements.ValueKind);
         }
 
-        if(typeof(TResult) is not { IsGenericType: true, GenericTypeArguments: [var genericType] })
+        if (typeof(TResult) is not { IsGenericType: true, GenericTypeArguments: [var genericType] })
         {
             throw new InvalidOperationException("Expected TResult to be a generic type.");
         }
 
-        var results = (IList) Activator.CreateInstance(
+        var results = (IList)Activator.CreateInstance(
             typeof(List<>).MakeGenericType(genericType),
             new object?[]
             {
@@ -80,21 +80,20 @@ internal class FtrackQueryProvider(
             })!;
         foreach (var jsonElement in jsonElements.EnumerateArray())
         {
-            if (SkipTracking)
-            {
-                continue;
-            }
-
             var realObject = jsonElement.Deserialize(genericType, FtrackContext.GetJsonSerializerOptions());
             if (realObject == null)
             {
                 throw new InvalidOperationException("Failed to deserialize object.");
             }
-            
-            changeTracker.TrackEntity(
-                jsonElement,
-                realObject,
-                TrackedEntityOperationType.Update);
+
+            if (!SkipTracking)
+            {
+                changeTracker.TrackEntity(
+                    jsonElement,
+                    realObject,
+                    TrackedEntityOperationType.Update);
+            }
+
             results.Add(realObject);
         }
 
