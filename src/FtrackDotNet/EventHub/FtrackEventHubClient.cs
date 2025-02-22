@@ -3,12 +3,16 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FtrackDotNet.Api;
+using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
+using Sprache;
 using Action = System.Action;
 using Task = System.Threading.Tasks.Task;
 
 namespace FtrackDotNet.EventHub;
+
+internal record Subscription(string Id, string Expression, Action<FtrackEvent> Callback);
 
 public class FtrackEventHubClient(
     IOptionsMonitor<FtrackOptions> options,
@@ -16,7 +20,7 @@ public class FtrackEventHubClient(
     IFtrackClient ftrackClient)
     : IAsyncDisposable, IFtrackEventHubClient
 {
-    private readonly IDictionary<string, string> _subscriptionIdsByExpression = new Dictionary<string, string>();
+    private readonly IDictionary<string, Subscription> _subscriptionsByExpression = new Dictionary<string, Subscription>();
 
     private ISocketIO? _socketIo;
 
@@ -27,8 +31,6 @@ public class FtrackEventHubClient(
     public event Action? OnDisconnect;
 
     public event Action<Exception>? OnError;
-
-    public event Action<FtrackEvent>? OnEventReceived;
 
     public Task PublishAsync(string topic, object data, string? target = null)
     {
@@ -61,20 +63,29 @@ public class FtrackEventHubClient(
         return _socketIo.EmitEventAsync(payloadJson);
     }
 
-    public Task SubscribeAsync(string expression, string? subscriberId = null)
+    public Task SubscribeAsync(string expression, Action<FtrackEvent> callback, string? subscriberId = null)
     {
         if (_socketIo == null)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
         
-        if(_subscriptionIdsByExpression.ContainsKey(expression))
+        if(_subscriptionsByExpression.ContainsKey(expression))
         {
             throw new InvalidOperationException("Already subscribed to expression: " + expression);
         }
 
+        var parsedExpression = FtrackEventHubExpressionParser.Expression.TryParse(expression);
+        if (!parsedExpression.WasSuccessful)
+        {
+            throw new InvalidOperationException("Invalid expression: " + expression);
+        }
+
         subscriberId ??= Guid.NewGuid().ToString();
-        _subscriptionIdsByExpression.Add(expression, subscriberId);
+        _subscriptionsByExpression.Add(expression, new Subscription(
+            subscriberId, 
+            expression, 
+            callback));
         
         Debug.WriteLine("Subscribing to expression: " + expression + " with subscriber ID " + subscriberId);
 
@@ -97,13 +108,13 @@ public class FtrackEventHubClient(
             throw new InvalidOperationException("Event hub not connected.");
         }
         
-        if(!_subscriptionIdsByExpression.ContainsKey(expression))
+        if(!_subscriptionsByExpression.ContainsKey(expression))
         {
             return Task.CompletedTask;
         }
 
-        var subscriberId = _subscriptionIdsByExpression[expression];
-        Debug.WriteLine("Unsubscribing from expression: " + expression + " with subscriber ID " + subscriberId);
+        var subscription = _subscriptionsByExpression[expression];
+        Debug.WriteLine("Unsubscribing from expression: " + expression + " with subscriber ID " + subscription);
         
         return PublishAsync(
             "ftrack.meta.unsubscribe",
@@ -111,7 +122,7 @@ public class FtrackEventHubClient(
             {
                 Subscriber = new
                 {
-                    Id = subscriberId
+                    Id = subscription.Id
                 },
             });
     }
@@ -148,10 +159,18 @@ public class FtrackEventHubClient(
 
     private void FireOnEvent(JsonElement payload)
     {
-        var result = JsonSerializer.Deserialize<FtrackEventEnvelope>(payload.ToString(), FtrackContext.GetJsonSerializerOptions());
+        var result = JsonSerializer.Deserialize<FtrackEventEnvelope>(
+            payload.ToString(), 
+            FtrackContext.GetJsonSerializerOptions())!;
+        var subscriptions = _subscriptionsByExpression.Values;
         foreach (var @event in result.Args)
         {
-            OnEventReceived?.Invoke(@event);
+            var parsedEventTargetExpression = FtrackEventHubExpressionParser.Expression.TryParse(@event.Target);
+            foreach(var subscription in subscriptions)
+            {
+                var parsedSubscriptionExpression = FtrackEventHubExpressionParser.Expression.TryParse(subscription.Expression);
+                throw new NotImplementedException("Not implemented yet!!!");
+            }
         }
     }
 
