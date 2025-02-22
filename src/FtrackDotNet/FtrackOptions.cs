@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FtrackDotNet;
 
 public class FtrackOptions
