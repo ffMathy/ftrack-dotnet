@@ -7,7 +7,6 @@ using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
 
 #pragma warning disable CA1050
-// ReSharper disable once CheckNamespace
 public static class FtrackServiceCollectionExtensions
 #pragma warning restore CA1050
 {

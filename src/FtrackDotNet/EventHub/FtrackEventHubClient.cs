@@ -12,7 +12,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace FtrackDotNet.EventHub;
 
-internal record Subscription(string Id, string Expression, Action<FtrackEvent> Callback);
+internal record Subscription(FtrackEventSource Source, string Expression, Action<FtrackEvent> Callback);
 
 public class FtrackEventHubClient(
     IOptionsMonitor<FtrackOptions> options,
@@ -23,8 +23,6 @@ public class FtrackEventHubClient(
     private readonly IDictionary<string, Subscription> _subscriptionsByExpression = new Dictionary<string, Subscription>();
 
     private ISocketIO? _socketIo;
-
-    public string Id { get; } = Guid.NewGuid().ToString();
 
     public event Action? OnConnect;
 
@@ -40,6 +38,8 @@ public class FtrackEventHubClient(
         }
 
         var jsonSerializerOptions = FtrackContext.GetJsonSerializerOptions(JsonIgnoreCondition.WhenWritingNull);
+
+        var sourceId = Guid.NewGuid().ToString();
         var payloadJson = JsonSerializer.Serialize(new FtrackEventEnvelope()
         {
             Name = "ftrack.event",
@@ -48,19 +48,24 @@ public class FtrackEventHubClient(
                 Topic = topic,
                 Target = target ?? string.Empty,
                 Data = JsonSerializer.SerializeToElement(data, jsonSerializerOptions),
-                Source = new FtrackEventSource()
-                {
-                    Id = Id,
-                    ApplicationId = options.CurrentValue.EventHubApplicationId ?? "FtrackDotNet",
-                    User = new FtrackEventSourceUser()
-                    {
-                        Username = options.CurrentValue.ApiUser
-                    },
-                }
+                Source = GetEventSource(sourceId)
             }]
         }, jsonSerializerOptions);
 
         return _socketIo.EmitEventAsync(payloadJson);
+    }
+
+    private FtrackEventSource GetEventSource(string sourceId)
+    {
+        return new FtrackEventSource()
+        {
+            Id = sourceId,
+            ApplicationId = options.CurrentValue.EventHubApplicationId ?? "FtrackDotNet",
+            User = new FtrackEventSourceUser()
+            {
+                Username = options.CurrentValue.ApiUser
+            },
+        };
     }
 
     public Task SubscribeAsync(string expression, Action<FtrackEvent> callback, string? subscriberId = null)
@@ -75,7 +80,7 @@ public class FtrackEventHubClient(
             throw new InvalidOperationException("Already subscribed to expression: " + expression);
         }
 
-        var parsedExpression = FtrackEventHubExpressionParser.Expression.TryParse(expression);
+        var parsedExpression = FtrackEventHubExpressionGrammar.Expression.TryParse(expression);
         if (!parsedExpression.WasSuccessful)
         {
             throw new InvalidOperationException("Invalid expression: " + expression);
@@ -83,7 +88,7 @@ public class FtrackEventHubClient(
 
         subscriberId ??= Guid.NewGuid().ToString();
         _subscriptionsByExpression.Add(expression, new Subscription(
-            subscriberId, 
+            GetEventSource(subscriberId), 
             expression, 
             callback));
         
@@ -122,7 +127,7 @@ public class FtrackEventHubClient(
             {
                 Subscriber = new
                 {
-                    Id = subscription.Id
+                    Id = subscription.Source.Id
                 },
             });
     }
@@ -159,17 +164,29 @@ public class FtrackEventHubClient(
 
     private void FireOnEvent(JsonElement payload)
     {
-        var result = JsonSerializer.Deserialize<FtrackEventEnvelope>(
-            payload.ToString(), 
-            FtrackContext.GetJsonSerializerOptions())!;
+        var result = payload.GetProperty("args");
         var subscriptions = _subscriptionsByExpression.Values;
-        foreach (var @event in result.Args)
+        foreach (var eventElement in result.EnumerateArray())
         {
-            var parsedEventTargetExpression = FtrackEventHubExpressionParser.Expression.TryParse(@event.Target);
+            var parsedEvent = eventElement.Deserialize<FtrackEvent>(FtrackContext.GetJsonSerializerOptions())!;
+            var parsedEventTargetExpression = !string.IsNullOrWhiteSpace(parsedEvent.Target) ?
+                FtrackEventHubExpressionGrammar.Expression.Parse(parsedEvent.Target) :
+                null;
             foreach(var subscription in subscriptions)
             {
-                var parsedSubscriptionExpression = FtrackEventHubExpressionParser.Expression.TryParse(subscription.Expression);
-                throw new NotImplementedException("Not implemented yet!!!");
+                var subscriptionElement = JsonSerializer.SerializeToElement(subscription.Source, FtrackContext.GetJsonSerializerOptions());
+                if (parsedEventTargetExpression != null && !parsedEventTargetExpression.Evaluate(subscriptionElement))
+                {
+                    continue;
+                }
+                
+                var parsedSubscriptionExpression = FtrackEventHubExpressionGrammar.Expression.Parse(subscription.Expression);
+                if (!parsedSubscriptionExpression.Evaluate(eventElement))
+                {
+                    continue;
+                }
+
+                subscription.Callback(parsedEvent);
             }
         }
     }
