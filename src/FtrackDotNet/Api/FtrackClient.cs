@@ -7,6 +7,7 @@ using FtrackDotNet.Api.Requests.Operations;
 using FtrackDotNet.Api.Responses;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 
 namespace FtrackDotNet.Api;
 
@@ -18,12 +19,19 @@ internal class FtrackClient : IFtrackClient
         IOptionsMonitor<FtrackOptions> options,
         IHttpClientFactory httpClientFactory)
     {
+        ValidateOptions(options.CurrentValue);
         _http = httpClientFactory.CreateClient();
         _http.BaseAddress = new Uri(options.CurrentValue.ServerUrl, UriKind.Absolute);
         _http.Timeout = options.CurrentValue.RequestTimeout ?? Timeout.InfiniteTimeSpan;
 
         _http.DefaultRequestHeaders.Add("Ftrack-User", options.CurrentValue.ApiUser);
         _http.DefaultRequestHeaders.Add("Ftrack-Api-Key", options.CurrentValue.ApiKey);
+    }
+
+    private void ValidateOptions(FtrackOptions options)
+    {
+        var validationContext = new ValidationContext(options);
+        Validator.ValidateObject(options, validationContext, validateAllProperties: true);
     }
 
     public async Task<JsonElement[]> QueryAsync(
