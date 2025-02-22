@@ -47,25 +47,12 @@ public class FtrackEventHubClient(
             {
                 Topic = topic,
                 Target = target ?? string.Empty,
-                Data = JsonSerializer.SerializeToElement(data, jsonSerializerOptions),
+                Data = JsonSerializer.SerializeToElement(data),
                 Source = GetEventSource(sourceId)
             }]
         }, jsonSerializerOptions);
 
         return _socketIo.EmitEventAsync(payloadJson);
-    }
-
-    private FtrackEventSource GetEventSource(string sourceId)
-    {
-        return new FtrackEventSource()
-        {
-            Id = sourceId,
-            ApplicationId = options.CurrentValue.EventHubApplicationId ?? "FtrackDotNet",
-            User = new FtrackEventSourceUser()
-            {
-                Username = options.CurrentValue.ApiUser
-            },
-        };
     }
 
     public Task SubscribeAsync(string expression, Action<FtrackEvent> callback, string? subscriberId = null)
@@ -98,12 +85,25 @@ public class FtrackEventHubClient(
             "ftrack.meta.subscribe",
             new
             {
-                Subscriber = new
+                subscriber = new
                 {
-                    Id = subscriberId
+                    id = subscriberId
                 },
-                Subscription = expression
+                subscription = expression
             });
+    }
+    
+    private FtrackEventSource GetEventSource(string sourceId)
+    {
+        return new FtrackEventSource()
+        {
+            Id = sourceId,
+            ApplicationId = options.CurrentValue.EventHubApplicationId ?? "FtrackDotNet",
+            User = new FtrackEventSourceUser()
+            {
+                Username = options.CurrentValue.ApiUser
+            },
+        };
     }
 
     public Task UnsubscribeAsync(string expression)
@@ -125,9 +125,9 @@ public class FtrackEventHubClient(
             "ftrack.meta.unsubscribe",
             new
             {
-                Subscriber = new
+                subscriber = new
                 {
-                    Id = subscription.Source.Id
+                    id = subscription.Source.Id
                 },
             });
     }
