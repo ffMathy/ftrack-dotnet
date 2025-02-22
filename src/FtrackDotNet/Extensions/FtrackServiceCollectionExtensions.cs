@@ -5,6 +5,7 @@ using FtrackDotNet.EventHub;
 using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 
 #pragma warning disable CA1050
 public static class FtrackServiceCollectionExtensions
@@ -33,6 +34,7 @@ public static class FtrackServiceCollectionExtensions
         services.AddHttpClient<FtrackClient>((serviceProvider, client) =>
         {
             var options = serviceProvider.GetRequiredService<IOptionsMonitor<FtrackOptions>>().CurrentValue;
+            ValidateOptions(options);
             client.BaseAddress = new Uri(options.ServerUrl, UriKind.Absolute);
             client.Timeout = options.RequestTimeout ?? Timeout.InfiniteTimeSpan;
             client.DefaultRequestHeaders.Add("Ftrack-User", options.ApiUser);
@@ -56,5 +58,11 @@ public static class FtrackServiceCollectionExtensions
         }
         
         return services;
+    }
+
+    private static void ValidateOptions(FtrackOptions options)
+    {
+        var validationContext = new ValidationContext(options);
+        Validator.ValidateObject(options, validationContext, validateAllProperties: true);
     }
 }
