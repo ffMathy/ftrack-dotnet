@@ -69,7 +69,7 @@ public class FtrackEventHubClient(
                 Source = new FtrackEventSource()
                 {
                     Id = Id,
-                    ApplicationId = "FtrackDotNet",
+                    ApplicationId = options.CurrentValue.EventHubApplicationId ?? "FtrackDotNet",
                     User = new FtrackEventSourceUser()
                     {
                         Username = options.CurrentValue.ApiUser

@@ -23,7 +23,7 @@ public class FtrackEvent
 
 public class FtrackEventSource
 {
-    public string ClientToken { get; set; } = null!;
+    public string? ClientToken { get; set; }
     public string? ApplicationId { get; set; }
     public FtrackEventSourceUser? User { get; set; }
     public string? Id { get; set; }

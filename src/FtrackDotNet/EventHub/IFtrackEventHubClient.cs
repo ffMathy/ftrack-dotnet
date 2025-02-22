@@ -52,3 +52,9 @@ public interface IFtrackEventHubClient : IAsyncDisposable
     /// </summary>
     Task DisconnectAsync();
 }
+
+public class SubscriberIdentity
+{
+    public string? SubscriberId { get; init; }
+    public string? ApplicationId { get; init; }
+}
