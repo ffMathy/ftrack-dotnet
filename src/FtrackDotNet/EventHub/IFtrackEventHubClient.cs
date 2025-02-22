@@ -18,27 +18,22 @@ public interface IFtrackEventHubClient : IAsyncDisposable
     event Action? OnDisconnect;
 
     /// <summary>
-    /// Fired when *any* event is received from the server.
-    /// </summary>
-    event Action<FtrackEvent>? OnEventReceived;
-
-    /// <summary>
     /// Corresponds to `publish(event)` in the JS code.
     /// Calls socket.emit('publish', event).
     /// </summary>
-    Task PublishAsync(FtrackEvent @event);
+    Task PublishAsync(string topic, object data, string? target = null);
 
     /// <summary>
     /// Corresponds to `subscribe(topic)` in the JS code.
     /// Calls socket.emit('subscribe', topic).
     /// </summary>
-    Task SubscribeAsync(string expression);
+    Task SubscribeAsync(string expression, Action<FtrackEvent> callback, string? subscriberId = null);
 
     /// <summary>
     /// Corresponds to `unsubscribe(topic)` in the JS code.
     /// Calls socket.emit('unsubscribe', topic).
     /// </summary>
-    Task UnsubscribeAsync(string topic);
+    Task UnsubscribeAsync(string expression);
 
     /// <summary>
     /// Corresponds to `connect()` in JS. 
@@ -51,4 +46,10 @@ public interface IFtrackEventHubClient : IAsyncDisposable
     /// Closes the underlying socket.
     /// </summary>
     Task DisconnectAsync();
+}
+
+public class SubscriberIdentity
+{
+    public string? SubscriberId { get; init; }
+    public string? ApplicationId { get; init; }
 }
