@@ -6,4 +6,5 @@ public class FtrackOptions
     public string ApiKey { get; set; }
     public string ApiUser { get; set; }
     public TimeSpan? RequestTimeout { get; set; }
+    public string? EventHubApplicationId { get; set; }
 }

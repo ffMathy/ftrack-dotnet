@@ -22,6 +22,7 @@
       <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.2" />
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2" />
       <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.2" />
+      <PackageReference Include="Sprache" Version="3.0.0-develop-00049" />
     </ItemGroup>
 
 </Project>

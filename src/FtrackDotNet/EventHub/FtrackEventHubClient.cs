@@ -3,150 +3,135 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FtrackDotNet.Api;
+using FtrackDotNet.Models;
 using FtrackDotNet.UnitOfWork;
 using Microsoft.Extensions.Options;
+using Sprache;
 using Action = System.Action;
 using Task = System.Threading.Tasks.Task;
 
 namespace FtrackDotNet.EventHub;
 
-/// <summary>
-/// Mimics the JavaScript event_hub.ts class using our SocketIO class.
-/// </summary>
+internal record Subscription(FtrackEventSource Source, string Expression, Action<FtrackEvent> Callback);
+
 public class FtrackEventHubClient(
     IOptionsMonitor<FtrackOptions> options,
     ISocketIOFactory socketIoFactory,
     IFtrackClient ftrackClient)
     : IAsyncDisposable, IFtrackEventHubClient
 {
-    private readonly IDictionary<string, string> _subscriptionIdsByTopic = new Dictionary<string, string>();
+    private readonly IDictionary<string, Subscription> _subscriptionsByExpression = new Dictionary<string, Subscription>();
 
     private ISocketIO? _socketIo;
 
-    /// <summary>
-    /// Unique ID for this EventHub instance (guid).
-    /// </summary>
-    public string Id { get; } = Guid.NewGuid().ToString();
-
-    /// <summary>
-    /// Fired when the underlying socket connects.
-    /// </summary>
     public event Action? OnConnect;
 
-    /// <summary>
-    /// Fired when the underlying socket disconnects.
-    /// </summary>
     public event Action? OnDisconnect;
 
-    /// <summary>
-    /// Fired when the underlying socket encounters an error.
-    /// </summary>
     public event Action<Exception>? OnError;
 
-    /// <summary>
-    /// Fired when *any* event is received from the server.
-    /// </summary>
-    public event Action<FtrackEvent>? OnEventReceived;
-
-    /// <summary>
-    /// Corresponds to `publish(event)` in the JS code.
-    /// Calls socket.emit('publish', event).
-    /// </summary>
-    public Task PublishAsync(FtrackEvent @event)
+    public Task PublishAsync(string topic, object data, string? target = null)
     {
         if (_socketIo == null)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
 
-        @event.Source ??= new FtrackEventSource();
-        @event.Source.Id ??= Id;
-        @event.Source.ApplicationId ??= "FtrackDotNet";
-        @event.Source.User ??= new FtrackEventSourceUser();
-        @event.Source.User.Username ??= options.CurrentValue.ApiUser;
-        
+        var jsonSerializerOptions = FtrackContext.GetJsonSerializerOptions(JsonIgnoreCondition.WhenWritingNull);
+
+        var sourceId = Guid.NewGuid().ToString();
         var payloadJson = JsonSerializer.Serialize(new FtrackEventEnvelope()
         {
             Name = "ftrack.event",
-            Args = [@event]
-        }, FtrackContext.GetJsonSerializerOptions(JsonIgnoreCondition.WhenWritingNull));
+            Args = [new FtrackEvent()
+            {
+                Topic = topic,
+                Target = target ?? string.Empty,
+                Data = JsonSerializer.SerializeToElement(data),
+                Source = GetEventSource(sourceId)
+            }]
+        }, jsonSerializerOptions);
 
         return _socketIo.EmitEventAsync(payloadJson);
     }
 
-    /// <summary>
-    /// Corresponds to `subscribe(topic)` in the JS code.
-    /// Calls socket.emit('subscribe', topic).
-    /// </summary>
-    public Task SubscribeAsync(string expression)
+    public Task SubscribeAsync(string expression, Action<FtrackEvent> callback, string? subscriberId = null)
     {
         if (_socketIo == null)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
         
-        if(_subscriptionIdsByTopic.ContainsKey(expression))
+        if(_subscriptionsByExpression.ContainsKey(expression))
         {
-            throw new InvalidOperationException("Already subscribed to topic: " + expression);
+            throw new InvalidOperationException("Already subscribed to expression: " + expression);
         }
 
-        var subscriberId = Guid.NewGuid().ToString();
-        _subscriptionIdsByTopic.Add(expression, subscriberId);
-        
-        Debug.WriteLine("Subscribing to topic: " + expression + " with subscriber ID " + subscriberId);
-
-        return PublishAsync(new FtrackEvent()
+        var parsedExpression = FtrackEventHubExpressionGrammar.Expression.TryParse(expression);
+        if (!parsedExpression.WasSuccessful)
         {
-            Topic = "ftrack.meta.subscribe",
-            Data = new
+            throw new InvalidOperationException("Invalid expression: " + expression);
+        }
+
+        subscriberId ??= Guid.NewGuid().ToString();
+        _subscriptionsByExpression.Add(expression, new Subscription(
+            GetEventSource(subscriberId), 
+            expression, 
+            callback));
+        
+        Debug.WriteLine("Subscribing to expression: " + expression + " with subscriber ID " + subscriberId);
+
+        return PublishAsync(
+            "ftrack.meta.subscribe",
+            new
             {
                 subscriber = new
                 {
                     id = subscriberId
                 },
-                subscription = $"topic={expression}",
+                subscription = expression
+            });
+    }
+    
+    private FtrackEventSource GetEventSource(string sourceId)
+    {
+        return new FtrackEventSource()
+        {
+            Id = sourceId,
+            ApplicationId = options.CurrentValue.EventHubApplicationId ?? "FtrackDotNet",
+            User = new FtrackEventSourceUser()
+            {
+                Username = options.CurrentValue.ApiUser
             },
-            Target = string.Empty
-        });
+        };
     }
 
-    /// <summary>
-    /// Corresponds to `unsubscribe(topic)` in the JS code.
-    /// Calls socket.emit('unsubscribe', topic).
-    /// </summary>
-    public Task UnsubscribeAsync(string topic)
+    public Task UnsubscribeAsync(string expression)
     {
         if (_socketIo == null)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
         
-        if(!_subscriptionIdsByTopic.ContainsKey(topic))
+        if(!_subscriptionsByExpression.ContainsKey(expression))
         {
             return Task.CompletedTask;
         }
 
-        var subscriberId = _subscriptionIdsByTopic[topic];
-        Debug.WriteLine("Unsubscribing from topic: " + topic + " with subscriber ID " + subscriberId);
+        var subscription = _subscriptionsByExpression[expression];
+        Debug.WriteLine("Unsubscribing from expression: " + expression + " with subscriber ID " + subscription);
         
-        return PublishAsync(new FtrackEvent()
-        {
-            Topic = "ftrack.meta.subscribe",
-            Data = new
+        return PublishAsync(
+            "ftrack.meta.unsubscribe",
+            new
             {
                 subscriber = new
                 {
-                    id = subscriberId
+                    id = subscription.Source.Id
                 },
-            },
-            Target = string.Empty
-        });
+            });
     }
-
-    /// <summary>
-    /// Corresponds to `connect()` in JS. 
-    /// Simply calls the underlying socket's ConnectAsync.
-    /// </summary>
+    
     public async Task ConnectAsync()
     {
         var sessionId = await GetSessionIdAsync();
@@ -179,10 +164,30 @@ public class FtrackEventHubClient(
 
     private void FireOnEvent(JsonElement payload)
     {
-        var result = JsonSerializer.Deserialize<FtrackEventEnvelope>(payload.ToString(), FtrackContext.GetJsonSerializerOptions());
-        foreach (var @event in result.Args)
+        var result = payload.GetProperty("args");
+        var subscriptions = _subscriptionsByExpression.Values;
+        foreach (var eventElement in result.EnumerateArray())
         {
-            OnEventReceived?.Invoke(@event);
+            var parsedEvent = eventElement.Deserialize<FtrackEvent>(FtrackContext.GetJsonSerializerOptions())!;
+            var parsedEventTargetExpression = !string.IsNullOrWhiteSpace(parsedEvent.Target) ?
+                FtrackEventHubExpressionGrammar.Expression.Parse(parsedEvent.Target) :
+                null;
+            foreach(var subscription in subscriptions)
+            {
+                var subscriptionElement = JsonSerializer.SerializeToElement(subscription.Source, FtrackContext.GetJsonSerializerOptions());
+                if (parsedEventTargetExpression != null && !parsedEventTargetExpression.Evaluate(subscriptionElement))
+                {
+                    continue;
+                }
+                
+                var parsedSubscriptionExpression = FtrackEventHubExpressionGrammar.Expression.Parse(subscription.Expression);
+                if (!parsedSubscriptionExpression.Evaluate(eventElement))
+                {
+                    continue;
+                }
+
+                subscription.Callback(parsedEvent);
+            }
         }
     }
 
@@ -210,10 +215,6 @@ public class FtrackEventHubClient(
         return sessionId;
     }
 
-    /// <summary>
-    /// Corresponds to `disconnect()` in JS.
-    /// Closes the underlying socket.
-    /// </summary>
     public async Task DisconnectAsync()
     {
         if (_socketIo == null)
@@ -232,9 +233,6 @@ public class FtrackEventHubClient(
         _socketIo = null;
     }
 
-    /// <summary>
-    /// Dispose resources in an async-friendly manner.
-    /// </summary>
     public async ValueTask DisposeAsync()
     {
         await DisconnectAsync();

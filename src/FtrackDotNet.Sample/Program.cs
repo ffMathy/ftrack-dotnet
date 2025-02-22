@@ -1,4 +1,5 @@
 ﻿using FtrackDotNet.EventHub;
+using FtrackDotNet.Extensions;
 using FtrackDotNet.Sample;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +10,7 @@ hostBuilder.ConfigureAppConfiguration(x => x
     .AddUserSecrets<Program>());
 hostBuilder.ConfigureServices(services =>
     services.AddFtrack<CustomFtrackContext>());
-        
+
 using var host = hostBuilder.Build();
 await using var scope = host.Services.CreateAsyncScope();
 
@@ -18,31 +19,42 @@ var hub = scope.ServiceProvider.GetRequiredService<IFtrackEventHubClient>();
 hub.OnConnect += () => Console.WriteLine("Hub connected!");
 hub.OnDisconnect += () => Console.WriteLine("Hub disconnected!");
 
-// Fired on ANY incoming event
-hub.OnEventReceived += evt =>
-{
-    Console.WriteLine($"[EventReceived] Topic={evt.Topic}, Data={evt.Data}");
-};
-
 hub.OnError += ex => Console.WriteLine($"[Error] {ex.Message}");
 
 await hub.ConnectAsync();
 
-await hub.SubscribeAsync("my.custom.topic");
-await hub.SubscribeAsync("ftrack.update");
+await hub.SubscribeAsync(
+    "topic=my.custom.topic", 
+    evt =>
+    {
+        Console.WriteLine($"[my.custom.topic]: {evt.Data}");
+    },
+    "my-custom-subscriber-id");
 
-// Publish an event
-await hub.PublishAsync(new FtrackEvent
-{
-    Topic = "my.custom.topic",
-    Data = "Hello from .NET!"
-});
+await hub.SubscribeAsync(
+    "topic=ftrack.update",
+    evt =>
+    {
+        Console.WriteLine($"[ftrack.update]: {evt.Data}");
+    });
+
+await hub.PublishAsync(
+    "my.custom.topic",
+    "Hello from .NET!",
+    "id=my-custom-subscriber-id"
+);
+
+Console.WriteLine("Press ENTER to update a project's name...");
+Console.ReadLine();
 
 var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
+
+var firstProject = await ftrackContext.Projects.FirstOrDefaultAsync();
+firstProject.Name = Guid.NewGuid().ToString();
+await ftrackContext.SaveChangesAsync();
 
 Console.WriteLine("Press ENTER to quit...");
 Console.ReadLine();
 
-// Unsubscribe & close
 await hub.UnsubscribeAsync("my.custom.topic");
-await hub.DisconnectAsync(); // Or just let DisposeAsync() handle it
+await hub.DisconnectAsync();
