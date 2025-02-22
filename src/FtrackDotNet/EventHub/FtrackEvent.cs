@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace FtrackDotNet.EventHub;
 
 internal class FtrackEventEnvelope
@@ -12,7 +14,7 @@ internal class FtrackEventEnvelope
 public class FtrackEvent
 {
     public string? Topic { get; set; }
-    public object? Data { get; set; }
+    public JsonElement? Data { get; set; }
     public string Target { get; set; } = string.Empty;
     public string? InReplyToEvent { get; set; }
     public string? Id { get; set; } = Guid.NewGuid().ToString();

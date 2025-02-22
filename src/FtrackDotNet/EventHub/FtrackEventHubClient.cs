@@ -52,24 +52,31 @@ public class FtrackEventHubClient(
     /// Corresponds to `publish(event)` in the JS code.
     /// Calls socket.emit('publish', event).
     /// </summary>
-    public Task PublishAsync(FtrackEvent @event)
+    public Task PublishAsync(string topic, object data)
     {
         if (_socketIo == null)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
 
-        @event.Source ??= new FtrackEventSource();
-        @event.Source.Id ??= Id;
-        @event.Source.ApplicationId ??= "FtrackDotNet";
-        @event.Source.User ??= new FtrackEventSourceUser();
-        @event.Source.User.Username ??= options.CurrentValue.ApiUser;
-        
+        var jsonSerializerOptions = FtrackContext.GetJsonSerializerOptions(JsonIgnoreCondition.WhenWritingNull);
         var payloadJson = JsonSerializer.Serialize(new FtrackEventEnvelope()
         {
             Name = "ftrack.event",
-            Args = [@event]
-        }, FtrackContext.GetJsonSerializerOptions(JsonIgnoreCondition.WhenWritingNull));
+            Args = [new FtrackEvent()
+            {
+                Data = JsonSerializer.SerializeToElement(data, jsonSerializerOptions),
+                Source = new FtrackEventSource()
+                {
+                    Id = Id,
+                    ApplicationId = "FtrackDotNet",
+                    User = new FtrackEventSourceUser()
+                    {
+                        Username = options.CurrentValue.ApiUser
+                    }
+                }
+            }]
+        }, jsonSerializerOptions);
 
         return _socketIo.EmitEventAsync(payloadJson);
     }
@@ -95,19 +102,16 @@ public class FtrackEventHubClient(
         
         Debug.WriteLine("Subscribing to topic: " + expression + " with subscriber ID " + subscriberId);
 
-        return PublishAsync(new FtrackEvent()
-        {
-            Topic = "ftrack.meta.subscribe",
-            Data = new
+        return PublishAsync(
+            "ftrack.meta.subscribe",
+            new
             {
-                subscriber = new
+                Subscriber = new
                 {
-                    id = subscriberId
+                    Id = subscriberId
                 },
-                subscription = $"topic={expression}",
-            },
-            Target = string.Empty
-        });
+                Subscription = $"topic={expression}",
+            });
     }
 
     /// <summary>
@@ -129,18 +133,15 @@ public class FtrackEventHubClient(
         var subscriberId = _subscriptionIdsByTopic[topic];
         Debug.WriteLine("Unsubscribing from topic: " + topic + " with subscriber ID " + subscriberId);
         
-        return PublishAsync(new FtrackEvent()
-        {
-            Topic = "ftrack.meta.subscribe",
-            Data = new
+        return PublishAsync(
+            "ftrack.meta.subscribe",
+            new
             {
-                subscriber = new
+                Subscriber = new
                 {
-                    id = subscriberId
+                    Id = subscriberId
                 },
-            },
-            Target = string.Empty
-        });
+            });
     }
 
     /// <summary>
