@@ -1,4 +1,5 @@
 ﻿using FtrackDotNet.EventHub;
+using FtrackDotNet.Extensions;
 using FtrackDotNet.Sample;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,23 +19,32 @@ var hub = scope.ServiceProvider.GetRequiredService<IFtrackEventHubClient>();
 hub.OnConnect += () => Console.WriteLine("Hub connected!");
 hub.OnDisconnect += () => Console.WriteLine("Hub disconnected!");
 
-// Fired on ANY incoming event
-hub.OnEventReceived += evt => { Console.WriteLine($"[EventReceived] Topic={evt.Topic}, Data={evt.Data}"); };
+hub.OnEventReceived += evt =>
+{
+    Console.WriteLine($"[EventReceived] Topic={evt.Topic}, Data={evt.Data}");
+};
 
 hub.OnError += ex => Console.WriteLine($"[Error] {ex.Message}");
 
 await hub.ConnectAsync();
 
-await hub.SubscribeAsync("my.custom.topic");
-await hub.SubscribeAsync("ftrack.update");
+// Subscribe to two events.
+await hub.SubscribeAsync("topic=my.custom.topic", "my-custom-subscriber-id");
+await hub.SubscribeAsync("topic=ftrack.update");
 
 // Publish an event
 await hub.PublishAsync(
     "my.custom.topic",
-    "Hello from .NET!"
+    "Hello from .NET!",
+    "id=my-custom-subscriber-id"
 );
 
 var ftrackContext = scope.ServiceProvider.GetRequiredService<CustomFtrackContext>();
+
+// Update the name of a project
+var firstProject = await ftrackContext.Projects.FirstOrDefaultAsync();
+firstProject.Name = Guid.NewGuid().ToString();
+await ftrackContext.SaveChangesAsync();
 
 Console.WriteLine("Press ENTER to quit...");
 Console.ReadLine();

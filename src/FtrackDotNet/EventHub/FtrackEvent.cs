@@ -14,8 +14,8 @@ internal class FtrackEventEnvelope
 public class FtrackEvent
 {
     public string? Topic { get; set; }
-    public JsonElement? Data { get; set; }
-    public string Target { get; set; } = string.Empty;
+    public JsonElement Data { get; set; }
+    public string? Target { get; set; }
     public string? InReplyToEvent { get; set; }
     public string? Id { get; set; } = Guid.NewGuid().ToString();
     public FtrackEventSource? Source { get; set; }

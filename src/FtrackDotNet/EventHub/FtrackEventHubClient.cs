@@ -10,49 +10,27 @@ using Task = System.Threading.Tasks.Task;
 
 namespace FtrackDotNet.EventHub;
 
-/// <summary>
-/// Mimics the JavaScript event_hub.ts class using our SocketIO class.
-/// </summary>
 public class FtrackEventHubClient(
     IOptionsMonitor<FtrackOptions> options,
     ISocketIOFactory socketIoFactory,
     IFtrackClient ftrackClient)
     : IAsyncDisposable, IFtrackEventHubClient
 {
-    private readonly IDictionary<string, string> _subscriptionIdsByTopic = new Dictionary<string, string>();
+    private readonly IDictionary<string, string> _subscriptionIdsByExpression = new Dictionary<string, string>();
 
     private ISocketIO? _socketIo;
 
-    /// <summary>
-    /// Unique ID for this EventHub instance (guid).
-    /// </summary>
     public string Id { get; } = Guid.NewGuid().ToString();
 
-    /// <summary>
-    /// Fired when the underlying socket connects.
-    /// </summary>
     public event Action? OnConnect;
 
-    /// <summary>
-    /// Fired when the underlying socket disconnects.
-    /// </summary>
     public event Action? OnDisconnect;
 
-    /// <summary>
-    /// Fired when the underlying socket encounters an error.
-    /// </summary>
     public event Action<Exception>? OnError;
 
-    /// <summary>
-    /// Fired when *any* event is received from the server.
-    /// </summary>
     public event Action<FtrackEvent>? OnEventReceived;
 
-    /// <summary>
-    /// Corresponds to `publish(event)` in the JS code.
-    /// Calls socket.emit('publish', event).
-    /// </summary>
-    public Task PublishAsync(string topic, object data)
+    public Task PublishAsync(string topic, object data, string? target = null)
     {
         if (_socketIo == null)
         {
@@ -65,6 +43,8 @@ public class FtrackEventHubClient(
             Name = "ftrack.event",
             Args = [new FtrackEvent()
             {
+                Topic = topic,
+                Target = target ?? string.Empty,
                 Data = JsonSerializer.SerializeToElement(data, jsonSerializerOptions),
                 Source = new FtrackEventSource()
                 {
@@ -73,7 +53,7 @@ public class FtrackEventHubClient(
                     User = new FtrackEventSourceUser()
                     {
                         Username = options.CurrentValue.ApiUser
-                    }
+                    },
                 }
             }]
         }, jsonSerializerOptions);
@@ -81,26 +61,22 @@ public class FtrackEventHubClient(
         return _socketIo.EmitEventAsync(payloadJson);
     }
 
-    /// <summary>
-    /// Corresponds to `subscribe(topic)` in the JS code.
-    /// Calls socket.emit('subscribe', topic).
-    /// </summary>
-    public Task SubscribeAsync(string expression)
+    public Task SubscribeAsync(string expression, string? subscriberId = null)
     {
         if (_socketIo == null)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
         
-        if(_subscriptionIdsByTopic.ContainsKey(expression))
+        if(_subscriptionIdsByExpression.ContainsKey(expression))
         {
-            throw new InvalidOperationException("Already subscribed to topic: " + expression);
+            throw new InvalidOperationException("Already subscribed to expression: " + expression);
         }
 
-        var subscriberId = Guid.NewGuid().ToString();
-        _subscriptionIdsByTopic.Add(expression, subscriberId);
+        subscriberId ??= Guid.NewGuid().ToString();
+        _subscriptionIdsByExpression.Add(expression, subscriberId);
         
-        Debug.WriteLine("Subscribing to topic: " + expression + " with subscriber ID " + subscriberId);
+        Debug.WriteLine("Subscribing to expression: " + expression + " with subscriber ID " + subscriberId);
 
         return PublishAsync(
             "ftrack.meta.subscribe",
@@ -110,31 +86,27 @@ public class FtrackEventHubClient(
                 {
                     Id = subscriberId
                 },
-                Subscription = $"topic={expression}",
+                Subscription = expression
             });
     }
 
-    /// <summary>
-    /// Corresponds to `unsubscribe(topic)` in the JS code.
-    /// Calls socket.emit('unsubscribe', topic).
-    /// </summary>
-    public Task UnsubscribeAsync(string topic)
+    public Task UnsubscribeAsync(string expression)
     {
         if (_socketIo == null)
         {
             throw new InvalidOperationException("Event hub not connected.");
         }
         
-        if(!_subscriptionIdsByTopic.ContainsKey(topic))
+        if(!_subscriptionIdsByExpression.ContainsKey(expression))
         {
             return Task.CompletedTask;
         }
 
-        var subscriberId = _subscriptionIdsByTopic[topic];
-        Debug.WriteLine("Unsubscribing from topic: " + topic + " with subscriber ID " + subscriberId);
+        var subscriberId = _subscriptionIdsByExpression[expression];
+        Debug.WriteLine("Unsubscribing from expression: " + expression + " with subscriber ID " + subscriberId);
         
         return PublishAsync(
-            "ftrack.meta.subscribe",
+            "ftrack.meta.unsubscribe",
             new
             {
                 Subscriber = new
@@ -143,11 +115,7 @@ public class FtrackEventHubClient(
                 },
             });
     }
-
-    /// <summary>
-    /// Corresponds to `connect()` in JS. 
-    /// Simply calls the underlying socket's ConnectAsync.
-    /// </summary>
+    
     public async Task ConnectAsync()
     {
         var sessionId = await GetSessionIdAsync();
@@ -211,10 +179,6 @@ public class FtrackEventHubClient(
         return sessionId;
     }
 
-    /// <summary>
-    /// Corresponds to `disconnect()` in JS.
-    /// Closes the underlying socket.
-    /// </summary>
     public async Task DisconnectAsync()
     {
         if (_socketIo == null)
@@ -233,9 +197,6 @@ public class FtrackEventHubClient(
         _socketIo = null;
     }
 
-    /// <summary>
-    /// Dispose resources in an async-friendly manner.
-    /// </summary>
     public async ValueTask DisposeAsync()
     {
         await DisconnectAsync();
